@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99e4f35caee339b46b87d0deacea3eed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  verticalThreshold: 0.2
+  onlyRotateY: 1
 --- !u!114 &7670235096664360368
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,6 +116,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   preDelayMoveY: 0.4
   preDelayDuration: 0.2
+  preDelayEase: 5
   spikeMoveY: 1
   spikeMoveDuration: 0.15
+  spikeMoveEase: 5
   initialPositionY: -0.079

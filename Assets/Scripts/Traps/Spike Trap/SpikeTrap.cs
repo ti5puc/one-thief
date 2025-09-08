@@ -25,10 +25,11 @@ public class SpikeTrap : TrapBase
         Debug.Log("Player activated spike trap");
     }
 
-    protected override void OnHit()
+    protected override void OnHit(Collider player)
     {
         Debug.Log("Player hit by spike trap");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        var controller = player.GetComponent<MovePlaceholder>();
+        controller.Death();
     }
 
     protected override void OnReactivate(float totalDuration)

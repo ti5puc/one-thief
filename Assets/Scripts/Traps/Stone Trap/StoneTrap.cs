@@ -9,6 +9,9 @@ public class StoneTrap : TrapBase
     [SerializeField] private float stoneFallDuration = 0.5f;
     [SerializeField] private Ease stoneFallEase = Ease.InQuad;
 
+    [Space(10)]
+    [SerializeField] private bool useGravity;
+
     [Header("References")]
     [SerializeField] private GameObject stoneObject;
 
@@ -31,14 +34,27 @@ public class StoneTrap : TrapBase
             seq.AppendInterval(interval);
 
         seq.Append(stoneObject.transform.DOLocalMoveY(stoneFallFinalY, safeFallDuration).SetEase(stoneFallEase));
+        seq.onComplete += () =>
+        {
+            if (useGravity)
+            {
+                var rb = stoneObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.isKinematic = false;
+                    rb.useGravity = true;
+                }
+            }
+        };
 
         Debug.Log($"Player activated stone trap (fallDuration: {safeFallDuration}, interval: {interval})");
     }
 
-    protected override void OnHit()
+    protected override void OnHit(Collider player)
     {
         Debug.Log("Player hit by stone trap");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        var controller = player.GetComponent<MovePlaceholder>();
+        controller.Death();
     }
 
     protected override void OnReactivate(float totalDuration)

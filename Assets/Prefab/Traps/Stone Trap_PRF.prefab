@@ -223,6 +223,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTag: Player
   delayToHit: 0.7
+  keepHitTrigger: 0
+  hitTriggerActiveTime: 0.2
   canReactive: 1
   activatedDurationTime: 4
   actionTrigger: {fileID: 3433197011716834024}
@@ -230,6 +232,7 @@ MonoBehaviour:
   stoneFallFinalY: 1
   stoneFallDuration: 2
   stoneFallEase: 26
+  useGravity: 0
   stoneObject: {fileID: 7151533150305912486}
 --- !u!1 &6216770458344846463
 GameObject:
@@ -362,7 +365,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 2b16c86b075f9d64db0ddba6f2523415, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

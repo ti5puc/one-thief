@@ -90,6 +90,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTag: Player
   delayToHit: 1
+  keepHitTrigger: 1
+  hitTriggerActiveTime: 0.2
+  canReactive: 0
+  activatedDurationTime: 4
   actionTrigger: {fileID: 2846619121173167539}
   hitTrigger: {fileID: 7174577777837799394}
   spikeTrapPart: []

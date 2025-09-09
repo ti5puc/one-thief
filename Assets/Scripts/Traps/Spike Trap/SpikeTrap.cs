@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using NaughtyAttributes;
@@ -6,57 +7,36 @@ using UnityEngine.SceneManagement;
 
 public class SpikeTrap : TrapBase
 {
-    [Header("Settings")]
-    [SerializeField] private string playerTag = "Player";
-    [SerializeField] private float delayToHit = 0.7f;
-
-    [Header("References")]
-    [SerializeField] private TriggerEventSender actionTrigger;
-    [SerializeField] private TriggerEventSender hitTrigger;
-
     [Header("Debug")]
     [SerializeField, ReadOnly] private List<SpikeTrapPart> spikeTrapPart = new();
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         spikeTrapPart.AddRange(GetComponentsInChildren<SpikeTrapPart>());
-
-        actionTrigger.gameObject.SetActive(true);
-        hitTrigger.gameObject.SetActive(false);
-
-        actionTrigger.OnEnter += OnActionTriggerEnter;
-        hitTrigger.OnEnter += OnHitTriggerEnter;
     }
 
-    private void OnDestroy()
+    protected override void OnAction(float totalDuration)
     {
-        actionTrigger.OnEnter -= OnActionTriggerEnter;
-        hitTrigger.OnEnter -= OnHitTriggerEnter;
-    }
-
-    private void OnActionTriggerEnter(Collider other)
-    {
-        if (other.CompareTag(playerTag) == false) return;
-
-        actionTrigger.gameObject.SetActive(false);
-
-        // activate trap with delay to hit
         foreach (var part in spikeTrapPart)
-            part.Activate(delayToHit);
-
-        DOVirtual.DelayedCall(delayToHit, () =>
-        {
-            hitTrigger.gameObject.SetActive(true);
-        });
+            part.Activate(totalDuration);
 
         Debug.Log("Player activated spike trap");
     }
 
-    private void OnHitTriggerEnter(Collider other)
+    protected override void OnHit(Collider player)
     {
-        if (other.CompareTag(playerTag) == false) return;
-
         Debug.Log("Player hit by spike trap");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        var controller = player.GetComponent<MovePlaceholder>();
+        controller.Death();
+    }
+
+    protected override void OnReactivate(float totalDuration)
+    {
+        foreach (var part in spikeTrapPart)
+            part.Reactivate(totalDuration);
+
+        Debug.Log("Spike trap reactivated");
     }
 }

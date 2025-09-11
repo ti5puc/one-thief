@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Ground_MAT
-  m_Shader: {fileID: 4800000, guid: 27964e1f292693445a9c23df3d6a9c36, type: 3}
+  m_Name: Ground_Hole_MAT
+  m_Shader: {fileID: 4800000, guid: 141574d929f367e41b4df1b49bb48e7b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []

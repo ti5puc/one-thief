@@ -15,6 +15,7 @@ public class MovePlaceholder : MonoBehaviour
 
     [Header("Vfx")]
     public GameObject DeathVfxPrefab;
+    [SerializeField] private float vfxOffset = -1f;
 
     private Rigidbody rigidBody;
     private Transform cameraTransform;
@@ -23,13 +24,18 @@ public class MovePlaceholder : MonoBehaviour
 
     public bool IsDead => isDead;
 
-    private void Start()
+    private void Awake()
     {
         cameraTransform = GetComponentInChildren<Camera>().transform;
-        Cursor.lockState = CursorLockMode.Locked;
-
         rigidBody = GetComponent<Rigidbody>();
+    }
+
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
         rigidBody.isKinematic = false;
+
+
     }
 
     private void Update()
@@ -72,20 +78,22 @@ public class MovePlaceholder : MonoBehaviour
         transform.Rotate(Vector3.up * mouseX);
     }
 
-    public void Death()
+    public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f)
     {
         isDead = true;
 
-        Vector3 upOffset = Vector3.up * DeathCameraUpOffset;
-        Vector3 backOffset = -Vector3.forward * DeathCameraBackOffset;
+        Vector3 upOffset = Vector3.up * DeathCameraUpOffset + Vector3.up * customCameraDeathOffsetY;
+        Vector3 backOffset = -Vector3.forward * DeathCameraBackOffset + Vector3.back * customCameraDeathOffsetZ;
         Vector3 targetPosition = upOffset + backOffset;
 
         rigidBody.isKinematic = true;
+        var collider = GetComponent<Collider>();
+        collider.isTrigger = true;
 
         cameraTransform.DOLocalMove(targetPosition, 1f).SetEase(Ease.OutQuad);
-        cameraTransform.localRotation = Quaternion.Euler(20f, 0f, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(customCameraDeathRotationX, 0f, 0f);
 
-        var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y, transform.position.z);
+        var position = new Vector3(transform.position.x, transform.position.y + vfxOffset, transform.position.z);
         Instantiate(DeathVfxPrefab, position, DeathVfxPrefab.transform.rotation);
     }
 }

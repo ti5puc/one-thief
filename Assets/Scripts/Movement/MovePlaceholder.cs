@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,15 +21,25 @@ public class MovePlaceholder : MonoBehaviour
     private Transform cameraTransform;
     private float xRotation = 0f;
     private bool isDead = false;
+    private bool isMoveActive = true;
+    private float vfxOffset;
 
     public bool IsDead => isDead;
+    public float VfxOffset
+    {
+        get => vfxOffset;
+        set => vfxOffset = value;
+    }
+
+    private void Awake()
+    {
+        cameraTransform = GetComponentInChildren<Camera>().transform;
+        rigidBody = GetComponent<Rigidbody>();
+    }
 
     private void Start()
     {
-        cameraTransform = GetComponentInChildren<Camera>().transform;
         Cursor.lockState = CursorLockMode.Locked;
-
-        rigidBody = GetComponent<Rigidbody>();
         rigidBody.isKinematic = false;
     }
 
@@ -51,6 +62,7 @@ public class MovePlaceholder : MonoBehaviour
     private void HandleMovement()
     {
         if (isDead) return;
+        if (isMoveActive == false) return;
 
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
@@ -72,20 +84,32 @@ public class MovePlaceholder : MonoBehaviour
         transform.Rotate(Vector3.up * mouseX);
     }
 
-    public void Death()
+    public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f)
     {
         isDead = true;
 
-        Vector3 upOffset = Vector3.up * DeathCameraUpOffset;
-        Vector3 backOffset = -Vector3.forward * DeathCameraBackOffset;
+        Vector3 upOffset = Vector3.up * DeathCameraUpOffset + Vector3.up * customCameraDeathOffsetY;
+        Vector3 backOffset = -Vector3.forward * DeathCameraBackOffset + Vector3.back * customCameraDeathOffsetZ;
         Vector3 targetPosition = upOffset + backOffset;
 
         rigidBody.isKinematic = true;
+        var collider = GetComponent<Collider>();
+        collider.isTrigger = true;
 
         cameraTransform.DOLocalMove(targetPosition, 1f).SetEase(Ease.OutQuad);
-        cameraTransform.localRotation = Quaternion.Euler(20f, 0f, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(customCameraDeathRotationX, 0f, 0f);
 
-        var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y, transform.position.z);
+        var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y + vfxOffset, transform.position.z);
         Instantiate(DeathVfxPrefab, position, DeathVfxPrefab.transform.rotation);
+    }
+
+    public void DisableMove()
+    {
+        isMoveActive = false;
+    }
+
+    public void EnableMove()
+    {
+        isMoveActive = true;
     }
 }

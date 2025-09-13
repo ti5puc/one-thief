@@ -240,4 +240,9 @@ MonoBehaviour:
   DeathCameraBackOffset: 6
   DeathRotateSpeed: 15
   DeathVfxPrefab: {fileID: 8043088371599049586, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
-  vfxOffset: -0.9
+  TrapsSettings:
+  - {fileID: 11400000, guid: f36aca901dc1d084ebb449894ebcd9ad, type: 2}
+  - {fileID: 11400000, guid: 0b5bbac9854562744873acc4895d354d, type: 2}
+  - {fileID: 11400000, guid: 6a24161b55c160f4299fc8c1f8895d13, type: 2}
+  - {fileID: 11400000, guid: 4911bef7ee32dad409029ad03a5fb684, type: 2}
+  TrapPlacementDistance: 5

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -16,6 +17,10 @@ public class MovePlaceholder : MonoBehaviour
 
     [Header("Vfx")]
     public GameObject DeathVfxPrefab;
+
+    [Header("Traps")]
+    public List<TrapSettings> TrapsSettings = new();
+    public float TrapPlacementDistance = 5f;
 
     private Rigidbody rigidBody;
     private Transform cameraTransform;
@@ -45,10 +50,15 @@ public class MovePlaceholder : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
         if (!isDead)
         {
             HandleMovement();
             HandleMouseLook();
+
+            HandleTrapPlacement();
         }
         else
         {
@@ -82,6 +92,65 @@ public class MovePlaceholder : MonoBehaviour
 
         cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
+    }
+
+    private int selectedTrapIndex = -1;
+    private GameObject currentTrapPreview = null;
+
+    private void HandleTrapPlacement()
+    {
+        // Adjust trap placement distance with mouse wheel
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (Mathf.Abs(scroll) > 0.01f)
+        {
+            TrapPlacementDistance += scroll * 2f; // Change multiplier for sensitivity
+            TrapPlacementDistance = Mathf.Clamp(TrapPlacementDistance, 1f, 20f);
+            // If preview exists, update its position
+            if (currentTrapPreview != null)
+            {
+                Vector3 previewPos = transform.position + transform.forward * TrapPlacementDistance;
+                previewPos.y -= 1;
+                currentTrapPreview.transform.position = previewPos;
+            }
+        }
+
+        // Select trap with keys 1-4
+        for (int i = 0; i < TrapsSettings.Count; i++)
+        {
+            if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha1 + i)))
+            {
+                if (i < TrapsSettings.Count)
+                {
+                    selectedTrapIndex = i;
+
+                    if (currentTrapPreview != null)
+                        Destroy(currentTrapPreview);
+
+                    var trapPreviewPrefab = TrapsSettings[i].TrapPreview;
+                    if (trapPreviewPrefab != null)
+                    {
+                        Vector3 previewPos = transform.position + transform.forward * TrapPlacementDistance;
+                        previewPos.y -= 1;
+                        Quaternion previewRot = Quaternion.LookRotation(-transform.forward, Vector3.up);
+                        currentTrapPreview = Instantiate(trapPreviewPrefab, previewPos, previewRot, transform);
+                    }
+                }
+            }
+        }
+
+        if (currentTrapPreview != null && selectedTrapIndex >= 0)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                var trapObjectPrefab = TrapsSettings[selectedTrapIndex].TrapObject;
+                if (trapObjectPrefab != null)
+                    Instantiate(trapObjectPrefab, currentTrapPreview.transform.position, currentTrapPreview.transform.rotation);
+
+                Destroy(currentTrapPreview);
+                currentTrapPreview = null;
+                selectedTrapIndex = -1;
+            }
+        }
     }
 
     public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f)

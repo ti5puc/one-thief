@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,14 +16,20 @@ public class MovePlaceholder : MonoBehaviour
 
     [Header("Vfx")]
     public GameObject DeathVfxPrefab;
-    [SerializeField] private float vfxOffset = -1f;
 
     private Rigidbody rigidBody;
     private Transform cameraTransform;
     private float xRotation = 0f;
     private bool isDead = false;
+    private bool isMoveActive = true;
+    private float vfxOffset;
 
     public bool IsDead => isDead;
+    public float VfxOffset
+    {
+        get => vfxOffset;
+        set => vfxOffset = value;
+    }
 
     private void Awake()
     {
@@ -34,8 +41,6 @@ public class MovePlaceholder : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         rigidBody.isKinematic = false;
-
-
     }
 
     private void Update()
@@ -57,6 +62,7 @@ public class MovePlaceholder : MonoBehaviour
     private void HandleMovement()
     {
         if (isDead) return;
+        if (isMoveActive == false) return;
 
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
@@ -93,7 +99,17 @@ public class MovePlaceholder : MonoBehaviour
         cameraTransform.DOLocalMove(targetPosition, 1f).SetEase(Ease.OutQuad);
         cameraTransform.localRotation = Quaternion.Euler(customCameraDeathRotationX, 0f, 0f);
 
-        var position = new Vector3(transform.position.x, transform.position.y + vfxOffset, transform.position.z);
+        var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y + vfxOffset, transform.position.z);
         Instantiate(DeathVfxPrefab, position, DeathVfxPrefab.transform.rotation);
+    }
+
+    public void DisableMove()
+    {
+        isMoveActive = false;
+    }
+
+    public void EnableMove()
+    {
+        isMoveActive = true;
     }
 }

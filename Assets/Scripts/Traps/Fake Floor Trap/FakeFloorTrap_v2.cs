@@ -18,6 +18,8 @@ public class FakeFloorTrap_v2 : TrapBase
     [SerializeField] private GameObject fakeFloorVisual;
     [SerializeField] private DeathTrigger deathTrigger;
 
+    private bool groundDisabled = false;
+
     protected override void Awake()
     {
         base.Awake();
@@ -35,24 +37,27 @@ public class FakeFloorTrap_v2 : TrapBase
         var movePlaceholder = player.GetComponent<MovePlaceholder>();
         movePlaceholder.VfxOffset = deathVfxOffset;
 
-        // find the nearest object with layer mask "Ground"
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 5f, LayerMask.GetMask("Ground"));
-        if (colliders.Length > 0)
+        if (!groundDisabled)
         {
-            Collider nearest = colliders[0];
-            float minDistance = Vector3.Distance(transform.position, nearest.transform.position);
-            foreach (var collider in colliders)
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 5f, LayerMask.GetMask("Ground"));
+            if (colliders.Length > 0)
             {
-                float distance = Vector3.Distance(transform.position, collider.transform.position);
-                if (distance < minDistance)
+                Collider nearest = colliders[0];
+                float minDistance = Vector3.Distance(transform.position, nearest.transform.position);
+                foreach (var collider in colliders)
                 {
-                    minDistance = distance;
-                    nearest = collider;
+                    float distance = Vector3.Distance(transform.position, collider.transform.position);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        nearest = collider;
+                    }
                 }
-            }
 
-            nearest.gameObject.SetActive(false);
-            Debug.Log("Nearest ground object found: " + nearest.name);
+                nearest.gameObject.SetActive(false);
+                groundDisabled = true;
+                Debug.Log("Nearest ground object found: " + nearest.name);
+            }
         }
     }
 

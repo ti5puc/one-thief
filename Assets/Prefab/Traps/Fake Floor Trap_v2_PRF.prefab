@@ -1382,7 +1382,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTag: Player
-  delayToHit: 0
+  delayToHit: 0.7
   keepHitTrigger: 1
   hitTriggerActiveTime: 0.2
   canReactive: 0

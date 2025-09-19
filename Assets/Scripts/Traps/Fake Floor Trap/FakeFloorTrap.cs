@@ -24,13 +24,11 @@ public class FakeFloorTrap : TrapBase
         deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ);
     }
 
-    protected override void OnAction(float totalDuration)
-    {
-        fakeFloorVisual.SetActive(false);
-    }
+    protected override void OnAction(float totalDuration) { }
 
     protected override void OnHit(Collider player)
     {
+        fakeFloorVisual.SetActive(false);
         Debug.Log("Player hit by fake floor trap");
 
         var collider = player.GetComponent<Collider>();

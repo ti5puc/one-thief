@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
   m_Name: SpikeTrap
   m_EditorClassIdentifier: 
-  trapSurface: 0
+  trapSurface:
+    serializedVersion: 2
+    m_Bits: 64
   trapPreview: {fileID: 5470613590884588052, guid: 03a95a31b43631f4680aadb209c5987f, type: 3}
   trapObject: {fileID: 4782766396064776245, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}

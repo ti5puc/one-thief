@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
+  m_Name: StoneTrap
+  m_EditorClassIdentifier: 
+  trapSurface:
+    serializedVersion: 2
+    m_Bits: 64
+  trapPreview: {fileID: 8482003220457390324, guid: c18aa2d8e98609346964b78a8196aa61, type: 3}
+  trapObject: {fileID: 5472426638618749807, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}

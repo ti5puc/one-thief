@@ -34,8 +34,8 @@ public class FakeFloorTrap : TrapBase
         var collider = player.GetComponent<Collider>();
         collider.isTrigger = true;
 
-        var movePlaceholder = player.GetComponent<MovePlaceholder>();
-        movePlaceholder.DisableMove();
+        var movePlaceholder = player.GetComponent<PlayerDeathIdentifier>();
+        // movePlaceholder.DisableMove();
         movePlaceholder.VfxOffset = deathVfxOffset;
 
         var seq = DOTween.Sequence();

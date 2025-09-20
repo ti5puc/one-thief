@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
-public class FirstPersonPlayer : MonoBehaviour
+public class Player : MonoBehaviour
 {
     [Header("Câmera")]
     public float senseX;
@@ -23,67 +23,86 @@ public class FirstPersonPlayer : MonoBehaviour
     [Header("Traps")]
     public List<TrapSettings> TrapsSettings = new();
 
-    private bool isTrapModeActive = false;
-    private GameObject currentGhostObject;
-    private int selectedObjectIndex = -1;
-
     [Header("Referências InputSystem")]
-
+    public InputActionReference mouseXInput;
+    public InputActionReference mouseYInput;
     public InputActionReference moveInput;
     public InputActionReference trapModeToggleInput;
     public InputActionReference placeObjectInput;
-    public InputActionReference selectObject1Input;
-    public InputActionReference selectObject2Input;
+    public InputActionReference switchTrapInput;
 
+    private bool isTrapModeActive = false;
+    private GameObject currentGhostObject;
+    private int selectedObjectIndex = 0;
+    private int selectedPlaceObjectIndex = 0;
+    private PlayerDeathIdentifier deathIdentifier;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        deathIdentifier = GetComponent<PlayerDeathIdentifier>();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     private void OnEnable()
     {
+        mouseXInput.action.Enable();
+        mouseXInput.action.performed += OnMouseX;
+
+        mouseYInput.action.Enable();
+        mouseYInput.action.performed += OnMouseY;
+
+        moveInput.action.Enable();
+        moveInput.action.performed += OnMove;
+
         trapModeToggleInput.action.Enable();
         trapModeToggleInput.action.performed += ToggleTrapMode;
 
         placeObjectInput.action.Enable();
         placeObjectInput.action.performed += PlaceTrap;
 
-        selectObject1Input.action.Enable();
-        selectObject1Input.action.performed += ctx => SelectObject(0);
-
-        selectObject2Input.action.Enable();
-        selectObject2Input.action.performed += ctx => SelectObject(1);
+        switchTrapInput.action.Enable();
+        switchTrapInput.action.performed += SelectObject;
     }
 
     private void OnDisable()
     {
+        mouseXInput.action.Disable();
+        mouseXInput.action.performed -= OnMouseX;
+
+        mouseYInput.action.Disable();
+        mouseYInput.action.performed -= OnMouseY;
+
+        moveInput.action.Disable();
+        moveInput.action.performed -= OnMove;
+
         trapModeToggleInput.action.Disable();
         trapModeToggleInput.action.performed -= ToggleTrapMode;
 
         placeObjectInput.action.Disable();
         placeObjectInput.action.performed -= PlaceTrap;
 
-        selectObject1Input.action.Disable();
-        selectObject1Input.action.performed -= ctx => SelectObject(0);
-
-        selectObject2Input.action.Disable();
-        selectObject2Input.action.performed -= ctx => SelectObject(1);
+        switchTrapInput.action.Disable();
+        switchTrapInput.action.performed -= SelectObject;
     }
 
     public void OnMouseX(InputAction.CallbackContext context)
     {
+        if (deathIdentifier != null && deathIdentifier.IsDead) return;
+
         float deltaX = context.ReadValue<float>() * senseX;
         transform.Rotate(0f, deltaX, 0f);
     }
 
     public void OnMouseY(InputAction.CallbackContext context)
     {
+        if (deathIdentifier != null && deathIdentifier.IsDead) return;
+
         float deltaY = context.ReadValue<float>() * senseY;
         float newXRotation = cameraTransform.localEulerAngles.x - deltaY;
-        if(newXRotation > 180)
+        if (newXRotation > 180)
         {
             newXRotation -= 360;
         }
@@ -94,7 +113,18 @@ public class FirstPersonPlayer : MonoBehaviour
 
     void Update()
     {
-        if(isTrapModeActive && currentGhostObject != null)
+        if (deathIdentifier != null && deathIdentifier.IsDead)
+        {
+            if (isTrapModeActive)
+            {
+                isTrapModeActive = false;
+                DestroyGhostObject();
+            }
+
+            return;
+        }
+
+        if (isTrapModeActive && currentGhostObject != null)
         {
             UpdateGhostPosition();
         }
@@ -102,6 +132,8 @@ public class FirstPersonPlayer : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (deathIdentifier != null && deathIdentifier.IsDead) return;
+
         Vector3 moveDirection = transform.TransformDirection(new Vector3(_moveDirection.x, 0, _moveDirection.y));
         Vector3 newPosition = rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
         rb.MovePosition(newPosition);
@@ -114,7 +146,7 @@ public class FirstPersonPlayer : MonoBehaviour
 
         if (isTrapModeActive)
         {
-            if(selectedObjectIndex != -1)
+            if (selectedObjectIndex != -1)
             {
                 InstantiateGhostObject();
             }
@@ -125,16 +157,25 @@ public class FirstPersonPlayer : MonoBehaviour
         }
     }
 
-    private void SelectObject(int index)
+    private void SelectObject(InputAction.CallbackContext context)
     {
-        if(index < 0 || index >= TrapsSettings.Count)
+        if (isTrapModeActive == false) return;
+
+        if (selectedObjectIndex < 0 || selectedObjectIndex >= TrapsSettings.Count)
         {
-            Debug.LogWarning($"Índice de objeto {index} é inválido.");
+            Debug.LogWarning($"Índice de objeto {selectedObjectIndex} é inválido.");
             return;
         }
 
-        selectedObjectIndex = index;
         Debug.Log($"Objeto selecionado: {TrapsSettings[selectedObjectIndex].name}");
+
+        selectedObjectIndex++;
+        if (selectedObjectIndex >= TrapsSettings.Count)
+        {
+            selectedObjectIndex = 0;
+        }
+
+        selectedPlaceObjectIndex = selectedObjectIndex;
 
         if (isTrapModeActive)
         {
@@ -155,7 +196,7 @@ public class FirstPersonPlayer : MonoBehaviour
 
     private void DestroyGhostObject()
     {
-        if(currentGhostObject != null)
+        if (currentGhostObject != null)
         {
             Destroy(currentGhostObject);
         }
@@ -186,10 +227,13 @@ public class FirstPersonPlayer : MonoBehaviour
             Renderer ghostRenderer = currentGhostObject.GetComponentInChildren<Renderer>();
             if (ghostRenderer != null)
             {
-                float yOffset = ghostRenderer.bounds.size.y / 2f;
-                snappedPosition.y += yOffset;
+                // TODO: is this needed?
+
+                // float yOffset = ghostRenderer.bounds.size.y / 2f;
+                // snappedPosition.y += yOffset;
             }
 
+            snappedPosition.y = 0f;
             currentGhostObject.transform.position = snappedPosition;
 
             Vector3 boxCenter = ghostRenderer != null ? ghostRenderer.bounds.center : currentGhostObject.transform.position;
@@ -217,24 +261,22 @@ public class FirstPersonPlayer : MonoBehaviour
     {
         if (!isTrapModeActive || !canPlaceObject || currentGhostObject == null || !currentGhostObject.activeSelf) return;
 
-        if (selectedObjectIndex < 0 || selectedObjectIndex >= TrapsSettings.Count)
+        if (selectedPlaceObjectIndex < 0 || selectedPlaceObjectIndex >= TrapsSettings.Count)
             return;
-        var trapSettings = TrapsSettings[selectedObjectIndex];
+        var trapSettings = TrapsSettings[selectedPlaceObjectIndex];
         if (trapSettings.TrapObject == null)
             return;
-        var trapObj = Instantiate(trapSettings.TrapObject, currentGhostObject.transform.position, currentGhostObject.transform.rotation);
-        // Set layer from TrapSurface
-        int surfaceLayer = trapSettings.TrapSurface != 0 ? Mathf.RoundToInt(Mathf.Log(trapSettings.TrapSurface.value, 2)) : 0;
-        trapObj.layer = surfaceLayer;
-        foreach (Transform child in trapObj.transform)
-        {
-            child.gameObject.layer = surfaceLayer;
-        }
+
+        var trapPos = currentGhostObject.transform.position;
+        Instantiate(trapSettings.TrapObject, trapPos, currentGhostObject.transform.rotation);
+
         Debug.Log("Objeto posicionado!");
     }
 
     public void OnMove(InputAction.CallbackContext context)
     {
+        if (deathIdentifier != null && deathIdentifier.IsDead) return;
+
         _moveDirection = context.ReadValue<Vector2>();
     }
 }

@@ -34,7 +34,7 @@ public class FakeFloorTrap_v2 : TrapBase
 
         fakeFloorVisual.SetActive(false);
 
-        var movePlaceholder = player.GetComponent<MovePlaceholder>();
+        var movePlaceholder = player.GetComponent<PlayerDeathIdentifier>();
         movePlaceholder.VfxOffset = deathVfxOffset;
 
         if (!groundDisabled)

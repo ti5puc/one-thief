@@ -3,7 +3,7 @@
     "name": "InputPlayer",
     "maps": [
         {
-            "name": "LookAround",
+            "name": "Gameplay",
             "id": "4b4f5d7c-96b5-4da6-9674-0d190e2d901e",
             "actions": [
                 {
@@ -52,18 +52,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SelectObject1",
+                    "name": "SwitchTrap",
                     "type": "Button",
                     "id": "4a95cee6-0022-4501-a526-b80ec288d3fe",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SelectObject2",
-                    "type": "Button",
-                    "id": "d2271217-0334-46b8-b3f4-75610a57fca5",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -177,18 +168,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SelectObject1",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "0e8777a4-7a9f-4d3c-bfae-2d0fd355a7d0",
-                    "path": "<Keyboard>/2",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectObject2",
+                    "action": "SwitchTrap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

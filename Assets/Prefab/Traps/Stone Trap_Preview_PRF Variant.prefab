@@ -68,5 +68,49 @@ PrefabInstance:
     - {fileID: 2364228485804247962, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
     - {fileID: 6216770458344846463, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5472426638618749807, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7901268535582442837}
   m_SourcePrefab: {fileID: 100100000, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+--- !u!23 &1851045069346095106 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2880030363265575833, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+  m_PrefabInstance: {fileID: 4487793004544027547}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7450361701845978555 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6422933013467768352, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+  m_PrefabInstance: {fileID: 4487793004544027547}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8482003220457390324 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5472426638618749807, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+  m_PrefabInstance: {fileID: 4487793004544027547}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7901268535582442837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8482003220457390324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27e5b64da5d68cf4886f8585dafabca7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  validMaterialsList:
+  - material: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
+    renderers:
+    - {fileID: 7450361701845978555}
+  - material: {fileID: 2100000, guid: 02c8b9e252544224d8ce0dacee6950ce, type: 2}
+    renderers:
+    - {fileID: 1851045069346095106}
+  invalidMaterialsList:
+  - material: {fileID: 2100000, guid: 4a467bd8c5d0bb74b81c2e0a887a603c, type: 2}
+    renderers:
+    - {fileID: 7450361701845978555}
+  - material: {fileID: 2100000, guid: b37578ca49166e74ca91c14aa451216e, type: 2}
+    renderers:
+    - {fileID: 1851045069346095106}

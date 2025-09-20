@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
   m_Name: FakeFloorTrap
   m_EditorClassIdentifier: 
-  trapSurface: 0
+  trapSurface:
+    serializedVersion: 2
+    m_Bits: 64
   trapPreview: {fileID: 8978579786681146210, guid: 6a9ad24fd0078d74c967a474278eac32, type: 3}
   trapObject: {fileID: 2084550401678466040, guid: bc4afbbc76422574ea4aa83c01b19319, type: 3}

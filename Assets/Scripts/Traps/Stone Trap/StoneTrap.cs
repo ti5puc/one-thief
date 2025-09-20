@@ -53,7 +53,7 @@ public class StoneTrap : TrapBase
     protected override void OnHit(Collider player)
     {
         Debug.Log("Player hit by stone trap");
-        var controller = player.GetComponent<MovePlaceholder>();
+        var controller = player.GetComponent<PlayerDeathIdentifier>();
         controller.Death();
     }
 

@@ -23,7 +23,7 @@ public class DeathTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player") == false) return;
 
-        var controller = other.GetComponent<MovePlaceholder>();
+        var controller = other.GetComponent<PlayerDeathIdentifier>();
 
         if (hasCustomDeathCam)
             controller.Death(customDeathCameraRotationX, customDeathCameraOffsetY, customDeathCameraOffsetZ);

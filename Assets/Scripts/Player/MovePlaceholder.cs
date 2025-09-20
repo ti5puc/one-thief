@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[System.Obsolete]
 public class MovePlaceholder : MonoBehaviour
 {
     [Header("Movement Settings")]

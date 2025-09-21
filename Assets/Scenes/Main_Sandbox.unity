@@ -227,6 +227,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10, y: 2.220446e-16, z: 10}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!136 &186954057 stripped
+CapsuleCollider:
+  m_CorrespondingSourceObject: {fileID: 7198549069191053437, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+  m_PrefabInstance: {fileID: 3037379297482495761}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1257091317
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,6 +400,42 @@ PrefabInstance:
     - target: {fileID: 4688965579557551869, guid: 27bae28494c87974786d222b89acac6a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5544771812086227667, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5860915698881936115, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: canJump
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5860915698881936115, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: capsule
+      value: 
+      objectReference: {fileID: 186954057}
+    - target: {fileID: 5860915698881936115, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: dashInput
+      value: 
+      objectReference: {fileID: -111666491642429466, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    - target: {fileID: 5860915698881936115, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: jumpInput
+      value: 
+      objectReference: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    - target: {fileID: 5860915698881936115, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: isGrounded
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5860915698881936115, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: crouchInput
+      value: 
+      objectReference: {fileID: 7040659881675835329, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    - target: {fileID: 5860915698881936115, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: sprintInput
+      value: 
+      objectReference: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    - target: {fileID: 5860915698881936115, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: groundLayer.m_Bits
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 7740545308212024546, guid: 27bae28494c87974786d222b89acac6a, type: 3}
       propertyPath: m_Name

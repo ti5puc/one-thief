@@ -378,7 +378,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4911bef7ee32dad409029ad03a5fb684, type: 2}
   - {fileID: 11400000, guid: f36aca901dc1d084ebb449894ebcd9ad, type: 2}
   - {fileID: 11400000, guid: 0b5bbac9854562744873acc4895d354d, type: 2}
-  notAllowedPointerPrefab: {fileID: 4545584788616555689, guid: 226ec08ad45880a479d46b30f0dac431, type: 3}
   mouseXInput: {fileID: -2097932326460347269, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   mouseYInput: {fileID: -3574774305120366091, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   moveInput: {fileID: -6278439149609088581, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
@@ -401,6 +400,7 @@ MonoBehaviour:
   DeathCameraBackOffset: 6
   DeathRotateSpeed: 15
   DeathVfxPrefab: {fileID: 8043088371599049586, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
+  DeathGhostPrefab: {fileID: 2131966748788340744, guid: b8ab386616f53be47ad211b822fa2a1b, type: 3}
 --- !u!114 &222876035836668833
 MonoBehaviour:
   m_ObjectHideFlags: 0

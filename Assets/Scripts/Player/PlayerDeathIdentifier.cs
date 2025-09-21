@@ -11,11 +11,13 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
     [Header("Vfx")]
     public GameObject DeathVfxPrefab;
+    public GameObject DeathGhostPrefab;
 
     private Rigidbody rigidBody;
     private Transform cameraTransform;
     private bool isDead = false;
     private float vfxOffset;
+    private GameObject deathGhost;
 
     public bool IsDead => isDead;
     public float VfxOffset
@@ -44,10 +46,22 @@ public class PlayerDeathIdentifier : MonoBehaviour
             if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
+
+        if (deathGhost != null)
+        {
+            float floatAmplitude = 0.2f;
+            float floatFrequency = 1.5f;
+            float baseY = DeathGhostPrefab.transform.position.y + vfxOffset;
+            float sineY = baseY + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude;
+            var position = new Vector3(transform.position.x, sineY, transform.position.z);
+            deathGhost.transform.position = position;
+        }
     }
 
     public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f)
     {
+        if (isDead) return;
+
         isDead = true;
 
         Vector3 upOffset = Vector3.up * DeathCameraUpOffset + Vector3.up * customCameraDeathOffsetY;
@@ -63,5 +77,8 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
         var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y + vfxOffset, transform.position.z);
         Instantiate(DeathVfxPrefab, position, DeathVfxPrefab.transform.rotation);
+
+        var ghostPosition = new Vector3(transform.position.x, DeathGhostPrefab.transform.position.y + vfxOffset, transform.position.z);
+        deathGhost = Instantiate(DeathGhostPrefab, ghostPosition, DeathGhostPrefab.transform.rotation);
     }
 }

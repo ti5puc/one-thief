@@ -13,23 +13,34 @@ public class TrapPreview : MonoBehaviour
 
     [SerializeField] private List<RenderersByMaterial> validMaterialsList = new();
     [SerializeField] private List<RenderersByMaterial> invalidMaterialsList = new();
+    [SerializeField] private GameObject notAllowedPointer;
+
+    private void Awake()
+    {
+        notAllowedPointer?.SetActive(false);
+    }
 
     public void SetValid()
     {
         SetMaterial(validMaterialsList);
+        notAllowedPointer?.SetActive(false);
     }
 
     public void SetInvalid()
     {
         SetMaterial(invalidMaterialsList);
+        notAllowedPointer?.SetActive(true);
     }
 
     private void SetMaterial(List<RenderersByMaterial> materialsList)
     {
         foreach (var item in materialsList)
         {
+            if (item.material == null || item.renderers == null) continue;
+
             foreach (var renderer in item.renderers)
             {
+                if (renderer == null) continue;
                 renderer.material = item.material;
             }
         }

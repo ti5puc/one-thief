@@ -1,6 +1,8 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 
+[Obsolete("This trap is deprecated. Use FakeFloor_v2 instead.")]
 public class FakeFloorTrap : TrapBase
 {
     [Header("Fake Floor Settings")]
@@ -24,7 +26,7 @@ public class FakeFloorTrap : TrapBase
         deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ);
     }
 
-    protected override void OnAction(float totalDuration) { }
+    protected override void OnAction(Collider player, float totalDuration) { }
 
     protected override void OnHit(Collider player)
     {

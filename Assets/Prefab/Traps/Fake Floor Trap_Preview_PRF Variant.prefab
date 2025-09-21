@@ -60,6 +60,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fake Floor Trap_Preview_PRF Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 2697419128109152790, guid: bc4afbbc76422574ea4aa83c01b19319, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2728716010908519502, guid: bc4afbbc76422574ea4aa83c01b19319, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 

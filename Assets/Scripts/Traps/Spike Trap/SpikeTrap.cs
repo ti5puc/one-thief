@@ -17,7 +17,7 @@ public class SpikeTrap : TrapBase
         spikeTrapPart.AddRange(GetComponentsInChildren<SpikeTrapPart>());
     }
 
-    protected override void OnAction(float totalDuration)
+    protected override void OnAction(Collider player, float totalDuration)
     {
         foreach (var part in spikeTrapPart)
             part.Activate(totalDuration);

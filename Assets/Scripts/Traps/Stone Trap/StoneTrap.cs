@@ -24,7 +24,7 @@ public class StoneTrap : TrapBase
         stoneInitialPosition = stoneObject.transform.localPosition;
     }
 
-    protected override void OnAction(float totalDuration)
+    protected override void OnAction(Collider player, float totalDuration)
     {
         float safeFallDuration = Mathf.Min(stoneFallDuration, totalDuration);
         float interval = Mathf.Max(totalDuration - safeFallDuration, 0f);

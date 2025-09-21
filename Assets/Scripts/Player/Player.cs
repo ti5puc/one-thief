@@ -96,6 +96,9 @@ public class Player : MonoBehaviour
     private int selectedObjectIndex = 0;
     private int selectedPlaceObjectIndex = 0;
     private PlayerDeathIdentifier deathIdentifier;
+    private List<GameObject> trapPreviews = new();
+
+    public bool IsTrapModeActive => isTrapModeActive && (deathIdentifier == null || !deathIdentifier.IsDead);
 
     void Awake()
     {
@@ -478,11 +481,17 @@ public class Player : MonoBehaviour
 
     //----------------------------- Fim Funcoes dos Comandos de Movimentacao -----------------------------
 
-
     private void ToggleTrapMode(InputAction.CallbackContext context)
     {
         isTrapModeActive = !isTrapModeActive;
         Debug.Log("Modo de Construção: " + (isTrapModeActive ? "Ativado" : "Desativado"));
+
+        // toggle trapPreviews visibility
+        foreach (var preview in trapPreviews)
+        {
+            if (preview != null)
+                preview.SetActive(isTrapModeActive);
+        }
 
         if (isTrapModeActive)
         {
@@ -576,8 +585,10 @@ public class Player : MonoBehaviour
             snappedPosition.y = 0f;
             currentGhostObject.transform.position = snappedPosition;
 
-            Vector3 boxCenter = ghostRenderer != null ? ghostRenderer.bounds.center : currentGhostObject.transform.position;
-            Vector3 halfExtents = ghostRenderer != null ? ghostRenderer.bounds.extents : Vector3.one * 0.5f;
+            // check for overlap in a small area at the center (grid cell size)
+            Vector3 boxCenter = currentGhostObject.transform.position;
+            float checkBoxSize = gridSize * 0.5f;
+            Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize) * 0.5f;
 
             bool isValid = !Physics.CheckBox(boxCenter, halfExtents, currentGhostObject.transform.rotation, collisionCheckLayer);
             var trapPreview = currentGhostObject.GetComponent<TrapPreview>();
@@ -597,6 +608,23 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying || !isTrapModeActive || currentGhostObject == null) return;
+
+        // debug ghost valid positioning
+        Vector3 boxCenter = currentGhostObject.transform.position;
+        float checkBoxSize = gridSize * 0.5f;
+        Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize) * 0.5f;
+
+        bool isBlocked = Physics.CheckBox(boxCenter, halfExtents, currentGhostObject.transform.rotation, collisionCheckLayer);
+        Gizmos.color = isBlocked ? new Color(1f, 0f, 0f, 0.4f) : new Color(0f, 1f, 0f, 0.4f);
+        Gizmos.matrix = Matrix4x4.TRS(boxCenter, currentGhostObject.transform.rotation, Vector3.one);
+        Gizmos.DrawCube(Vector3.zero, halfExtents * 2f);
+        Gizmos.color = Color.white;
+        Gizmos.matrix = Matrix4x4.identity;
+    }
+
     private void PlaceTrap(InputAction.CallbackContext context)
     {
         if (!isTrapModeActive || !canPlaceObject || currentGhostObject == null || !currentGhostObject.activeSelf) return;
@@ -608,7 +636,13 @@ public class Player : MonoBehaviour
             return;
 
         var trapPos = currentGhostObject.transform.position;
-        Instantiate(trapSettings.TrapObject, trapPos, currentGhostObject.transform.rotation);
+        var trapRot = currentGhostObject.transform.rotation;
+        Instantiate(trapSettings.TrapObject, trapPos, trapRot);
+
+        // instantiate trapPreview for player to know where traps are placed and add to list
+        var pointer = Instantiate(trapSettings.TrapPreview, trapPos, trapRot);
+        pointer.SetActive(isTrapModeActive);
+        trapPreviews.Add(pointer);
 
         Debug.Log("Objeto posicionado!");
     }

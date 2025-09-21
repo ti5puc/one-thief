@@ -308,7 +308,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
 --- !u!114 &5860915698881936115
@@ -328,16 +328,57 @@ MonoBehaviour:
   cameraTransform: {fileID: 7653076480900548158}
   moveSpeed: 3
   rb: {fileID: 5544771812086227667}
+  canCrouch: 1
+  isCrouching: 0
+  defaultStandHeight: 2
+  crouchHeight: 0.8
+  cameraCrouchOffset: -0.4
+  crouchSpeedMultiplier: 0.55
+  canSlide: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 1088
+  capsule: {fileID: 7198549069191053437}
+  groundProbeUp: 0.05
+  groundProbeDown: 0.5
+  isGrounded: 1
+  lastGroundedTime: 0
+  canJump: 1
+  canDoubleJump: 0
+  maxAirJumps: 2
+  airJumpsRemaining: 0
+  jumpForce: 5
+  airJumpForceMultiplier: 0.9
+  lastJumpPressedTime: 0
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
+  isSprinting: 0
+  canSprint: 0
+  sprintMultiplier: 1.7
+  canDash: 1
+  isDashing: 0
+  dashSpeed: 13
+  dashCooldown: 2
+  dashDuration: 0.2
+  lastDashTime: 0
+  dashEndTime: 0
+  dashMaxSlopeAngle: 45
+  dashMaxStepHeight: 0.35
+  dashGroundTestUp: 1.2
+  jumpInput: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  sprintInput: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  dashInput: {fileID: -111666491642429466, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  crouchInput: {fileID: 7040659881675835329, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   interactionDistance: 10
   collisionCheckLayer:
     serializedVersion: 2
     m_Bits: 1024
-  gridSize: 0.5
+  gridSize: 3
   TrapsSettings:
-  - {fileID: 11400000, guid: 6a24161b55c160f4299fc8c1f8895d13, type: 2}
   - {fileID: 11400000, guid: 4911bef7ee32dad409029ad03a5fb684, type: 2}
   - {fileID: 11400000, guid: f36aca901dc1d084ebb449894ebcd9ad, type: 2}
   - {fileID: 11400000, guid: 0b5bbac9854562744873acc4895d354d, type: 2}
+  notAllowedPointerPrefab: {fileID: 4545584788616555689, guid: 226ec08ad45880a479d46b30f0dac431, type: 3}
   mouseXInput: {fileID: -2097932326460347269, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   mouseYInput: {fileID: -3574774305120366091, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   moveInput: {fileID: -6278439149609088581, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}

@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -7,6 +8,9 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    public static event Action<bool> OnTrapModeChanged; // bool isTrapModeActive
+    public static event Action<string> OnSelectedTrapChanged; // string trapName
+
   //---------------------------------- Inicio Movimentacao e Camera ----------------------------------
     [Header("Câmera")]
     public float senseX;
@@ -486,6 +490,8 @@ public class Player : MonoBehaviour
         isTrapModeActive = !isTrapModeActive;
         Debug.Log("Modo de Construção: " + (isTrapModeActive ? "Ativado" : "Desativado"));
 
+        OnTrapModeChanged?.Invoke(isTrapModeActive);
+
         // toggle trapPreviews visibility
         foreach (var preview in trapPreviews)
         {
@@ -516,8 +522,6 @@ public class Player : MonoBehaviour
             return;
         }
 
-        Debug.Log($"Objeto selecionado: {TrapsSettings[selectedObjectIndex].name}");
-
         selectedObjectIndex++;
         if (selectedObjectIndex >= TrapsSettings.Count)
         {
@@ -525,6 +529,9 @@ public class Player : MonoBehaviour
         }
 
         selectedPlaceObjectIndex = selectedObjectIndex;
+
+        Debug.Log($"Objeto selecionado: {TrapsSettings[selectedObjectIndex].name}");
+        OnSelectedTrapChanged?.Invoke(TrapsSettings[selectedObjectIndex].TrapName);
 
         if (isTrapModeActive)
         {

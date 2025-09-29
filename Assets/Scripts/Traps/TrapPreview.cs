@@ -14,10 +14,18 @@ public class TrapPreview : MonoBehaviour
     [SerializeField] private List<RenderersByMaterial> validMaterialsList = new();
     [SerializeField] private List<RenderersByMaterial> invalidMaterialsList = new();
     [SerializeField] private GameObject notAllowedPointer;
+    [SerializeField] private List<Collider> colliders;
+
+    public List<Collider> Colliders => colliders;
 
     private void Awake()
     {
         notAllowedPointer?.SetActive(false);
+        foreach (var col in colliders)
+        {
+            if (col != null)
+                col.isTrigger = true;
+        }
     }
 
     public void SetValid()

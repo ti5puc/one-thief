@@ -68,6 +68,7 @@ public abstract class TrapBase : MonoBehaviour
 
     protected virtual void OnActionTriggerEnter(Collider other)
     {
+        if (GameManager.CurrentGameState == GameState.Building) return;
         if (other.CompareTag(playerTag) == false) return;
         if (other.GetComponent<PlayerDeathIdentifier>().IsDead) return;
 
@@ -97,6 +98,7 @@ public abstract class TrapBase : MonoBehaviour
 
     protected virtual void OnHitTriggerEnter(Collider other)
     {
+        if (GameManager.CurrentGameState == GameState.Building) return;
         if (other.CompareTag(playerTag) == false) return;
         if (other.GetComponent<PlayerDeathIdentifier>().IsDead) return;
         OnHit(other);

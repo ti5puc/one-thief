@@ -13,8 +13,22 @@ MonoBehaviour:
   m_Name: FakeFloorTrap_v2
   m_EditorClassIdentifier: 
   trapName: Fake Floor
+  trapPlacementLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  ignorePlacementLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
+  invalidSurfacesForSpacer:
+    serializedVersion: 2
+    m_Bits: 1408
+  trapSpacerPreview: {fileID: 1983344900661682279, guid: 470971583f3c90b42b363cc184c1ede2, type: 3}
   trapPreview: {fileID: 5754541727414858320, guid: 85f7d314bea4b454ba8eb5c5fe4e6086, type: 3}
   trapObject: {fileID: 8461495209470578536, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
+  positioningMatrix:
+    rows: 3
+    cols: 3
+    data: 000000000000000000000000010000000100000002000000000000000000000000000000

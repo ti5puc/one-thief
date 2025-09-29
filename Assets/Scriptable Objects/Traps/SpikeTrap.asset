@@ -13,8 +13,22 @@ MonoBehaviour:
   m_Name: SpikeTrap
   m_EditorClassIdentifier: 
   trapName: Spikes
+  trapPlacementLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  ignorePlacementLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
+  invalidSurfacesForSpacer:
+    serializedVersion: 2
+    m_Bits: 1408
+  trapSpacerPreview: {fileID: 1983344900661682279, guid: 470971583f3c90b42b363cc184c1ede2, type: 3}
   trapPreview: {fileID: 5470613590884588052, guid: 03a95a31b43631f4680aadb209c5987f, type: 3}
   trapObject: {fileID: 4782766396064776245, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
+  positioningMatrix:
+    rows: 3
+    cols: 3
+    data: 000000000000000000000000000000000100000000000000000000000000000000000000

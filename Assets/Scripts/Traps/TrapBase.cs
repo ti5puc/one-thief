@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using DG.Tweening.Plugins.Options;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -25,13 +26,17 @@ public abstract class TrapBase : MonoBehaviour
     [SerializeField] protected TriggerEventSender hitTrigger;
 
     protected bool foundNearestGround = false;
+    protected bool hasActionTriggerStayed = false;
+    protected bool hasHitTriggerStayed = false;
 
     protected virtual void Awake()
     {
         Setup();
 
         actionTrigger.OnEnter += OnActionTriggerEnter;
+        actionTrigger.OnStay += OnActionTriggerStay;
         hitTrigger.OnEnter += OnHitTriggerEnter;
+        hitTrigger.OnStay += OnHitTriggerStay;
 
         if (trapSurface == TrapSurface.Floor)
         {
@@ -96,12 +101,28 @@ public abstract class TrapBase : MonoBehaviour
         });
     }
 
+    protected virtual void OnActionTriggerStay(Collider other)
+    {
+        if (hasActionTriggerStayed) return;
+
+        OnActionTriggerEnter(other);
+        hasActionTriggerStayed = true;
+    }
+
     protected virtual void OnHitTriggerEnter(Collider other)
     {
         if (GameManager.CurrentGameState == GameState.Building) return;
         if (other.CompareTag(playerTag) == false) return;
         if (other.GetComponent<PlayerDeathIdentifier>().IsDead) return;
         OnHit(other);
+    }
+
+    protected virtual void OnHitTriggerStay(Collider other)
+    {
+        if (hasHitTriggerStayed) return;
+
+        OnHitTriggerEnter(other);
+        hasHitTriggerStayed = true;
     }
 
     protected virtual void Setup()

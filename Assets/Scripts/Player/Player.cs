@@ -94,13 +94,15 @@ public class Player : MonoBehaviour
     public InputActionReference trapModeToggleInput;
     public InputActionReference placeObjectInput;
     public InputActionReference switchTrapInput;
+    public InputActionReference rotateTrapInput;
 
     private bool isTrapModeActive = false;
-    private int selectedObjectIndex = 0;
-    private int selectedPlaceObjectIndex = 0;
+    private int selectedTrapIndex = 0;
+    private int selectedTrapPlacementIndex = 0;
     private PlayerDeathIdentifier deathIdentifier;
     private List<GameObject> trapPreviews = new();
-    private List<GameObject> currentGhostObjects = new();
+    private List<GameObject> ghostTrapObjects = new();
+    private int ghostTrapRotationQuarterTurns = 0;
 
     public bool IsTrapModeActive => isTrapModeActive && (deathIdentifier == null || !deathIdentifier.IsDead);
 
@@ -131,6 +133,9 @@ public class Player : MonoBehaviour
 
         switchTrapInput.action.Enable();
         switchTrapInput.action.performed += SelectObject;
+
+        rotateTrapInput.action.Enable();
+        rotateTrapInput.action.performed += RotateObject;
 
         //---------------------------------- Início da Ativação do Input System de Movimentacao e Camera ----------------------------------
 
@@ -181,6 +186,9 @@ public class Player : MonoBehaviour
 
         switchTrapInput.action.Disable();
         switchTrapInput.action.performed -= SelectObject;
+
+        rotateTrapInput.action.Disable();
+        rotateTrapInput.action.performed -= RotateObject;
 
 
         //---------------------------------- Início da Desativação do Input System de Movimentacao e Camera ----------------------------------
@@ -252,15 +260,15 @@ public class Player : MonoBehaviour
             if (isTrapModeActive)
             {
                 isTrapModeActive = false;
-                DestroyGhostObject();
+                DestroyGhostTraps();
             }
 
             return;
         }
 
-        if (isTrapModeActive && currentGhostObjects != null && currentGhostObjects.Count > 0)
+        if (isTrapModeActive && ghostTrapObjects != null && ghostTrapObjects.Count > 0)
         {
-            UpdateGhostPosition();
+            UpdateGhostTrapPositions();
         }
         //-------------------------------- Inicio do Update de Movimentacao --------------------------------
 
@@ -492,7 +500,6 @@ public class Player : MonoBehaviour
 
         OnTrapModeChanged?.Invoke(isTrapModeActive);
 
-        // toggle trapPreviews visibility
         foreach (var preview in trapPreviews)
         {
             if (preview != null)
@@ -501,14 +508,14 @@ public class Player : MonoBehaviour
 
         if (isTrapModeActive)
         {
-            if (selectedObjectIndex != -1)
+            if (selectedTrapIndex != -1)
             {
-                InstantiateGhostObject();
+                CreateGhostTrapsForSelectedTrap();
             }
         }
         else
         {
-            DestroyGhostObject();
+            DestroyGhostTraps();
         }
 
         if (isTrapModeActive)
@@ -519,163 +526,142 @@ public class Player : MonoBehaviour
 
     private void SelectObject(InputAction.CallbackContext context)
     {
-        if (isTrapModeActive == false) return;
+        if (!isTrapModeActive) return;
 
-        if (selectedObjectIndex < 0 || selectedObjectIndex >= TrapsSettings.Count)
+        if (selectedTrapIndex < 0 || selectedTrapIndex >= TrapsSettings.Count)
         {
-            Debug.LogWarning($"Índice de objeto {selectedObjectIndex} é inválido.");
+            Debug.LogWarning($"Índice de armadilha {selectedTrapIndex} é inválido.");
             return;
         }
 
-        selectedObjectIndex++;
-        if (selectedObjectIndex >= TrapsSettings.Count)
+        selectedTrapIndex++;
+        if (selectedTrapIndex >= TrapsSettings.Count)
         {
-            selectedObjectIndex = 0;
+            selectedTrapIndex = 0;
         }
 
-        selectedPlaceObjectIndex = selectedObjectIndex;
+        selectedTrapPlacementIndex = selectedTrapIndex;
 
-        Debug.Log($"Objeto selecionado: {TrapsSettings[selectedObjectIndex].name}");
-        OnSelectedTrapChanged?.Invoke(TrapsSettings[selectedObjectIndex].TrapName);
+        Debug.Log($"Armadilha selecionada: {TrapsSettings[selectedTrapIndex].name}");
+        OnSelectedTrapChanged?.Invoke(TrapsSettings[selectedTrapIndex].TrapName);
 
         if (isTrapModeActive)
         {
-            InstantiateGhostObject();
+            CreateGhostTrapsForSelectedTrap();
         }
     }
 
-    private void InstantiateGhostObject()
+    private void CreateGhostTrapsForSelectedTrap()
     {
-        DestroyGhostObject();
-        if (selectedObjectIndex < 0 || selectedObjectIndex >= TrapsSettings.Count)
+        DestroyGhostTraps();
+        if (selectedTrapIndex < 0 || selectedTrapIndex >= TrapsSettings.Count)
             return;
-        var trapSettings = TrapsSettings[selectedObjectIndex];
-        var matrix = trapSettings.PositioningMatrix;
-        int rows = matrix.Rows;
-        int cols = matrix.Cols;
-        currentGhostObjects = new List<GameObject>();
+        var trapSettings = TrapsSettings[selectedTrapIndex];
+        var positioningMatrix = trapSettings.PositioningMatrix;
+        int totalRows = positioningMatrix.Rows;
+        int totalCols = positioningMatrix.Cols;
+        ghostTrapObjects = new List<GameObject>();
+
         int ignoreLayer = trapSettings.IgnorePlacementLayer != 0 ? (int)Mathf.Log(trapSettings.IgnorePlacementLayer.value, 2) : 0;
-        for (int i = 0; i < rows; i++)
+        ghostTrapRotationQuarterTurns = 0;
+
+        for (int row = 0; row < totalRows; row++)
         {
-            for (int j = 0; j < cols; j++)
+            for (int col = 0; col < totalCols; col++)
             {
-                var type = matrix[i, j];
-                if (type == TrapPositioningType.None) continue;
+                var cellType = positioningMatrix[row, col];
+                if (cellType == TrapPositioningType.None) continue;
                 GameObject prefab = null;
-                if (type == TrapPositioningType.Trap)
+                if (cellType == TrapPositioningType.Trap)
                     prefab = trapSettings.TrapPreview;
-                else if (type == TrapPositioningType.Spacer)
+                else if (cellType == TrapPositioningType.Spacer)
                     prefab = trapSettings.TrapSpacerPreview;
                 if (prefab == null) continue;
-                var go = Instantiate(prefab);
-                go.SetActive(false); // will be positioned and enabled in UpdateGhostPosition
-                currentGhostObjects.Add(go);
+                var ghostTrap = Instantiate(prefab);
+                ghostTrap.SetActive(false); // will be positioned and enabled in UpdateGhostTrapPositions
+                ghostTrapObjects.Add(ghostTrap);
 
-                var trapPreview = go.GetComponent<TrapPreview>();
+                var trapPreview = ghostTrap.GetComponent<TrapPreview>();
                 if (trapPreview != null)
                 {
-                    foreach (var col in trapPreview.Colliders)
+                    foreach (var collider in trapPreview.Colliders)
                     {
-                        if (col != null)
-                            col.gameObject.layer = ignoreLayer;
+                        if (collider != null)
+                            collider.gameObject.layer = ignoreLayer;
                     }
                 }
             }
         }
     }
 
-    private void DestroyGhostObject()
+    private void DestroyGhostTraps()
     {
-        if (currentGhostObjects != null)
+        if (ghostTrapObjects != null)
         {
-            foreach (var go in currentGhostObjects)
+            foreach (var ghostTrap in ghostTrapObjects)
             {
-                if (go != null)
-                    Destroy(go);
+                if (ghostTrap != null)
+                    Destroy(ghostTrap);
             }
-
-            currentGhostObjects.Clear();
+            ghostTrapObjects.Clear();
         }
     }
 
-    private void UpdateGhostPosition()
+    private void UpdateGhostTrapPositions()
     {
         Ray ray = cameraTransform.GetComponent<Camera>().ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
         LayerMask trapSurfaceLayer = 0;
-        if (selectedObjectIndex >= 0 && selectedObjectIndex < TrapsSettings.Count)
+        if (selectedTrapIndex >= 0 && selectedTrapIndex < TrapsSettings.Count)
         {
-            var settings = TrapsSettings[selectedObjectIndex];
+            var settings = TrapsSettings[selectedTrapIndex];
             trapSurfaceLayer = settings.TrapSurface | settings.TrapPlacementLayer;
         }
 
         if (Physics.Raycast(ray, out hit, interactionDistance, trapSurfaceLayer))
         {
-            var trapSettings = TrapsSettings[selectedObjectIndex];
-            var matrix = trapSettings.PositioningMatrix;
-            int rows = matrix.Rows;
-            int cols = matrix.Cols;
-            int centerRow = rows / 2;
-            int centerCol = cols / 2;
+            var trapSettings = TrapsSettings[selectedTrapIndex];
+            var positioningMatrix = trapSettings.PositioningMatrix;
+            int totalRows = positioningMatrix.Rows;
+            int totalCols = positioningMatrix.Cols;
+            int centerRow = totalRows / 2;
+            int centerCol = totalCols / 2;
 
             float snappedX = Mathf.Round(hit.point.x / gridSize) * gridSize;
             float snappedY = Mathf.Round(hit.point.y / gridSize) * gridSize;
             float snappedZ = Mathf.Round(hit.point.z / gridSize) * gridSize;
             Vector3 centerPosition = new Vector3(snappedX, snappedY, snappedZ);
 
-            bool allValid = true;
-            int ghostIdx = 0;
-            // Store per-ghost validity for later pass
-            List<(GameObject ghost, TrapPositioningType type, bool isValid)> ghostValidity = new();
-            for (int i = 0; i < rows; i++)
+            bool allCellsValid = true;
+            int ghostTrapIdx = 0;
+            List<(GameObject ghostTrap, TrapPositioningType cellType, bool isValid)> ghostTrapValidity = new();
+            for (int row = 0; row < totalRows; row++)
             {
-                for (int j = 0; j < cols; j++)
+                for (int col = 0; col < totalCols; col++)
                 {
-                    var type = matrix[i, j];
-                    if (type == TrapPositioningType.None) continue;
-                    int offsetRow = i - centerRow;
-                    int offsetCol = j - centerCol;
-                    Vector3 offset = new Vector3(offsetCol * gridSize, 0f, offsetRow * gridSize);
-                    if (ghostIdx >= currentGhostObjects.Count)
+                    var cellType = positioningMatrix[row, col];
+                    if (cellType == TrapPositioningType.None) continue;
+                    Vector3 offset = GetRotatedTrapOffset(row, col, centerRow, centerCol, ghostTrapRotationQuarterTurns);
+                    if (ghostTrapIdx >= ghostTrapObjects.Count)
                     {
-                        Debug.LogError($"[UpdateGhostPosition] ghostIdx {ghostIdx} out of range for {currentGhostObjects.Count} ghosts");
+                        Debug.LogError($"[UpdateGhostTrapPositions] ghostTrapIdx {ghostTrapIdx} out of range for {ghostTrapObjects.Count} ghosts");
                         continue;
                     }
-                    GameObject ghost = currentGhostObjects[ghostIdx++];
-                    ghost.SetActive(true);
-                    ghost.transform.position = centerPosition + offset;
-                    ghost.transform.rotation = Quaternion.identity;
+                    GameObject ghostTrap = ghostTrapObjects[ghostTrapIdx++];
+                    ghostTrap.SetActive(true);
+                    ghostTrap.transform.position = centerPosition + offset;
+                    float yRot = 90f * ghostTrapRotationQuarterTurns;
+                    ghostTrap.transform.rotation = Quaternion.Euler(0f, yRot, 0f);
 
-                    // Check placement conditions for this cell
-                    Vector3 boxCenter = ghost.transform.position;
-                    float checkBoxSize = gridSize * 0.45f;
-                    Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize);
-                    bool isValid = true;
-                    if (type == TrapPositioningType.Trap)
-                    {
-                        // 1. No overlap with TrapPlacementLayer (should block both Trap and Spacer)
-                        bool blockedByPlacement = Physics.CheckBox(boxCenter, halfExtents, ghost.transform.rotation, trapSettings.TrapPlacementLayer);
-                        // 2. Must overlap with TrapSurface
-                        bool hasSurface = Physics.CheckBox(boxCenter, halfExtents, ghost.transform.rotation, trapSettings.TrapSurface);
-                        isValid = !blockedByPlacement && hasSurface;
-                    }
-                    else if (type == TrapPositioningType.Spacer)
-                    {
-                        // 1. No overlap with TrapPlacementLayer (should block both Trap and Spacer)
-                        bool blockedByPlacement = Physics.CheckBox(boxCenter, halfExtents, ghost.transform.rotation, trapSettings.TrapPlacementLayer);
-                        // 2. No overlap with InvalidSurfacesForSpacer
-                        bool blockedByInvalidSurface = Physics.CheckBox(boxCenter, halfExtents, ghost.transform.rotation, trapSettings.InvalidSurfacesForSpacer);
-                        isValid = !blockedByPlacement && !blockedByInvalidSurface;
-                    }
-                    ghostValidity.Add((ghost, type, isValid));
-                    if (!isValid) allValid = false;
+                    bool isValid = IsTrapCellPlacementValid(cellType, ghostTrap.transform.position, ghostTrap.transform.rotation, trapSettings);
+                    ghostTrapValidity.Add((ghostTrap, cellType, isValid));
+                    if (!isValid) allCellsValid = false;
                 }
             }
-            // If any are invalid, mark all as invalid visually
-            foreach (var (ghost, type, isValid) in ghostValidity)
+            foreach (var (ghostTrap, cellType, isValid) in ghostTrapValidity)
             {
-                var trapPreview = ghost.GetComponent<TrapPreview>();
-                bool showValid = allValid ? isValid : false;
+                var trapPreview = ghostTrap.GetComponent<TrapPreview>();
+                bool showValid = allCellsValid ? isValid : false;
                 if (trapPreview != null)
                 {
                     if (showValid)
@@ -684,30 +670,62 @@ public class Player : MonoBehaviour
                         trapPreview.SetInvalid();
                 }
             }
-            canPlaceObject = allValid;
+            canPlaceObject = allCellsValid;
         }
         else
         {
-            foreach (var go in currentGhostObjects)
-                if (go != null) go.SetActive(false);
+            foreach (var ghostTrap in ghostTrapObjects)
+                if (ghostTrap != null) ghostTrap.SetActive(false);
             canPlaceObject = false;
         }
     }
 
+    private Vector3 GetRotatedTrapOffset(int row, int col, int centerRow, int centerCol, int quarterTurns)
+    {
+        int relRow = row - centerRow;
+        int relCol = col - centerCol;
+        int rotRow = relRow, rotCol = relCol;
+        for (int r = 0; r < quarterTurns; r++)
+        {
+            int temp = rotRow;
+            rotRow = -rotCol;
+            rotCol = temp;
+        }
+        return new Vector3(rotCol * gridSize, 0f, rotRow * gridSize);
+    }
+
+    private bool IsTrapCellPlacementValid(TrapPositioningType cellType, Vector3 position, Quaternion rotation, TrapSettings trapSettings)
+    {
+        float checkBoxSize = gridSize * 0.45f;
+        Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize);
+        if (cellType == TrapPositioningType.Trap)
+        {
+            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer);
+            bool hasSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapSurface);
+            return !blockedByPlacement && hasSurface;
+        }
+        else if (cellType == TrapPositioningType.Spacer)
+        {
+            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer);
+            bool blockedByInvalidSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.InvalidSurfacesForSpacer);
+            return !blockedByPlacement && !blockedByInvalidSurface;
+        }
+        return true;
+    }
+
     private void OnDrawGizmos()
     {
-        if (!Application.isPlaying || !isTrapModeActive || currentGhostObjects == null || currentGhostObjects.Count == 0) return;
+        if (!Application.isPlaying || !isTrapModeActive || ghostTrapObjects == null || ghostTrapObjects.Count == 0) return;
 
-        // debug ghost valid positioning for all ghosts
-        foreach (var ghost in currentGhostObjects)
+        foreach (var ghostTrap in ghostTrapObjects)
         {
-            if (ghost == null) continue;
-            Vector3 boxCenter = ghost.transform.position;
+            if (ghostTrap == null) continue;
+            Vector3 boxCenter = ghostTrap.transform.position;
             float checkBoxSize = gridSize * 0.45f;
             Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize);
-            bool isBlocked = Physics.CheckBox(boxCenter, halfExtents, ghost.transform.rotation, collisionCheckLayer);
+            bool isBlocked = Physics.CheckBox(boxCenter, halfExtents, ghostTrap.transform.rotation, collisionCheckLayer);
             Gizmos.color = isBlocked ? new Color(1f, 0f, 0f, 0.4f) : new Color(0f, 1f, 0f, 0.4f);
-            Gizmos.matrix = Matrix4x4.TRS(boxCenter, ghost.transform.rotation, Vector3.one);
+            Gizmos.matrix = Matrix4x4.TRS(boxCenter, ghostTrap.transform.rotation, Vector3.one);
             Gizmos.DrawCube(Vector3.zero, halfExtents * 2);
         }
         Gizmos.color = Color.white;
@@ -716,45 +734,42 @@ public class Player : MonoBehaviour
 
     private void PlaceTrap(InputAction.CallbackContext context)
     {
-        if (!isTrapModeActive || !canPlaceObject || currentGhostObjects == null || currentGhostObjects.Count == 0)
+        if (!isTrapModeActive || !canPlaceObject || ghostTrapObjects == null || ghostTrapObjects.Count == 0)
             return;
-        if (selectedPlaceObjectIndex < 0 || selectedPlaceObjectIndex >= TrapsSettings.Count)
+        if (selectedTrapPlacementIndex < 0 || selectedTrapPlacementIndex >= TrapsSettings.Count)
             return;
 
-        var trapSettings = TrapsSettings[selectedPlaceObjectIndex];
-        var matrix = trapSettings.PositioningMatrix;
-        int rows = matrix.Rows;
-        int cols = matrix.Cols;
-        int centerRow = rows / 2;
-        int centerCol = cols / 2;
+        var trapSettings = TrapsSettings[selectedTrapPlacementIndex];
+        var positioningMatrix = trapSettings.PositioningMatrix;
+        int totalRows = positioningMatrix.Rows;
+        int totalCols = positioningMatrix.Cols;
+        int centerRow = totalRows / 2;
+        int centerCol = totalCols / 2;
 
-        // Place all objects in the matrix
-        int ghostIdx = 0;
-        for (int i = 0; i < rows; i++)
+        int ghostTrapIdx = 0;
+        for (int row = 0; row < totalRows; row++)
         {
-            for (int j = 0; j < cols; j++)
+            for (int col = 0; col < totalCols; col++)
             {
-                var type = matrix[i, j];
-                if (type == TrapPositioningType.None) continue;
-                int offsetRow = i - centerRow;
-                int offsetCol = j - centerCol;
-                Vector3 offset = new Vector3(offsetCol * gridSize, 0f, offsetRow * gridSize);
-                if (ghostIdx >= currentGhostObjects.Count)
+                var cellType = positioningMatrix[row, col];
+                if (cellType == TrapPositioningType.None) continue;
+                Vector3 offset = new Vector3((col - centerCol) * gridSize, 0f, (row - centerRow) * gridSize);
+                if (ghostTrapIdx >= ghostTrapObjects.Count)
                 {
-                    Debug.LogError($"[PlaceTrap] ghostIdx {ghostIdx} out of range for {currentGhostObjects.Count} ghosts");
+                    Debug.LogError($"[PlaceTrap] ghostTrapIdx {ghostTrapIdx} out of range for {ghostTrapObjects.Count} ghosts");
                     continue;
                 }
-                GameObject ghost = currentGhostObjects[ghostIdx++];
-                Vector3 pos = ghost.transform.position;
-                Quaternion rot = ghost.transform.rotation;
-                if (type == TrapPositioningType.Trap && trapSettings.TrapObject != null)
+                GameObject ghostTrap = ghostTrapObjects[ghostTrapIdx++];
+                Vector3 pos = ghostTrap.transform.position;
+                Quaternion rot = ghostTrap.transform.rotation;
+                if (cellType == TrapPositioningType.Trap && trapSettings.TrapObject != null)
                 {
                     Instantiate(trapSettings.TrapObject, pos, rot);
                     var pointer = Instantiate(trapSettings.TrapPreview, pos, rot);
                     pointer.SetActive(isTrapModeActive);
                     trapPreviews.Add(pointer);
                 }
-                else if (type == TrapPositioningType.Spacer && trapSettings.TrapSpacerPreview != null)
+                else if (cellType == TrapPositioningType.Spacer && trapSettings.TrapSpacerPreview != null)
                 {
                     var pointer = Instantiate(trapSettings.TrapSpacerPreview, pos, rot);
                     pointer.SetActive(isTrapModeActive);
@@ -771,5 +786,27 @@ public class Player : MonoBehaviour
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
 
         _moveDirection = context.ReadValue<Vector2>();
+    }
+
+    public void RotateObject(InputAction.CallbackContext context)
+    {
+        if (!isTrapModeActive || ghostTrapObjects == null || ghostTrapObjects.Count == 0)
+            return;
+
+        float scrollValue = context.ReadValue<float>();
+        if (Mathf.Abs(scrollValue) < 0.01f)
+            return;
+
+        int direction = (int)Mathf.Sign(scrollValue);
+        if (direction == 0) return;
+        direction = -direction;
+
+        ghostTrapRotationQuarterTurns = (ghostTrapRotationQuarterTurns + direction) % 4;
+        if (ghostTrapRotationQuarterTurns < 0)
+            ghostTrapRotationQuarterTurns += 4;
+
+        Debug.Log($"[RotateObject] Rotated matrix, new ghostTrapRotationQuarterTurns={ghostTrapRotationQuarterTurns}");
+
+        UpdateGhostTrapPositions();
     }
 }

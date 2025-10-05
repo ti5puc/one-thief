@@ -51,5 +51,6 @@ public class FakeFloorTrap : TrapBase
         });
     }
 
-    protected override void OnReactivate(float totalDuration) { }
+    protected override void OnReactivate(float totalDuration) => throw new NotImplementedException();
+    protected override void OnAlwaysActive() => throw new NotImplementedException();
 }

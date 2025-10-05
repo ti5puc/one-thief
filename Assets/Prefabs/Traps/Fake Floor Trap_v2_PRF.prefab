@@ -945,13 +945,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ca6d8dd6b78d23458ab2e40409359b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTag: Player
-  delayToHit: 0.7
-  trapSurface: 0
-  keepHitTrigger: 1
-  hitTriggerActiveTime: 0.2
-  canReactive: 0
-  activatedDurationTime: 4
+  trapSettings: {fileID: 11400000, guid: 4911bef7ee32dad409029ad03a5fb684, type: 2}
   actionTrigger: {fileID: 1985189876497007803}
   hitTrigger: {fileID: 6167381141776686365}
   vibrationDuration: 1

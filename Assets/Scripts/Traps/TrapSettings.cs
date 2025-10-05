@@ -4,21 +4,44 @@ using UnityEngine;
 [CreateAssetMenu(fileName = nameof(TrapSettings), menuName = "Traps/" + nameof(TrapSettings))]
 public class TrapSettings : ScriptableObject
 {
+    [Header("General Settings")]
     [SerializeField] private string trapName;
+
+    [Space(10)]
+    [SerializeField] private bool isAlwaysActive = false;
+    [SerializeField, HideIf(nameof(isAlwaysActive))] private float delayToHitAfterActivated = 0.7f;
+
+    [Space(10)]
+    [SerializeField, HideIf(nameof(isAlwaysActive))] private bool keepHitTriggerAfterActivated = false;
+    [SerializeField, HideIf(EConditionOperator.Or, nameof(isAlwaysActive), nameof(keepHitTriggerAfterActivated))] private float hitTriggerActiveTime = .2f;
+
+    [Space(10)]
+    [SerializeField, HideIf(nameof(isAlwaysActive))] private bool canReactive;
+    [SerializeField, ShowIf(nameof(canReactive))] private float delayBeforeReactivate = 4f;
+
+    [Header("Layer Settings")]
     [SerializeField] private LayerMask trapPlacementLayer;
     [SerializeField] private LayerMask ignorePlacementLayer;
     [SerializeField] private LayerMask trapSurface;
-    [SerializeField] private LayerMask invalidSurfacesForSpacer;
 
-    [Space(10)]
-    [SerializeField, ShowAssetPreview(128)] private GameObject trapSpacerPreview;
+    [Header("Preview & Object")]
     [SerializeField, ShowAssetPreview(128)] private GameObject trapPreview;
     [SerializeField, ShowAssetPreview(128)] private GameObject trapObject;
 
-    [SerializeField]
-    private TrapPositioningMatrix2D positioningMatrix = new TrapPositioningMatrix2D(3, 3);
+    [Header("Spacer Settings")]
+    [SerializeField] private LayerMask invalidSurfacesForSpacer;
+    [SerializeField, ShowAssetPreview(128)] private GameObject trapSpacerPreview;
+
+    [Header("Positioning Settings")]
+    [SerializeField, HideInInspector] private TrapPositioningMatrix2D positioningMatrix = new TrapPositioningMatrix2D(3, 3);
 
     public string TrapName => trapName;
+    public bool IsAlwaysActive => isAlwaysActive;
+    public float DelayToHit => delayToHitAfterActivated;
+    public bool KeepHitTrigger => keepHitTriggerAfterActivated;
+    public float HitTriggerActiveTime => hitTriggerActiveTime;
+    public bool CanReactive => canReactive;
+    public float DelayBeforeReactivate => delayBeforeReactivate;
     public LayerMask TrapPlacementLayer => trapPlacementLayer;
     public LayerMask IgnorePlacementLayer => ignorePlacementLayer;
     public LayerMask TrapSurface => trapSurface;

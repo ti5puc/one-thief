@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
-  m_Name: SpikeTrap
+  m_Name: HammerTrap
   m_EditorClassIdentifier: 
-  trapName: Spikes
-  isAlwaysActive: 0
-  delayToHitAfterActivated: 1
-  keepHitTriggerAfterActivated: 1
+  trapName: Hammer Pendulum
+  isAlwaysActive: 1
+  delayToHitAfterActivated: 0.7
+  keepHitTriggerAfterActivated: 0
   hitTriggerActiveTime: 0.2
   canReactive: 0
   delayBeforeReactivate: 4
@@ -28,8 +28,8 @@ MonoBehaviour:
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
-  trapPreview: {fileID: 5470613590884588052, guid: 03a95a31b43631f4680aadb209c5987f, type: 3}
-  trapObject: {fileID: 4782766396064776245, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
+  trapPreview: {fileID: 5754541727414858320, guid: 85f7d314bea4b454ba8eb5c5fe4e6086, type: 3}
+  trapObject: {fileID: 8461495209470578536, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
   invalidSurfacesForSpacer:
     serializedVersion: 2
     m_Bits: 1408
@@ -37,4 +37,4 @@ MonoBehaviour:
   positioningMatrix:
     rows: 3
     cols: 3
-    data: 000000000000000000000000000000000100000000000000000000000000000000000000
+    data: 000000000000000000000000020000000100000002000000000000000000000000000000

@@ -278,11 +278,17 @@ MonoBehaviour:
     - {fileID: 1481362227885449705}
     - {fileID: 7725506313589898502}
     - {fileID: 2517946117084509988}
-  notAllowedPointer: {fileID: 1970068234138585014}
   colliders:
   - {fileID: 444784210255842697}
+  notAllowedPointer: {fileID: 1970068234138585014}
+  groundPreviewObject: {fileID: 8435826527732664838}
 --- !u!23 &7725506313589898502 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 5874940449298333758, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
+  m_PrefabInstance: {fileID: 4229293714348997944}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8435826527732664838 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5738548760347342654, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
   m_PrefabInstance: {fileID: 4229293714348997944}
   m_PrefabAsset: {fileID: 0}

@@ -70,7 +70,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8873266900675238751, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.6
+      value: 2.998
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4426112885511364263, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
@@ -87,6 +87,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 7901268535582442837}
   m_SourcePrefab: {fileID: 100100000, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+--- !u!1 &1700449987074336336 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3017096968573177291, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+  m_PrefabInstance: {fileID: 4487793004544027547}
+  m_PrefabAsset: {fileID: 0}
 --- !u!23 &1851045069346095106 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 2880030363265575833, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
@@ -138,9 +143,10 @@ MonoBehaviour:
   - material: {fileID: 2100000, guid: b37578ca49166e74ca91c14aa451216e, type: 2}
     renderers:
     - {fileID: 1851045069346095106}
-  notAllowedPointer: {fileID: 4786038703726122008}
   colliders:
   - {fileID: 6190451919596503195}
+  notAllowedPointer: {fileID: 4786038703726122008}
+  groundPreviewObject: {fileID: 1700449987074336336}
 --- !u!1001 &9042741654988355761
 PrefabInstance:
   m_ObjectHideFlags: 0

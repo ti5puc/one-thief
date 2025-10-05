@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 
@@ -74,4 +75,6 @@ public class FakeFloorTrap_v2 : TrapBase
 
         Debug.Log($"Fake floor trap reactivated (riseDuration: {safeBreakDuration}, interval: {interval})");
     }
+
+    protected override void OnAlwaysActive() => throw new NotImplementedException();
 }

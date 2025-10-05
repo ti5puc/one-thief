@@ -11,16 +11,25 @@ public class TrapPreview : MonoBehaviour
         public Renderer[] renderers;
     }
 
+    [Header("Materials")]
     [SerializeField] private List<RenderersByMaterial> validMaterialsList = new();
     [SerializeField] private List<RenderersByMaterial> invalidMaterialsList = new();
-    [SerializeField] private GameObject notAllowedPointer;
+
+    [Header("Colliders to disable when placing")] // they need to stay on for overlap checks
     [SerializeField] private List<Collider> colliders;
+
+    [Header("References")]
+    [SerializeField] private GameObject notAllowedPointer;
+    [SerializeField] private GameObject groundPreviewObject;
 
     public List<Collider> Colliders => colliders;
 
     private void Awake()
     {
         notAllowedPointer?.SetActive(false);
+        if (groundPreviewObject != null)
+            groundPreviewObject.transform.localPosition = Vector3.zero;
+
         foreach (var col in colliders)
         {
             if (col != null)

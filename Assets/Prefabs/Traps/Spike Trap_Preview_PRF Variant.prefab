@@ -252,9 +252,10 @@ MonoBehaviour:
     - {fileID: 7585112631327254421}
     - {fileID: 5301464465502928692}
     - {fileID: 6861838767638265220}
-  notAllowedPointer: {fileID: 4555056181914593598}
   colliders:
   - {fileID: 8845316544656246536}
+  notAllowedPointer: {fileID: 4555056181914593598}
+  groundPreviewObject: {fileID: 8275996398588303954}
 --- !u!4 &5547925076412219615 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4992938202895227646, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
@@ -293,6 +294,11 @@ SpriteRenderer:
 --- !u!212 &7585112631327254421 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 6987318749536894388, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
+  m_PrefabInstance: {fileID: 699265901744380449}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8275996398588303954 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8894174139330379891, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
   m_PrefabInstance: {fileID: 699265901744380449}
   m_PrefabAsset: {fileID: 0}
 --- !u!65 &8845316544656246536 stripped

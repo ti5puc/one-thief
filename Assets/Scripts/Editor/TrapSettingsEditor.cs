@@ -1,30 +1,22 @@
+
 using UnityEditor;
 using UnityEngine;
+using NaughtyAttributes.Editor;
 
 [CustomEditor(typeof(TrapSettings))]
-public class TrapSettingsEditor : Editor
+public class TrapSettingsEditor : NaughtyInspector
 {
     public override void OnInspectorGUI()
     {
+        base.OnInspectorGUI();
+
         TrapSettings trapSettings = (TrapSettings)target;
-        SerializedObject so = serializedObject;
 
-        // Draw all properties except the matrix
-        SerializedProperty prop = so.GetIterator();
-        bool enterChildren = true;
-        while (prop.NextVisible(enterChildren))
-        {
-            enterChildren = false;
-            if (prop.name == "positioningMatrix")
-                continue;
-            EditorGUILayout.PropertyField(prop, true);
-        }
-
-        // Draw matrix label
+        // draw matrix label
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Positioning Matrix", EditorStyles.boldLabel);
 
-        // Draw matrix grid using enum popup
+        // draw matrix grid using enum popup
         var matrix = trapSettings.PositioningMatrix;
         int rows = matrix.Rows;
         int cols = matrix.Cols;
@@ -51,12 +43,14 @@ public class TrapSettingsEditor : Editor
         }
 
         EditorGUILayout.Space(5);
+
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Increase Matrix Size"))
         {
             matrix.Resize(rows + 2, cols + 2);
             EditorUtility.SetDirty(trapSettings);
         }
+
         if (GUILayout.Button("Decrease Matrix Size"))
         {
             if (rows > 3 && cols > 3)
@@ -67,10 +61,8 @@ public class TrapSettingsEditor : Editor
         }
         EditorGUILayout.EndHorizontal();
 
-        // Save changes
+        // save changes
         if (GUI.changed)
-        {
             EditorUtility.SetDirty(trapSettings);
-        }
     }
 }

@@ -6,20 +6,7 @@ using UnityEngine;
 
 public abstract class TrapBase : MonoBehaviour
 {
-    public enum TrapSurface { Floor, Wall, Ceiling }
-
-    [Header("Base Settings")]
-    [SerializeField] protected string playerTag = "Player";
-    [SerializeField] protected float delayToHit = 0.7f;
-    [SerializeField] protected TrapSurface trapSurface;
-
-    [Space(10)]
-    [SerializeField] protected bool keepHitTrigger;
-    [SerializeField, HideIf(nameof(keepHitTrigger))] protected float hitTriggerActiveTime = .2f;
-
-    [Space(10)]
-    [SerializeField] protected bool canReactive;
-    [SerializeField, ShowIf(nameof(canReactive))] protected float activatedDurationTime = 4f;
+    [SerializeField] protected TrapSettings trapSettings;
 
     [Header("Base Colliders")]
     [SerializeField] protected TriggerEventSender actionTrigger;
@@ -29,16 +16,19 @@ public abstract class TrapBase : MonoBehaviour
     protected bool hasActionTriggerStayed = false;
     protected bool hasHitTriggerStayed = false;
 
+    public TrapSettings TrapSettings => trapSettings;
+
     protected virtual void Awake()
     {
-        Setup();
+        Initialize();
 
         actionTrigger.OnEnter += OnActionTriggerEnter;
         actionTrigger.OnStay += OnActionTriggerStay;
         hitTrigger.OnEnter += OnHitTriggerEnter;
         hitTrigger.OnStay += OnHitTriggerStay;
 
-        if (trapSurface == TrapSurface.Floor)
+        // if on ground, check for nearest ground tile to disable it and use the trap one instead
+        if (trapSettings.TrapSurface == GameManager.GroundLayerMask)
         {
             if (!foundNearestGround)
             {
@@ -71,32 +61,38 @@ public abstract class TrapBase : MonoBehaviour
         hitTrigger.OnEnter -= OnHitTriggerEnter;
     }
 
+    protected virtual void Update()
+    {
+        if (trapSettings.IsAlwaysActive)
+            OnAlwaysActive();
+    }
+
     protected virtual void OnActionTriggerEnter(Collider other)
     {
         if (GameManager.CurrentGameState == GameState.Building) return;
-        if (other.CompareTag(playerTag) == false) return;
+        if (other.CompareTag(GameManager.PlayerTag) == false) return;
         if (other.GetComponent<PlayerDeathIdentifier>().IsDead) return;
 
         actionTrigger.gameObject.SetActive(false);
 
-        OnAction(other, delayToHit);
+        OnAction(other, trapSettings.DelayToHit);
 
-        DOVirtual.DelayedCall(delayToHit, () =>
+        DOVirtual.DelayedCall(trapSettings.DelayToHit, () =>
         {
             hitTrigger.gameObject.SetActive(true);
 
-            if (keepHitTrigger == false)
+            if (trapSettings.KeepHitTrigger == false)
             {
-                DOVirtual.DelayedCall(hitTriggerActiveTime, () =>
+                DOVirtual.DelayedCall(trapSettings.HitTriggerActiveTime, () =>
                 {
                     hitTrigger.gameObject.SetActive(false);
                 });
             }
 
-            if (canReactive)
+            if (trapSettings.CanReactive)
             {
-                OnReactivate(activatedDurationTime);
-                DOVirtual.DelayedCall(activatedDurationTime, Setup);
+                OnReactivate(trapSettings.DelayBeforeReactivate);
+                DOVirtual.DelayedCall(trapSettings.DelayBeforeReactivate, Initialize);
             }
         });
     }
@@ -112,7 +108,7 @@ public abstract class TrapBase : MonoBehaviour
     protected virtual void OnHitTriggerEnter(Collider other)
     {
         if (GameManager.CurrentGameState == GameState.Building) return;
-        if (other.CompareTag(playerTag) == false) return;
+        if (other.CompareTag(GameManager.PlayerTag) == false) return;
         if (other.GetComponent<PlayerDeathIdentifier>().IsDead) return;
         OnHit(other);
     }
@@ -125,13 +121,20 @@ public abstract class TrapBase : MonoBehaviour
         hasHitTriggerStayed = true;
     }
 
-    protected virtual void Setup()
+    protected virtual void Initialize()
     {
         actionTrigger.gameObject.SetActive(true);
-        hitTrigger.gameObject.SetActive(false);
+        hitTrigger.gameObject.SetActive(trapSettings.IsAlwaysActive);
+
+        if (trapSettings == null)
+        {
+            Debug.LogError("TrapSettings not assigned in " + gameObject.name);
+            return;
+        }
     }
 
     protected abstract void OnAction(Collider player, float totalDuration);
     protected abstract void OnHit(Collider player);
     protected abstract void OnReactivate(float totalDuration);
+    protected abstract void OnAlwaysActive();
 }

@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -70,4 +71,6 @@ public class StoneTrap : TrapBase
 
         Debug.Log($"Stone trap reactivated (riseDuration: {safeFallDuration}, interval: {interval})");
     }
+
+    protected override void OnAlwaysActive() => throw new NotImplementedException();
 }

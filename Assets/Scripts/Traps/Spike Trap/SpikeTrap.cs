@@ -39,4 +39,6 @@ public class SpikeTrap : TrapBase
 
         Debug.Log("Spike trap reactivated");
     }
+
+    protected override void OnAlwaysActive() => throw new NotImplementedException();
 }

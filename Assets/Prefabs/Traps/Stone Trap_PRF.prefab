@@ -221,13 +221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03083b0666e09174b81921fea54d1867, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTag: Player
-  delayToHit: 0.7
-  trapSurface: 0
-  keepHitTrigger: 0
-  hitTriggerActiveTime: 0.2
-  canReactive: 1
-  activatedDurationTime: 4
+  trapSettings: {fileID: 11400000, guid: 0b5bbac9854562744873acc4895d354d, type: 2}
   actionTrigger: {fileID: 3433197011716834024}
   hitTrigger: {fileID: 4753646497631598730}
   stoneFallFinalY: 1

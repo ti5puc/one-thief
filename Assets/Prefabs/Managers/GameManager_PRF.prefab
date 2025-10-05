@@ -44,3 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f4a4ca90c04284cb52cad28bc452e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerTag: Player
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  currentGameState: 0

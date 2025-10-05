@@ -11,10 +11,23 @@ public class PendulumTrap : TrapBase
     [SerializeField] private Ease swingEase = Ease.InOutSine;
 
     [Space(10)]
+    [SerializeField] private bool onlyKnockback = false;
+    [SerializeField, ShowIf(nameof(onlyKnockback))] private float knockbackForce = 10f;
+    [SerializeField, ShowIf(nameof(onlyKnockback))] private float knockbackVerticalForce = 2f;
+
+    [Space(10)]
     [SerializeField] private GameObject swingObject;
 
     private bool hasStartedSwinging = false;
     private Sequence swingSequence;
+    private Quaternion initialRotation;
+    private bool canKnockback = true;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        initialRotation = swingObject.transform.localRotation;
+    }
 
     protected override void OnAlwaysActive()
     {
@@ -43,7 +56,34 @@ public class PendulumTrap : TrapBase
     protected override void OnHit(Collider player)
     {
         Debug.Log("Player hit by pendulum trap");
+
         var controller = player.GetComponent<PlayerDeathIdentifier>();
+        if (onlyKnockback)
+        {
+            if (!canKnockback)
+                return;
+
+            canKnockback = false;
+
+            Vector3 swingDir = swingObject.transform.right;
+            swingDir.y = 0f;
+            swingDir.Normalize();
+
+            Vector3 pendulumToPlayer = player.transform.position - swingObject.transform.position;
+            float side = Vector3.Dot(pendulumToPlayer, swingDir);
+            if (side < 0f)
+                swingDir = -swingDir;
+
+            Vector3 direction = swingDir;
+            direction.y = knockbackVerticalForce;
+            direction.Normalize();
+
+            controller.Knockback(direction, knockbackForce);
+
+            Invoke(nameof(ResetKnockback), 1f);
+            return;
+        }
+
         controller.Death();
     }
 
@@ -56,6 +96,11 @@ public class PendulumTrap : TrapBase
     protected override void OnAction(Collider player, float totalDuration) => throw new NotImplementedException();
     protected override void OnReactivate(float totalDuration) => throw new NotImplementedException();
 
+    private void ResetKnockback()
+    {
+        canKnockback = true;
+    }
+
     [Button]
     private void ResetAnimation()
     {
@@ -65,5 +110,6 @@ public class PendulumTrap : TrapBase
             swingSequence.Kill();
             swingSequence = null;
         }
+        swingObject.transform.localRotation = initialRotation;
     }
 }

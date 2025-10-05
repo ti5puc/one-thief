@@ -6,6 +6,8 @@ public class TrapSettings : ScriptableObject
 {
     [Header("General Settings")]
     [SerializeField] private string trapName;
+    [InfoBox("To set this ID go to One Thief > Trap Settings > Assign Unique IDs")]
+    [SerializeField, ReadOnly] private int id;
 
     [Space(10)]
     [SerializeField] private bool isAlwaysActive = false;
@@ -53,6 +55,11 @@ public class TrapSettings : ScriptableObject
     {
         get => positioningMatrix;
         set => positioningMatrix = value;
+    }
+    public int ID
+    {
+        get => id;
+        set => id = value;
     }
 }
 

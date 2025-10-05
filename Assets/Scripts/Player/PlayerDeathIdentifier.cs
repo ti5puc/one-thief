@@ -81,4 +81,10 @@ public class PlayerDeathIdentifier : MonoBehaviour
         var ghostPosition = new Vector3(transform.position.x, DeathGhostPrefab.transform.position.y + vfxOffset, transform.position.z);
         deathGhost = Instantiate(DeathGhostPrefab, ghostPosition, DeathGhostPrefab.transform.rotation);
     }
+
+    public void Knockback(Vector3 direction, float force)
+    {
+        if (isDead) return;
+        rigidBody.AddForce(direction.normalized * force, ForceMode.Impulse);
+    }
 }

@@ -11,17 +11,25 @@ public class LevelEditorBrush : GridBrushBase
     public GameObject CeilPrefab;
     public bool DebugLogs = false;
 
-    private List<GameObject> placedObjectsThisPaint = new List<GameObject>();
+
 
     public override void Paint(GridLayout grid, GameObject brushTarget, Vector3Int cellPosition)
     {
         if (brushTarget == null || GroundPrefab == null || WallPrefab == null || CeilPrefab == null)
             return;
 
-        LevelEditorManager levelEditorManager = Object.FindAnyObjectByType<LevelEditorManager>();
-        if (levelEditorManager != null && levelEditorManager.PlacedObjects == null)
+        LevelEditorManager levelEditorManager = FindAnyObjectByType<LevelEditorManager>();
+        if (levelEditorManager != null)
         {
-            levelEditorManager.PlacedObjects = new List<GameObject>();
+            if (levelEditorManager.PlacedObjects == null)
+            {
+                levelEditorManager.PlacedObjects = new List<GameObject>();
+            }
+            else
+            {
+                // Clean up null references that accumulate when objects are destroyed
+                levelEditorManager.CleanupNullReferences();
+            }
         }
 
         Vector3 cellOrigin = grid.CellToWorld(cellPosition);
@@ -33,8 +41,8 @@ public class LevelEditorBrush : GridBrushBase
         if (!HasGroundAtCell(grid, brushTarget, cellPosition))
         {
             GameObject ground = InstantiatePrefabIntoParent(brushTarget, GroundPrefab, groundPosition, Quaternion.identity);
-            if (ground != null) placedObjectsThisPaint.Add(ground);
-            if (levelEditorManager != null && levelEditorManager.PlacedObjects != null) levelEditorManager.PlacedObjects.Add(ground);
+            if (ground != null && levelEditorManager != null && levelEditorManager.PlacedObjects != null) 
+                levelEditorManager.PlacedObjects.Add(ground);
         }
 
         Vector3Int[] wallDirections =
@@ -80,8 +88,8 @@ public class LevelEditorBrush : GridBrushBase
                     Vector3 wallPosition = cellCenter + wallOffsets[wallIndex];
                     wallPosition.y = wallY;
                     GameObject wallObject = InstantiatePrefabIntoParent(brushTarget, WallPrefab, wallPosition, wallRotations[wallIndex]);
-                    if (wallObject != null) placedObjectsThisPaint.Add(wallObject);
-                    if (levelEditorManager != null && levelEditorManager.PlacedObjects != null) levelEditorManager.PlacedObjects.Add(wallObject);
+                    if (wallObject != null && levelEditorManager != null && levelEditorManager.PlacedObjects != null) 
+                        levelEditorManager.PlacedObjects.Add(wallObject);
                 }
             }
             else
@@ -106,11 +114,9 @@ public class LevelEditorBrush : GridBrushBase
 
         Vector3 ceilPosition = cellCenter + new Vector3(0f, 6.5f, 0f);
         GameObject ceil = InstantiatePrefabIntoParent(brushTarget, CeilPrefab, ceilPosition, Quaternion.identity);
-        if (ceil != null) placedObjectsThisPaint.Add(ceil);
-        if (levelEditorManager != null && levelEditorManager.PlacedObjects != null) levelEditorManager.PlacedObjects.Add(ceil);
-    }
-
-    private bool HasGroundAtCell(GridLayout grid, GameObject parent, Vector3Int cell)
+        if (ceil != null && levelEditorManager != null && levelEditorManager.PlacedObjects != null) 
+            levelEditorManager.PlacedObjects.Add(ceil);
+    }    private bool HasGroundAtCell(GridLayout grid, GameObject parent, Vector3Int cell)
     {
         Vector3 cellOrigin = grid.CellToWorld(cell);
         float halfCellX = grid.cellSize.x * 0.5f;
@@ -118,16 +124,8 @@ public class LevelEditorBrush : GridBrushBase
         Vector3 groundCenter = cellOrigin + new Vector3(halfCellX, -0.5f, halfCellZ);
         float tolerance = Mathf.Max(0.25f, Mathf.Min(halfCellX, halfCellZ) * 0.4f);
 
-        foreach (Transform child in parent.transform)
-        {
-            if (child == null) continue;
-            float distance = (child.position - groundCenter).magnitude;
-            if (DebugLogs) Debug.Log($"hasGround: checking child {child.gameObject.name} at {child.position} dist={distance:F3} tol={tolerance:F3}");
-            if ((child.position - groundCenter).sqrMagnitude <= tolerance * tolerance)
-                return true;
-        }
-
-        LevelEditorManager levelEditorManager = Object.FindAnyObjectByType<LevelEditorManager>();
+        // Only check the manager's list - our single source of truth
+        LevelEditorManager levelEditorManager = FindAnyObjectByType<LevelEditorManager>();
         if (levelEditorManager != null && levelEditorManager.PlacedObjects != null)
         {
             foreach (GameObject placedGroundObject in levelEditorManager.PlacedObjects)
@@ -146,40 +144,37 @@ public class LevelEditorBrush : GridBrushBase
 
     private bool RemoveWallAtPosition(GameObject parent, Vector3 worldPosition, bool debug, LevelEditorManager levelEditorManager = null)
     {
-        float tolerance = 0.45f;
-        foreach (Transform child in parent.transform)
+        float tolerance = 0.5f;
+        bool removedAny = false;
+        List<GameObject> wallsToRemove = new List<GameObject>();
+
+        // Check the manager's list - this is our single source of truth
+        if (levelEditorManager != null && levelEditorManager.PlacedObjects != null)
         {
-            if (child == null) continue;
-            if (!child.gameObject.name.Contains("Wall")) continue;
-            if ((child.position - worldPosition).sqrMagnitude <= tolerance * tolerance)
+            foreach (GameObject obj in levelEditorManager.PlacedObjects)
             {
-                if (debug) Debug.Log($"removing (parent) {child.gameObject.name} at {child.position}");
-                if (levelEditorManager != null && levelEditorManager.PlacedObjects != null && levelEditorManager.PlacedObjects.Contains(child.gameObject))
+                if (obj == null) continue;
+                if (!obj.name.Contains("Wall")) continue;
+                if ((obj.transform.position - worldPosition).sqrMagnitude <= tolerance * tolerance)
                 {
-                    levelEditorManager.PlacedObjects.Remove(child.gameObject);
+                    wallsToRemove.Add(obj);
                 }
-                Undo.DestroyObjectImmediate(child.gameObject);
-                return true;
             }
         }
 
-        foreach (Transform child in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        // Remove all found walls
+        foreach (GameObject wall in wallsToRemove)
         {
-            if (child == null) continue;
-            if (!child.gameObject.name.Contains("Wall")) continue;
-            if ((child.position - worldPosition).sqrMagnitude <= tolerance * tolerance)
+            if (debug) Debug.Log($"removing wall {wall.name} at {wall.transform.position}");
+            if (levelEditorManager != null && levelEditorManager.PlacedObjects != null)
             {
-                if (debug) Debug.Log($"removing (scene) {child.gameObject.name} at {child.position}");
-                if (levelEditorManager != null && levelEditorManager.PlacedObjects != null && levelEditorManager.PlacedObjects.Contains(child.gameObject))
-                {
-                    levelEditorManager.PlacedObjects.Remove(child.gameObject);
-                }
-                Undo.DestroyObjectImmediate(child.gameObject);
-                return true;
+                levelEditorManager.PlacedObjects.Remove(wall);
             }
+            Undo.DestroyObjectImmediate(wall);
+            removedAny = true;
         }
 
-        return false;
+        return removedAny;
     }
 
     private GameObject InstantiatePrefabIntoParent(GameObject parent, GameObject prefab, Vector3 worldPosition, Quaternion rotation)

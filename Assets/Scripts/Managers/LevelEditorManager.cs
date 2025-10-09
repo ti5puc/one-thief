@@ -8,6 +8,11 @@ public class LevelEditorManager : MonoBehaviour
 
     public List<GameObject> PlacedObjects = new List<GameObject>();
 
+    public void CleanupNullReferences()
+    {
+        PlacedObjects.RemoveAll(obj => obj == null);
+    }
+
     public void ClearPlacedObjects()
     {
         PlacedObjects.Clear();

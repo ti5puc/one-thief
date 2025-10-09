@@ -15,4 +15,4 @@ MonoBehaviour:
   GroundPrefab: {fileID: 1313715232073731135, guid: b41ce0eb452b07f4ca8111df36a2786f, type: 3}
   WallPrefab: {fileID: 3270531613295722307, guid: 8182414353e01344397e88d56ad56643, type: 3}
   CeilPrefab: {fileID: 3634363907304555873, guid: eb8427d6c2117ec4890e6a05ca0b2ea9, type: 3}
-  DebugLogs: 1
+  DebugLogs: 0

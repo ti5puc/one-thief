@@ -405,7 +405,7 @@ GameObject:
   - component: {fileID: 3821318854461365540}
   - component: {fileID: 3781261086080605053}
   - component: {fileID: 810924917885801115}
-  m_Layer: 10
+  m_Layer: 6
   m_Name: Ceil
   m_TagString: Untagged
   m_Icon: {fileID: 0}

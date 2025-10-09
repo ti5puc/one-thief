@@ -700,13 +700,13 @@ public class Player : MonoBehaviour
         Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize);
         if (cellType == TrapPositioningType.Trap)
         {
-            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer);
+            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer | collisionCheckLayer);
             bool hasSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapSurface);
             return !blockedByPlacement && hasSurface;
         }
         else if (cellType == TrapPositioningType.Spacer)
         {
-            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer);
+            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer | collisionCheckLayer);
             bool blockedByInvalidSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.InvalidSurfacesForSpacer);
             return !blockedByPlacement && !blockedByInvalidSurface;
         }

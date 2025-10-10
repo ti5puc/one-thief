@@ -374,6 +374,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 5120
   gridSize: 3
+  gridOffset: {x: 1.5, y: 1.5}
   TrapsSettings:
   - {fileID: 11400000, guid: 4911bef7ee32dad409029ad03a5fb684, type: 2}
   - {fileID: 11400000, guid: f36aca901dc1d084ebb449894ebcd9ad, type: 2}

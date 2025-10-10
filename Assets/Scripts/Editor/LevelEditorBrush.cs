@@ -6,18 +6,67 @@ using System.Collections.Generic;
 [CustomGridBrush(false, true, false, "Level Layout Brush")]
 public class LevelEditorBrush : GridBrushBase
 {
+    // Constants for level geometry
+    private const float GROUND_VERTICAL_OFFSET = -0.5f;
+    private const float CEILING_VERTICAL_OFFSET = 6.5f;
+    private const float WALL_DISTANCE_FROM_CELL_EDGE = 0.5f;
+    private const float LOW_WALL_HEIGHT_MULTIPLIER = 1f;
+    private const float HIGH_WALL_HEIGHT_MULTIPLIER = 3f;
+    private const float POSITION_MATCH_TOLERANCE = 0.5f;
+    private const float GROUND_DETECTION_TOLERANCE_MULTIPLIER = 0.4f;
+    private const float MINIMUM_GROUND_DETECTION_TOLERANCE = 0.25f;
+
+    private const int WALL_DIRECTION_COUNT = 4;
+    private const int LEFT_WALL_INDEX = 0;
+    private const int RIGHT_WALL_INDEX = 1;
+    private const int BOTTOM_WALL_INDEX = 2;
+    private const int TOP_WALL_INDEX = 3;
+
     public GameObject GroundPrefab;
     public GameObject WallPrefab;
     public GameObject CeilPrefab;
     public bool DebugLogs = false;
 
+    // Helper struct to encapsulate cell geometry calculations
+    private struct CellGeometry
+    {
+        public GridLayout Grid;
+        public Vector3 CellOrigin;
+        public Vector3 CellCenter;
+        public float HalfCellWidth;
+        public float HalfCellDepth;
+    }
 
+    // Helper struct to encapsulate wall configuration data
+    private struct WallConfiguration
+    {
+        public Vector3Int[] WallDirections;
+        public Quaternion[] WallRotations;
+        public Vector3[] WallOffsets;
+        public float[] WallHeights;
+    }
 
     public override void Paint(GridLayout grid, GameObject brushTarget, Vector3Int cellPosition)
     {
-        if (brushTarget == null || GroundPrefab == null || WallPrefab == null || CeilPrefab == null)
+        if (!ValidatePaintRequirements(brushTarget))
             return;
 
+        LevelEditorManager levelEditorManager = InitializeLevelEditorManager();
+
+        CellGeometry cellGeometry = CalculateCellGeometry(grid, cellPosition);
+
+        PlaceGroundIfNeeded(brushTarget, cellPosition, cellGeometry, levelEditorManager);
+        ProcessWallsForCell(grid, brushTarget, cellPosition, cellGeometry, levelEditorManager);
+        PlaceCeiling(brushTarget, cellGeometry, levelEditorManager);
+    }
+
+    private bool ValidatePaintRequirements(GameObject brushTarget)
+    {
+        return brushTarget != null && GroundPrefab != null && WallPrefab != null && CeilPrefab != null;
+    }
+
+    private LevelEditorManager InitializeLevelEditorManager()
+    {
         LevelEditorManager levelEditorManager = FindAnyObjectByType<LevelEditorManager>();
         if (levelEditorManager != null)
         {
@@ -27,104 +76,339 @@ public class LevelEditorBrush : GridBrushBase
             }
             else
             {
-                // Clean up null references that accumulate when objects are destroyed
                 levelEditorManager.CleanupNullReferences();
             }
         }
+        return levelEditorManager;
+    }
 
-        Vector3 cellOrigin = grid.CellToWorld(cellPosition);
-        float halfCellX = grid.cellSize.x * 0.5f;
-        float halfCellZ = grid.cellSize.z * 0.5f;
-        Vector3 cellCenter = cellOrigin + new Vector3(halfCellX, 0f, halfCellZ);
-
-        Vector3 groundPosition = cellCenter + new Vector3(0f, -0.5f, 0f);
-        if (!HasGroundAtCell(grid, brushTarget, cellPosition))
+    private void PlaceGroundIfNeeded(GameObject brushTarget, Vector3Int cellPosition, CellGeometry cellGeometry, LevelEditorManager levelEditorManager)
+    {
+        if (!HasGroundAtCell(cellGeometry.Grid, brushTarget, cellPosition))
         {
+            Vector3 groundPosition = cellGeometry.CellCenter + new Vector3(0f, GROUND_VERTICAL_OFFSET, 0f);
             GameObject ground = InstantiatePrefabIntoParent(brushTarget, GroundPrefab, groundPosition, Quaternion.identity);
-            if (ground != null && levelEditorManager != null && levelEditorManager.PlacedObjects != null) 
-                levelEditorManager.PlacedObjects.Add(ground);
+            RegisterPlacedObject(ground, levelEditorManager);
         }
+    }
 
-        Vector3Int[] wallDirections =
+    private void ProcessWallsForCell(GridLayout grid, GameObject brushTarget, Vector3Int cellPosition, CellGeometry cellGeometry, LevelEditorManager levelEditorManager)
+    {
+        WallConfiguration wallConfig = GetWallConfiguration(cellGeometry);
+
+        for (int currentWallIndex = 0; currentWallIndex < WALL_DIRECTION_COUNT; currentWallIndex++)
         {
-            new Vector3Int(-1, 0, 0),
-            new Vector3Int(1, 0, 0),
-            new Vector3Int(0, -1, 0),
-            new Vector3Int(0, 1, 0)
-        };
-        Quaternion[] wallRotations =
-        {
-            Quaternion.Euler(90f, 90f, 0f),
-            Quaternion.Euler(90f, -90f, 0f),
-            Quaternion.Euler(90f, 0f, 0f),
-            Quaternion.Euler(90f, 180f, 0f)
-        };
+            Vector3Int neighborCellPosition = cellPosition + wallConfig.WallDirections[currentWallIndex];
+            bool neighborHasGround = HasGroundAtCell(grid, brushTarget, neighborCellPosition);
 
-        float wallOffsetValue = Mathf.Max(halfCellX, halfCellZ) + 0.5f;
-        Vector3[] wallOffsets =
-        {
-            new Vector3(-wallOffsetValue, 0f, 0f),
-            new Vector3(wallOffsetValue, 0f, 0f),
-            new Vector3(0f, 0f, -wallOffsetValue),
-            new Vector3(0f, 0f, wallOffsetValue)
-        };
-
-        float lowWallY = cellCenter.y + halfCellX;
-        float highWallY = cellCenter.y + 3f * halfCellX;
-        float[] wallHeights = { lowWallY, highWallY };
-
-        for (int wallIndex = 0; wallIndex < 4; wallIndex++)
-        {
-            Vector3Int neighborCell = cellPosition + wallDirections[wallIndex];
-            bool neighborHasGround = HasGroundAtCell(grid, brushTarget, neighborCell);
-
-            if (DebugLogs)
-                Debug.Log($"paint cell {cellPosition} checking neighbor {neighborCell} hasGround={neighborHasGround}");
+            LogNeighborCheck(cellPosition, neighborCellPosition, neighborHasGround);
 
             if (!neighborHasGround)
             {
-                foreach (float wallY in wallHeights)
-                {
-                    Vector3 wallPosition = cellCenter + wallOffsets[wallIndex];
-                    wallPosition.y = wallY;
-                    GameObject wallObject = InstantiatePrefabIntoParent(brushTarget, WallPrefab, wallPosition, wallRotations[wallIndex]);
-                    if (wallObject != null && levelEditorManager != null && levelEditorManager.PlacedObjects != null) 
-                        levelEditorManager.PlacedObjects.Add(wallObject);
-                }
+                PlaceWallsForEdge(brushTarget, cellGeometry, wallConfig, currentWallIndex, levelEditorManager);
             }
             else
             {
-                for (int wallHeightIndex = 0; wallHeightIndex < wallHeights.Length; wallHeightIndex++)
-                {
-                    Vector3 wallPosition = cellCenter + wallOffsets[wallIndex];
-                    wallPosition.y = wallHeights[wallHeightIndex];
-                    bool removed = RemoveWallAtPosition(brushTarget, wallPosition, DebugLogs, levelEditorManager);
-                    if (DebugLogs) Debug.Log($"remove at {wallPosition} => {removed}");
+                RemoveWallsBetweenAdjacentCells(grid, brushTarget, cellPosition, neighborCellPosition, cellGeometry, wallConfig, currentWallIndex, levelEditorManager);
+            }
+        }
+    }
 
-                    Vector3 neighborOrigin = grid.CellToWorld(neighborCell);
-                    Vector3 neighborCenter = neighborOrigin + new Vector3(halfCellX, 0f, halfCellZ);
-                    int oppositeWallIndex = (wallIndex % 2 == 0) ? wallIndex + 1 : wallIndex - 1;
-                    Vector3 neighborWallPosition = neighborCenter + wallOffsets[oppositeWallIndex];
-                    neighborWallPosition.y = wallHeights[wallHeightIndex];
-                    bool removedNeighbor = RemoveWallAtPosition(brushTarget, neighborWallPosition, DebugLogs, levelEditorManager);
-                    if (DebugLogs) Debug.Log($"remove neighbor at {neighborWallPosition} => {removedNeighbor}");
+    private void PlaceWallsForEdge(GameObject brushTarget, CellGeometry cellGeometry, WallConfiguration wallConfig, int wallDirectionIndex, LevelEditorManager levelEditorManager)
+    {
+        foreach (float wallHeight in wallConfig.WallHeights)
+        {
+            Vector3 wallPosition = cellGeometry.CellCenter + wallConfig.WallOffsets[wallDirectionIndex];
+            wallPosition.y = wallHeight;
+            GameObject wallObject = InstantiatePrefabIntoParent(brushTarget, WallPrefab, wallPosition, wallConfig.WallRotations[wallDirectionIndex]);
+            RegisterPlacedObject(wallObject, levelEditorManager);
+        }
+    }
+
+    private void RemoveWallsBetweenAdjacentCells(GridLayout grid, GameObject brushTarget, Vector3Int currentCellPosition, Vector3Int neighborCellPosition, CellGeometry cellGeometry, WallConfiguration wallConfig, int currentWallIndex, LevelEditorManager levelEditorManager)
+    {
+        for (int wallHeightIndex = 0; wallHeightIndex < wallConfig.WallHeights.Length; wallHeightIndex++)
+        {
+            Vector3 currentCellWallPosition = cellGeometry.CellCenter + wallConfig.WallOffsets[currentWallIndex];
+            currentCellWallPosition.y = wallConfig.WallHeights[wallHeightIndex];
+            bool removedFromCurrentCell = RemoveWallAtPosition(brushTarget, currentCellWallPosition, DebugLogs, levelEditorManager);
+
+            if (DebugLogs)
+                Debug.Log($"remove at {currentCellWallPosition} => {removedFromCurrentCell}");
+
+            CellGeometry neighborGeometry = CalculateCellGeometry(grid, neighborCellPosition);
+            int oppositeWallIndex = GetOppositeWallIndex(currentWallIndex);
+            Vector3 neighborWallPosition = neighborGeometry.CellCenter + wallConfig.WallOffsets[oppositeWallIndex];
+            neighborWallPosition.y = wallConfig.WallHeights[wallHeightIndex];
+            bool removedFromNeighbor = RemoveWallAtPosition(brushTarget, neighborWallPosition, DebugLogs, levelEditorManager);
+
+            if (DebugLogs)
+                Debug.Log($"remove neighbor at {neighborWallPosition} => {removedFromNeighbor}");
+        }
+    }
+
+    private void PlaceCeiling(GameObject brushTarget, CellGeometry cellGeometry, LevelEditorManager levelEditorManager)
+    {
+        Vector3 ceilingPosition = cellGeometry.CellCenter + new Vector3(0f, CEILING_VERTICAL_OFFSET, 0f);
+        GameObject ceiling = InstantiatePrefabIntoParent(brushTarget, CeilPrefab, ceilingPosition, Quaternion.identity);
+        RegisterPlacedObject(ceiling, levelEditorManager);
+    }
+
+    private void RegisterPlacedObject(GameObject placedObject, LevelEditorManager levelEditorManager)
+    {
+        if (placedObject != null && levelEditorManager != null && levelEditorManager.PlacedObjects != null)
+            levelEditorManager.PlacedObjects.Add(placedObject);
+    }
+
+    private void LogNeighborCheck(Vector3Int currentCell, Vector3Int neighborCell, bool neighborHasGround)
+    {
+        if (DebugLogs)
+            Debug.Log($"paint cell {currentCell} checking neighbor {neighborCell} hasGround={neighborHasGround}");
+    }
+
+    private CellGeometry CalculateCellGeometry(GridLayout grid, Vector3Int cellPosition)
+    {
+        Vector3 cellOrigin = grid.CellToWorld(cellPosition);
+        float halfCellWidth = grid.cellSize.x * 0.5f;
+        float halfCellDepth = grid.cellSize.z * 0.5f;
+        Vector3 cellCenter = cellOrigin + new Vector3(halfCellWidth, 0f, halfCellDepth);
+
+        return new CellGeometry
+        {
+            Grid = grid,
+            CellOrigin = cellOrigin,
+            CellCenter = cellCenter,
+            HalfCellWidth = halfCellWidth,
+            HalfCellDepth = halfCellDepth
+        };
+    }
+
+    private WallConfiguration GetWallConfiguration(CellGeometry cellGeometry)
+    {
+        Vector3Int[] wallDirections = new Vector3Int[]
+        {
+            new Vector3Int(-1, 0, 0),  // Left
+            new Vector3Int(1, 0, 0),   // Right
+            new Vector3Int(0, -1, 0),  // Bottom
+            new Vector3Int(0, 1, 0)    // Top
+        };
+
+        Quaternion[] wallRotations = new Quaternion[]
+        {
+            Quaternion.Euler(90f, 90f, 0f),   // Left wall rotation
+            Quaternion.Euler(90f, -90f, 0f),  // Right wall rotation
+            Quaternion.Euler(90f, 0f, 0f),    // Bottom wall rotation
+            Quaternion.Euler(90f, 180f, 0f)   // Top wall rotation
+        };
+
+        float wallOffsetDistance = Mathf.Max(cellGeometry.HalfCellWidth, cellGeometry.HalfCellDepth) + WALL_DISTANCE_FROM_CELL_EDGE;
+        Vector3[] wallOffsets = new Vector3[]
+        {
+            new Vector3(-wallOffsetDistance, 0f, 0f),  // Left wall offset
+            new Vector3(wallOffsetDistance, 0f, 0f),   // Right wall offset
+            new Vector3(0f, 0f, -wallOffsetDistance),  // Bottom wall offset
+            new Vector3(0f, 0f, wallOffsetDistance)    // Top wall offset
+        };
+
+        float lowWallHeight = cellGeometry.CellCenter.y + cellGeometry.HalfCellWidth * LOW_WALL_HEIGHT_MULTIPLIER;
+        float highWallHeight = cellGeometry.CellCenter.y + cellGeometry.HalfCellWidth * HIGH_WALL_HEIGHT_MULTIPLIER;
+        float[] wallHeights = { lowWallHeight, highWallHeight };
+
+        return new WallConfiguration
+        {
+            WallDirections = wallDirections,
+            WallRotations = wallRotations,
+            WallOffsets = wallOffsets,
+            WallHeights = wallHeights
+        };
+    }
+
+    private int GetOppositeWallIndex(int wallIndex)
+    {
+        // For walls: 0<->1 (Left<->Right), 2<->3 (Bottom<->Top)
+        return (wallIndex % 2 == 0) ? wallIndex + 1 : wallIndex - 1;
+    }
+
+    public override void Erase(GridLayout grid, GameObject brushTarget, Vector3Int cellPosition)
+    {
+        if (brushTarget == null)
+            return;
+
+        LevelEditorManager levelEditorManager = InitializeLevelEditorManager();
+        CellGeometry cellGeometry = CalculateCellGeometry(grid, cellPosition);
+
+        List<GameObject> objectsToRemove = FindAllObjectsInCell(cellGeometry, levelEditorManager);
+        RemoveFoundObjects(objectsToRemove, levelEditorManager);
+        AddWallsToNeighboringCells(grid, brushTarget, cellPosition, cellGeometry, levelEditorManager);
+
+        if (DebugLogs)
+            Debug.Log($"Erase at cell {cellPosition}: removed {objectsToRemove.Count} objects");
+    }
+
+    private List<GameObject> FindAllObjectsInCell(CellGeometry cellGeometry, LevelEditorManager levelEditorManager)
+    {
+        List<GameObject> objectsToRemove = new List<GameObject>();
+
+        if (levelEditorManager == null || levelEditorManager.PlacedObjects == null)
+            return objectsToRemove;
+
+        FindGroundInCell(cellGeometry, levelEditorManager, objectsToRemove);
+        FindCeilingInCell(cellGeometry, levelEditorManager, objectsToRemove);
+        FindWallsInCell(cellGeometry, levelEditorManager, objectsToRemove);
+
+        return objectsToRemove;
+    }
+
+    private void FindGroundInCell(CellGeometry cellGeometry, LevelEditorManager levelEditorManager, List<GameObject> objectsToRemove)
+    {
+        Vector3 groundPosition = cellGeometry.CellCenter + new Vector3(0f, GROUND_VERTICAL_OFFSET, 0f);
+
+        foreach (GameObject placedObject in levelEditorManager.PlacedObjects)
+        {
+            if (placedObject == null) continue;
+            if (!placedObject.name.Contains("Ground")) continue;
+
+            if (IsPositionMatch(placedObject.transform.position, groundPosition, POSITION_MATCH_TOLERANCE))
+            {
+                objectsToRemove.Add(placedObject);
+            }
+        }
+    }
+
+    private void FindCeilingInCell(CellGeometry cellGeometry, LevelEditorManager levelEditorManager, List<GameObject> objectsToRemove)
+    {
+        Vector3 ceilingPosition = cellGeometry.CellCenter + new Vector3(0f, CEILING_VERTICAL_OFFSET, 0f);
+
+        foreach (GameObject placedObject in levelEditorManager.PlacedObjects)
+        {
+            if (placedObject == null) continue;
+            if (!placedObject.name.Contains("Ceil")) continue;
+
+            if (IsPositionMatch(placedObject.transform.position, ceilingPosition, POSITION_MATCH_TOLERANCE))
+            {
+                objectsToRemove.Add(placedObject);
+            }
+        }
+    }
+
+    private void FindWallsInCell(CellGeometry cellGeometry, LevelEditorManager levelEditorManager, List<GameObject> objectsToRemove)
+    {
+        WallConfiguration wallConfig = GetWallConfiguration(cellGeometry);
+
+        foreach (GameObject placedObject in levelEditorManager.PlacedObjects)
+        {
+            if (placedObject == null) continue;
+            if (!placedObject.name.Contains("Wall")) continue;
+
+            foreach (Vector3 wallOffset in wallConfig.WallOffsets)
+            {
+                foreach (float wallHeight in wallConfig.WallHeights)
+                {
+                    Vector3 wallPosition = cellGeometry.CellCenter + wallOffset;
+                    wallPosition.y = wallHeight;
+
+                    if (IsPositionMatch(placedObject.transform.position, wallPosition, POSITION_MATCH_TOLERANCE))
+                    {
+                        if (!objectsToRemove.Contains(placedObject))
+                        {
+                            objectsToRemove.Add(placedObject);
+                        }
+                    }
                 }
             }
         }
+    }
 
-        Vector3 ceilPosition = cellCenter + new Vector3(0f, 6.5f, 0f);
-        GameObject ceil = InstantiatePrefabIntoParent(brushTarget, CeilPrefab, ceilPosition, Quaternion.identity);
-        if (ceil != null && levelEditorManager != null && levelEditorManager.PlacedObjects != null) 
-            levelEditorManager.PlacedObjects.Add(ceil);
-    }    private bool HasGroundAtCell(GridLayout grid, GameObject parent, Vector3Int cell)
+    private void RemoveFoundObjects(List<GameObject> objectsToRemove, LevelEditorManager levelEditorManager)
     {
-        Vector3 cellOrigin = grid.CellToWorld(cell);
-        float halfCellX = grid.cellSize.x * 0.5f;
-        float halfCellZ = grid.cellSize.z * 0.5f;
-        Vector3 groundCenter = cellOrigin + new Vector3(halfCellX, -0.5f, halfCellZ);
-        float tolerance = Mathf.Max(0.25f, Mathf.Min(halfCellX, halfCellZ) * 0.4f);
+        foreach (GameObject objectToRemove in objectsToRemove)
+        {
+            if (DebugLogs)
+                Debug.Log($"Erasing {objectToRemove.name} at {objectToRemove.transform.position}");
 
-        // Only check the manager's list - our single source of truth
+            if (levelEditorManager != null && levelEditorManager.PlacedObjects != null)
+            {
+                levelEditorManager.PlacedObjects.Remove(objectToRemove);
+            }
+            Undo.DestroyObjectImmediate(objectToRemove);
+        }
+    }
+
+    private void AddWallsToNeighboringCells(GridLayout grid, GameObject brushTarget, Vector3Int cellPosition, CellGeometry cellGeometry, LevelEditorManager levelEditorManager)
+    {
+        WallConfiguration wallConfig = GetWallConfiguration(cellGeometry);
+
+        for (int currentWallIndex = 0; currentWallIndex < WALL_DIRECTION_COUNT; currentWallIndex++)
+        {
+            Vector3Int neighborCellPosition = cellPosition + wallConfig.WallDirections[currentWallIndex];
+            bool neighborHasGround = HasGroundAtCell(grid, brushTarget, neighborCellPosition);
+
+            LogEraseNeighborCheck(cellPosition, neighborCellPosition, neighborHasGround);
+
+            if (neighborHasGround)
+            {
+                PlaceWallsOnNeighborEdge(grid, brushTarget, neighborCellPosition, currentWallIndex, wallConfig, levelEditorManager);
+            }
+        }
+    }
+
+    private void PlaceWallsOnNeighborEdge(GridLayout grid, GameObject brushTarget, Vector3Int neighborCellPosition, int currentWallIndex, WallConfiguration wallConfig, LevelEditorManager levelEditorManager)
+    {
+        CellGeometry neighborGeometry = CalculateCellGeometry(grid, neighborCellPosition);
+        int oppositeWallIndex = GetOppositeWallIndex(currentWallIndex);
+
+        foreach (float wallHeight in wallConfig.WallHeights)
+        {
+            Vector3 wallPosition = neighborGeometry.CellCenter + wallConfig.WallOffsets[oppositeWallIndex];
+            wallPosition.y = wallHeight;
+
+            if (!DoesWallExistAtPosition(wallPosition, levelEditorManager))
+            {
+                GameObject wallObject = InstantiatePrefabIntoParent(brushTarget, WallPrefab, wallPosition, wallConfig.WallRotations[oppositeWallIndex]);
+                RegisterPlacedObject(wallObject, levelEditorManager);
+
+                if (DebugLogs)
+                    Debug.Log($"Added wall at {wallPosition} on neighbor {neighborCellPosition} side");
+            }
+        }
+    }
+
+    private bool DoesWallExistAtPosition(Vector3 wallPosition, LevelEditorManager levelEditorManager)
+    {
+        if (levelEditorManager == null || levelEditorManager.PlacedObjects == null)
+            return false;
+
+        foreach (GameObject placedObject in levelEditorManager.PlacedObjects)
+        {
+            if (placedObject == null) continue;
+            if (!placedObject.name.Contains("Wall")) continue;
+
+            if (IsPositionMatch(placedObject.transform.position, wallPosition, POSITION_MATCH_TOLERANCE))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void LogEraseNeighborCheck(Vector3Int currentCell, Vector3Int neighborCell, bool neighborHasGround)
+    {
+        if (DebugLogs)
+            Debug.Log($"erase cell {currentCell} checking neighbor {neighborCell} hasGround={neighborHasGround}");
+    }
+
+    private bool IsPositionMatch(Vector3 position1, Vector3 position2, float tolerance)
+    {
+        return (position1 - position2).sqrMagnitude <= tolerance * tolerance;
+    }
+
+    private bool HasGroundAtCell(GridLayout grid, GameObject parent, Vector3Int cellPosition)
+    {
+        CellGeometry cellGeometry = CalculateCellGeometry(grid, cellPosition);
+        Vector3 groundCenterPosition = cellGeometry.CellOrigin + new Vector3(cellGeometry.HalfCellWidth, GROUND_VERTICAL_OFFSET, cellGeometry.HalfCellDepth);
+        float detectionTolerance = Mathf.Max(MINIMUM_GROUND_DETECTION_TOLERANCE, Mathf.Min(cellGeometry.HalfCellWidth, cellGeometry.HalfCellDepth) * GROUND_DETECTION_TOLERANCE_MULTIPLIER);
+
         LevelEditorManager levelEditorManager = FindAnyObjectByType<LevelEditorManager>();
         if (levelEditorManager != null && levelEditorManager.PlacedObjects != null)
         {
@@ -132,9 +416,12 @@ public class LevelEditorBrush : GridBrushBase
             {
                 if (placedGroundObject == null) continue;
                 if (!placedGroundObject.name.Contains("Ground")) continue;
-                float distance = (placedGroundObject.transform.position - groundCenter).magnitude;
-                if (DebugLogs) Debug.Log($"hasGround: manager check {placedGroundObject.name} at {placedGroundObject.transform.position} dist={distance:F3} tol={tolerance:F3}");
-                if ((placedGroundObject.transform.position - groundCenter).sqrMagnitude <= tolerance * tolerance)
+
+                float distanceToGround = (placedGroundObject.transform.position - groundCenterPosition).magnitude;
+                if (DebugLogs)
+                    Debug.Log($"hasGround: manager check {placedGroundObject.name} at {placedGroundObject.transform.position} dist={distanceToGround:F3} tol={detectionTolerance:F3}");
+
+                if (IsPositionMatch(placedGroundObject.transform.position, groundCenterPosition, detectionTolerance))
                     return true;
             }
         }
@@ -142,49 +429,52 @@ public class LevelEditorBrush : GridBrushBase
         return false;
     }
 
-    private bool RemoveWallAtPosition(GameObject parent, Vector3 worldPosition, bool debug, LevelEditorManager levelEditorManager = null)
+    private bool RemoveWallAtPosition(GameObject parent, Vector3 worldPosition, bool enableDebugLogs, LevelEditorManager levelEditorManager = null)
     {
-        float tolerance = 0.5f;
-        bool removedAny = false;
+        bool removedAnyWall = false;
         List<GameObject> wallsToRemove = new List<GameObject>();
 
-        // Check the manager's list - this is our single source of truth
         if (levelEditorManager != null && levelEditorManager.PlacedObjects != null)
         {
-            foreach (GameObject obj in levelEditorManager.PlacedObjects)
+            foreach (GameObject placedObject in levelEditorManager.PlacedObjects)
             {
-                if (obj == null) continue;
-                if (!obj.name.Contains("Wall")) continue;
-                if ((obj.transform.position - worldPosition).sqrMagnitude <= tolerance * tolerance)
+                if (placedObject == null) continue;
+                if (!placedObject.name.Contains("Wall")) continue;
+
+                if (IsPositionMatch(placedObject.transform.position, worldPosition, POSITION_MATCH_TOLERANCE))
                 {
-                    wallsToRemove.Add(obj);
+                    wallsToRemove.Add(placedObject);
                 }
             }
         }
 
-        // Remove all found walls
-        foreach (GameObject wall in wallsToRemove)
+        foreach (GameObject wallToRemove in wallsToRemove)
         {
-            if (debug) Debug.Log($"removing wall {wall.name} at {wall.transform.position}");
+            if (enableDebugLogs)
+                Debug.Log($"removing wall {wallToRemove.name} at {wallToRemove.transform.position}");
+
             if (levelEditorManager != null && levelEditorManager.PlacedObjects != null)
             {
-                levelEditorManager.PlacedObjects.Remove(wall);
+                levelEditorManager.PlacedObjects.Remove(wallToRemove);
             }
-            Undo.DestroyObjectImmediate(wall);
-            removedAny = true;
+            Undo.DestroyObjectImmediate(wallToRemove);
+            removedAnyWall = true;
         }
 
-        return removedAny;
+        return removedAnyWall;
     }
 
-    private GameObject InstantiatePrefabIntoParent(GameObject parent, GameObject prefab, Vector3 worldPosition, Quaternion rotation)
+    private GameObject InstantiatePrefabIntoParent(GameObject parentObject, GameObject prefabToInstantiate, Vector3 worldPosition, Quaternion worldRotation)
     {
-        GameObject instantiatedObject = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
-        if (instantiatedObject == null) return null;
+        GameObject instantiatedObject = (GameObject)PrefabUtility.InstantiatePrefab(prefabToInstantiate);
+        if (instantiatedObject == null)
+            return null;
+
         instantiatedObject.transform.position = worldPosition;
-        instantiatedObject.transform.rotation = rotation;
-        instantiatedObject.transform.SetParent(parent.transform);
+        instantiatedObject.transform.rotation = worldRotation;
+        instantiatedObject.transform.SetParent(parentObject.transform);
         Undo.RegisterCreatedObjectUndo(instantiatedObject, "Paint Room");
+
         return instantiatedObject;
     }
 }

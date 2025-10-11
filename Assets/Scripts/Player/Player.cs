@@ -82,6 +82,7 @@ public class Player : MonoBehaviour
     public float interactionDistance = 10f;
     public LayerMask collisionCheckLayer;
     public float gridSize = 0.5f;
+    public Vector2 gridOffset = Vector2.zero;
     private bool canPlaceObject = false;
 
     [Header("Traps")]
@@ -627,9 +628,9 @@ public class Player : MonoBehaviour
             int centerRow = totalRows / 2;
             int centerCol = totalCols / 2;
 
-            float snappedX = Mathf.Round(hit.point.x / gridSize) * gridSize;
+            float snappedX = Mathf.Round((hit.point.x - gridOffset.x) / gridSize) * gridSize + gridOffset.x;
             float snappedY = Mathf.Round(hit.point.y / gridSize) * gridSize;
-            float snappedZ = Mathf.Round(hit.point.z / gridSize) * gridSize;
+            float snappedZ = Mathf.Round((hit.point.z - gridOffset.y) / gridSize) * gridSize + gridOffset.y;
             Vector3 centerPosition = new Vector3(snappedX, snappedY, snappedZ);
 
             bool allCellsValid = true;
@@ -700,13 +701,13 @@ public class Player : MonoBehaviour
         Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize);
         if (cellType == TrapPositioningType.Trap)
         {
-            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer);
+            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer | collisionCheckLayer);
             bool hasSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapSurface);
             return !blockedByPlacement && hasSurface;
         }
         else if (cellType == TrapPositioningType.Spacer)
         {
-            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer);
+            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer | collisionCheckLayer);
             bool blockedByInvalidSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.InvalidSurfacesForSpacer);
             return !blockedByPlacement && !blockedByInvalidSurface;
         }

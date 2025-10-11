@@ -26,7 +26,7 @@ public class DeathTrigger : MonoBehaviour
         var controller = other.GetComponent<PlayerDeathIdentifier>();
 
         if (hasCustomDeathCam)
-            controller.Death(customDeathCameraRotationX, customDeathCameraOffsetY, customDeathCameraOffsetZ);
+            controller.Death(customDeathCameraRotationX, customDeathCameraOffsetY, customDeathCameraOffsetZ, false);
         else
             controller.Death();
     }

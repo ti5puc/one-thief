@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 580352378264015033}
   - component: {fileID: 8244354564737640400}
   - component: {fileID: 4034855912485278029}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: Visual_Debug
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 8128707438241957933}
   - component: {fileID: 2922348939631275897}
   - component: {fileID: 2305007479476295269}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Player Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -129,8 +129,8 @@ Camera:
   m_GameObject: {fileID: 5735532749127081963}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -237,7 +237,7 @@ GameObject:
   - component: {fileID: 5860915698881936115}
   - component: {fileID: 5856191721542497056}
   - component: {fileID: 222876035836668833}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Player_PRF
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -372,8 +372,9 @@ MonoBehaviour:
   interactionDistance: 10
   collisionCheckLayer:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 5120
   gridSize: 3
+  gridOffset: {x: 1.5, y: 1.5}
   TrapsSettings:
   - {fileID: 11400000, guid: 4911bef7ee32dad409029ad03a5fb684, type: 2}
   - {fileID: 11400000, guid: f36aca901dc1d084ebb449894ebcd9ad, type: 2}

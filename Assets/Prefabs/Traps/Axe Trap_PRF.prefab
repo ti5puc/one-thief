@@ -52,6 +52,9 @@ MonoBehaviour:
   swingAngle: 65
   swingDuration: 1
   swingEase: 10
+  onlyKnockback: 0
+  knockbackForce: 10
+  knockbackVerticalForce: 2
   swingObject: {fileID: 8052292994456637793}
 --- !u!1 &4260155525019401434
 GameObject:
@@ -170,7 +173,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8900974184125218162
 Transform:
   m_ObjectHideFlags: 0

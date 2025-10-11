@@ -12,7 +12,6 @@ public abstract class TrapBase : MonoBehaviour
     [SerializeField] protected TriggerEventSender actionTrigger;
     [SerializeField] protected TriggerEventSender hitTrigger;
 
-    protected bool foundNearestGround = false;
     protected bool hasActionTriggerStayed = false;
     protected bool hasHitTriggerStayed = false;
 
@@ -26,33 +25,6 @@ public abstract class TrapBase : MonoBehaviour
         actionTrigger.OnStay += OnActionTriggerStay;
         hitTrigger.OnEnter += OnHitTriggerEnter;
         hitTrigger.OnStay += OnHitTriggerStay;
-
-        // if on ground, check for nearest ground tile to disable it and use the trap one instead
-        if (trapSettings.TrapSurface == GameManager.GroundLayerMask)
-        {
-            if (!foundNearestGround)
-            {
-                Collider[] colliders = Physics.OverlapSphere(transform.position, 5f, LayerMask.GetMask("Ground"));
-                if (colliders.Length > 0)
-                {
-                    Collider nearestGround = colliders[0];
-                    float minDistance = Vector3.Distance(transform.position, nearestGround.transform.position);
-                    foreach (var collider in colliders)
-                    {
-                        float distance = Vector3.Distance(transform.position, collider.transform.position);
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance;
-                            nearestGround = collider;
-                        }
-                    }
-
-                    nearestGround.gameObject.SetActive(false);
-                    foundNearestGround = true;
-                    Debug.Log("Nearest ground object found: " + nearestGround.name);
-                }
-            }
-        }
     }
 
     protected virtual void OnDestroy()

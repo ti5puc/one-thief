@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 02c8b9e252544224d8ce0dacee6950ce, type: 2}
+    - target: {fileID: 3017096968573177291, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5472426638618749807, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
       propertyPath: m_Name
       value: Stone Trap_Preview_PRF Variant

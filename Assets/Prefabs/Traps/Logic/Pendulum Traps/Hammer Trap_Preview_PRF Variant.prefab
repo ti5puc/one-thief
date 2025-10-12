@@ -130,7 +130,7 @@ PrefabInstance:
     - target: {fileID: 7009097025814036655, guid: 09cb75ef3b7c2ed46840149040160cef, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
+      objectReference: {fileID: 2100000, guid: 6127df21252b9a84d8115d1bf560a47e, type: 2}
     - target: {fileID: 7302931071306268579, guid: 09cb75ef3b7c2ed46840149040160cef, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -138,7 +138,7 @@ PrefabInstance:
     - target: {fileID: 7723805343480947944, guid: 09cb75ef3b7c2ed46840149040160cef, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
+      objectReference: {fileID: 2100000, guid: 6127df21252b9a84d8115d1bf560a47e, type: 2}
     - target: {fileID: 8000845416662345783, guid: 09cb75ef3b7c2ed46840149040160cef, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -201,18 +201,23 @@ MonoBehaviour:
   - material: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
     renderers:
     - {fileID: 1716726176742008949}
+  - material: {fileID: 2100000, guid: 6127df21252b9a84d8115d1bf560a47e, type: 2}
+    renderers:
     - {fileID: 3319418879259552247}
     - {fileID: 2622741434438716848}
   invalidMaterialsList:
   - material: {fileID: 2100000, guid: 4a467bd8c5d0bb74b81c2e0a887a603c, type: 2}
     renderers:
     - {fileID: 1716726176742008949}
+  - material: {fileID: 2100000, guid: c19dd59216f4c8149945805fe2313e1b, type: 2}
+    renderers:
     - {fileID: 3319418879259552247}
     - {fileID: 2622741434438716848}
   colliders:
   - {fileID: 930436540719047693}
   notAllowedPointer: {fileID: 9078045568468071835}
   groundPreviewObject: {fileID: 2332046561332265327}
+  wallCheckPoint: {fileID: 0}
 --- !u!4 &8038694229961370866 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2367359269458494890, guid: 09cb75ef3b7c2ed46840149040160cef, type: 3}

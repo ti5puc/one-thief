@@ -86,7 +86,7 @@ public class Player : MonoBehaviour
     private bool canPlaceObject = false;
 
     [Header("Traps")]
-    public List<TrapSettings> TrapsSettings = new();
+    public List<PlaceableSettings> TrapsSettings = new();
 
     [Header("Referências InputSystem")]
     public InputActionReference mouseXInput;
@@ -695,7 +695,7 @@ public class Player : MonoBehaviour
         return new Vector3(rotCol * gridSize, 0f, rotRow * gridSize);
     }
 
-    private bool IsTrapCellPlacementValid(TrapPositioningType cellType, Vector3 position, Quaternion rotation, TrapSettings trapSettings, GameObject ghostTrap)
+    private bool IsTrapCellPlacementValid(TrapPositioningType cellType, Vector3 position, Quaternion rotation, PlaceableSettings trapSettings, GameObject ghostTrap)
     {
         float checkBoxSize = gridSize * 0.45f;
         Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize);

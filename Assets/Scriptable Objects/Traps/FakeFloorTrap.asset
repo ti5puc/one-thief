@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6cd7dac3bb849ba4e8e5a69902d239cf, type: 3}
-  m_Name: HammerTrap
+  m_Name: FakeFloorTrap
   m_EditorClassIdentifier: 
-  trapName: Hammer Pendulum
-  id: 3
+  trapName: Fake Floor
+  id: 2
   trapPlacementLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -27,8 +27,8 @@ MonoBehaviour:
   wallLayer:
     serializedVersion: 2
     m_Bits: 0
-  trapPreview: {fileID: 5892470191202249797, guid: 93754b9b89dfbf241823cf1186e64bdb, type: 3}
-  trapObject: {fileID: 2203354311598605597, guid: 09cb75ef3b7c2ed46840149040160cef, type: 3}
+  trapPreview: {fileID: 5754541727414858320, guid: 85f7d314bea4b454ba8eb5c5fe4e6086, type: 3}
+  trapObject: {fileID: 8461495209470578536, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
   invalidSurfacesForSpacer:
     serializedVersion: 2
     m_Bits: 1408
@@ -36,10 +36,10 @@ MonoBehaviour:
   positioningMatrix:
     rows: 3
     cols: 3
-    data: 000000000000000000000000020000000100000002000000000000000000000000000000
-  isAlwaysActive: 1
+    data: 000000000000000000000000000000000100000000000000000000000000000000000000
+  isAlwaysActive: 0
   delayToHitAfterActivated: 0.7
-  keepHitTriggerAfterActivated: 0
+  keepHitTriggerAfterActivated: 1
   hitTriggerActiveTime: 0.2
   canReactive: 0
   delayBeforeReactivate: 4

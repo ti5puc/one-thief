@@ -20,7 +20,7 @@ public class MovePlaceholder : MonoBehaviour
     public GameObject DeathVfxPrefab;
 
     [Header("Traps")]
-    public List<TrapSettings> TrapsSettings = new();
+    public List<PlaceableSettings> TrapsSettings = new();
     public float TrapPlacementDistance = 5f;
 
     private Rigidbody rigidBody;

@@ -3,14 +3,14 @@ using UnityEditor;
 using UnityEngine;
 using NaughtyAttributes.Editor;
 
-[CustomEditor(typeof(TrapSettings))]
-public class TrapSettingsEditor : NaughtyInspector
+[CustomEditor(typeof(PlaceableSettings), editorForChildClasses: true)]
+public class PlaceableSettingsEditor : NaughtyInspector
 {
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
-        TrapSettings trapSettings = (TrapSettings)target;
+        PlaceableSettings trapSettings = (PlaceableSettings)target;
 
         // draw matrix label
         EditorGUILayout.Space(10);

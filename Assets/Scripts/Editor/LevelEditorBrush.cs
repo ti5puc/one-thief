@@ -51,6 +51,15 @@ public class LevelEditorBrush : GridBrushBase
         if (!ValidatePaintRequirements(brushTarget))
             return;
 
+        // if the cell already has ground, skip painting
+        if (HasGroundAtCell(grid, brushTarget, cellPosition))
+        {
+            if (DebugLogs)
+                Debug.Log($"Paint skipped at {cellPosition}: cell already painted (ground exists)");
+
+            return;
+        }
+
         LevelEditorManager levelEditorManager = InitializeLevelEditorManager();
 
         CellGeometry cellGeometry = CalculateCellGeometry(grid, cellPosition);

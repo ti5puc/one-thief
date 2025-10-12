@@ -88,7 +88,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 534ecc5357ab24d4587a8cb6c7da8fa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trapSettings: {fileID: 11400000, guid: f36aca901dc1d084ebb449894ebcd9ad, type: 2}
+  trapSettings: {fileID: 11400000, guid: ff9f59e3c7223cc41ac9320810b542e7, type: 2}
   actionTrigger: {fileID: 2846619121173167539}
   hitTrigger: {fileID: 7174577777837799394}
   spikeTrapPart: []

@@ -446,7 +446,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce7c9b9438477c54d8c9936786a425ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trapSettings: {fileID: 11400000, guid: 17da4af878b6f7d4db2b80e64e26febc, type: 2}
+  trapSettings: {fileID: 11400000, guid: 4dbeac6a37b2a0143b8e9ea02672e4c7, type: 2}
   actionTrigger: {fileID: 3719907972409162898}
   hitTrigger: {fileID: 2804591901134723030}
   arrowSettings:

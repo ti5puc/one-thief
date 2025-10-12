@@ -945,7 +945,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ca6d8dd6b78d23458ab2e40409359b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trapSettings: {fileID: 11400000, guid: 4911bef7ee32dad409029ad03a5fb684, type: 2}
+  trapSettings: {fileID: 11400000, guid: 3b0d4fd9839c9d34ebaa57bbfdafbd34, type: 2}
   actionTrigger: {fileID: 1985189876497007803}
   hitTrigger: {fileID: 6167381141776686365}
   vibrationDuration: 1
@@ -956,5 +956,4 @@ MonoBehaviour:
   customCameraDeathOffsetY: 4
   customCameraDeathOffsetZ: -4
   deathVfxOffset: -4.2
-  fakeFloorVisual: {fileID: 5738548760347342654}
   deathTrigger: {fileID: 7937924146467941504}

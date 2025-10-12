@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a5fa2c57e7de1a488707df6b7354e7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trapSettings: {fileID: 11400000, guid: 502b2410a9373d947bedc04050ee3365, type: 2}
+  trapSettings: {fileID: 11400000, guid: 1cb13ecfe05e119459c5dadb2c551313, type: 2}
   actionTrigger: {fileID: 4698256072601574482}
   hitTrigger: {fileID: 1819915598743137444}
   swingAngle: 80

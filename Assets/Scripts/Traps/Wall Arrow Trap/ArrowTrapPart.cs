@@ -43,7 +43,8 @@ public class ArrowTrapPart : MonoBehaviour
         if (currentSettings == null) return;
 
         if (isActive && isMoving && !isPaused)
-            transform.localPosition += moveDirection * currentSettings.ArrowSpeed * Time.deltaTime;
+            // Move in local space along the part's local up (Vector3.up in local coordinates)
+            transform.localPosition += moveDirection * currentSettings.ArrowSpeed * Time.fixedDeltaTime;
     }
 
     public void PauseMovement() => isPaused = true;
@@ -68,11 +69,11 @@ public class ArrowTrapPart : MonoBehaviour
         OnDisappear = onDisappear;
 
         isMoving = false;
-        moveDirection = transform.parent.forward.normalized;
+        moveDirection = Vector3.forward;
         currentSettings = arrowSettings;
 
         var seq = DOTween.Sequence();
-        Vector3 behindPos = initialPosition - (transform.parent.forward.normalized * currentSettings.ArrowAppearPosition);
+        Vector3 behindPos = initialPosition - (moveDirection * currentSettings.ArrowAppearPosition);
 
         transform.localPosition = behindPos;
 
@@ -86,7 +87,7 @@ public class ArrowTrapPart : MonoBehaviour
         appearTween = seq;
     }
 
-    private void Disappear()
+    private void Disappear(bool hasHitPlayer = false)
     {
         isActive = false;
         isMoving = false;
@@ -100,7 +101,9 @@ public class ArrowTrapPart : MonoBehaviour
             return;
         }
 
-        disappearTween = transform.DOScale(Vector3.zero, currentSettings.ArrowDisappearDuration)
+        float duration = hasHitPlayer ? 0f : currentSettings.ArrowDisappearDuration;
+
+        disappearTween = transform.DOScale(Vector3.zero, duration)
             .SetEase(currentSettings.ArrowDisappearEase).OnComplete(() =>
             {
                 gameObject.SetActive(false);
@@ -118,15 +121,55 @@ public class ArrowTrapPart : MonoBehaviour
         isMoving = false;
 
         transform.SetParent(collider.transform);
-        Disappear();
 
-        if (GameManager.CurrentGameState == GameState.Building) return;
-        if (!collider.CompareTag(GameManager.PlayerTag)) return;
+        bool hasHitPlayer = collider.CompareTag(GameManager.PlayerTag);
+        Disappear(hasHitPlayer);
 
-        var deathIdentifier = collider.GetComponent<PlayerDeathIdentifier>();
-        if (deathIdentifier == null || deathIdentifier.IsDead) return;
+        if (hasHitPlayer)
+        {
+            var deathIdentifier = collider.GetComponent<PlayerDeathIdentifier>();
+            if (deathIdentifier == null || deathIdentifier.IsDead) return;
 
-        deathIdentifier.Death();
-        Debug.Log("Player hit by arrow trap");
+            deathIdentifier.Death();
+            Debug.Log("Player hit by arrow trap");
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        // Draw local axes
+        var origin = transform.position;
+        float length = 0.5f;
+
+        // Right - red
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(origin, origin + transform.right * length);
+
+        // Up - green
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(origin, origin + transform.up * length);
+
+        // Forward - blue
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(origin, origin + transform.forward * length);
+
+        // If has parent, draw parent's axes as dimmer/longer lines
+        if (transform.parent != null)
+        {
+            var pOrigin = transform.parent.position;
+            float pLength = 0.7f;
+
+            // Parent Right - red (dashed look by drawing short segments)
+            Gizmos.color = new Color(1f, 0.4f, 0.4f);
+            Gizmos.DrawLine(pOrigin, pOrigin + transform.parent.right * pLength);
+
+            // Parent Up - green
+            Gizmos.color = new Color(0.4f, 1f, 0.4f);
+            Gizmos.DrawLine(pOrigin, pOrigin + transform.parent.up * pLength);
+
+            // Parent Forward - blue
+            Gizmos.color = new Color(0.4f, 0.4f, 1f);
+            Gizmos.DrawLine(pOrigin, pOrigin + transform.parent.forward * pLength);
+        }
     }
 }

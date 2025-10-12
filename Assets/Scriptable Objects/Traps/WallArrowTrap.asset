@@ -29,8 +29,12 @@ MonoBehaviour:
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
-  trapPreview: {fileID: 5470613590884588052, guid: 03a95a31b43631f4680aadb209c5987f, type: 3}
-  trapObject: {fileID: 4782766396064776245, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
+  needsWallToPlace: 1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  trapPreview: {fileID: 7748410880102556186, guid: af06452dd18325c4993965169e4ab59f, type: 3}
+  trapObject: {fileID: 8639776039233223964, guid: 6b23f36b568036649a0eb259de5266a7, type: 3}
   invalidSurfacesForSpacer:
     serializedVersion: 2
     m_Bits: 1408

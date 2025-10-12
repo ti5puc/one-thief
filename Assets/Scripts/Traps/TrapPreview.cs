@@ -21,8 +21,10 @@ public class TrapPreview : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject notAllowedPointer;
     [SerializeField] private GameObject groundPreviewObject;
+    [SerializeField] private GameObject wallCheckPoint;
 
     public List<Collider> Colliders => colliders;
+    public GameObject WallCheckPoint => wallCheckPoint;
 
     private void Awake()
     {

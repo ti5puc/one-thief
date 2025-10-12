@@ -84,7 +84,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8945319072881534286
 Transform:
   m_ObjectHideFlags: 0
@@ -243,7 +243,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5832578487691163027
 Transform:
   m_ObjectHideFlags: 0
@@ -457,6 +457,7 @@ MonoBehaviour:
     ArrowDisappearDuration: 0.7
     ArrowDisappearEase: 14
     DelayToActivateArrow: 0.1
+  minimumWaitTimeToShoot: 4
   arrowTrapParts: []
 --- !u!1001 &517958444595018316
 PrefabInstance:

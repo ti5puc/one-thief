@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
   m_Name: SpikeTrap
   m_EditorClassIdentifier: 
-  id: 4
   trapName: Spikes
+  id: 4
   isAlwaysActive: 0
   delayToHitAfterActivated: 1
   keepHitTriggerAfterActivated: 1

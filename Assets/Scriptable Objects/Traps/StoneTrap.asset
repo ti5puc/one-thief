@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
   m_Name: StoneTrap
   m_EditorClassIdentifier: 
-  id: 5
   trapName: Stone Fall
+  id: 5
   isAlwaysActive: 0
   delayToHitAfterActivated: 0.7
   keepHitTriggerAfterActivated: 0

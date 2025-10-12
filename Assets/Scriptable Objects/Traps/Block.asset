@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
   m_Name: Block
   m_EditorClassIdentifier: 
-  id: 1
   trapName: Block
+  id: 1
   isAlwaysActive: 1
   delayToHitAfterActivated: 0.7
   keepHitTriggerAfterActivated: 0

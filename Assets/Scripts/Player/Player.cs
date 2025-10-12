@@ -654,7 +654,7 @@ public class Player : MonoBehaviour
                     float yRot = 90f * ghostTrapRotationQuarterTurns;
                     ghostTrap.transform.rotation = Quaternion.Euler(0f, yRot, 0f);
 
-                    bool isValid = IsTrapCellPlacementValid(cellType, ghostTrap.transform.position, ghostTrap.transform.rotation, trapSettings);
+                    bool isValid = IsTrapCellPlacementValid(cellType, ghostTrap.transform.position, ghostTrap.transform.rotation, trapSettings, ghostTrap);
                     ghostTrapValidity.Add((ghostTrap, cellType, isValid));
                     if (!isValid) allCellsValid = false;
                 }
@@ -695,7 +695,7 @@ public class Player : MonoBehaviour
         return new Vector3(rotCol * gridSize, 0f, rotRow * gridSize);
     }
 
-    private bool IsTrapCellPlacementValid(TrapPositioningType cellType, Vector3 position, Quaternion rotation, TrapSettings trapSettings)
+    private bool IsTrapCellPlacementValid(TrapPositioningType cellType, Vector3 position, Quaternion rotation, TrapSettings trapSettings, GameObject ghostTrap)
     {
         float checkBoxSize = gridSize * 0.45f;
         Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize);
@@ -703,6 +703,30 @@ public class Player : MonoBehaviour
         {
             bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer | collisionCheckLayer);
             bool hasSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapSurface);
+            // If this trap requires a wall to be placed, verify there's a wall overlapping the preview's WallCheckPoint
+            if (trapSettings.NeedsWallToPlace)
+            {
+                if (ghostTrap == null)
+                {
+                    Debug.LogError("[IsTrapCellPlacementValid] ghostTrap is null but trap requires a wall to place.");
+                    return false;
+                }
+                var trapPreviewComp = ghostTrap.GetComponent<TrapPreview>();
+                if (trapPreviewComp == null || trapPreviewComp.WallCheckPoint == null)
+                {
+                    Debug.LogError($"[IsTrapCellPlacementValid] Trap '{trapSettings.TrapName}' requires a wall to place but its preview has no WallCheckPoint.");
+                    return false;
+                }
+
+                // small sphere overlap at the wall check point to detect a wall on the configured layer
+                Vector3 wallCheckPos = trapPreviewComp.WallCheckPoint.transform.position;
+                float wallCheckRadius = Mathf.Max(0.05f, gridSize * 0.25f);
+                bool hasWall = Physics.CheckSphere(wallCheckPos, wallCheckRadius, trapSettings.WallLayer);
+                bool wallIsBlockedByPlacement = Physics.CheckSphere(wallCheckPos, wallCheckRadius, trapSettings.TrapPlacementLayer | collisionCheckLayer);
+
+                return !blockedByPlacement && hasSurface && hasWall && !wallIsBlockedByPlacement;
+            }
+
             return !blockedByPlacement && hasSurface;
         }
         else if (cellType == TrapPositioningType.Spacer)

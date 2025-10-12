@@ -26,6 +26,10 @@ public class TrapSettings : ScriptableObject
     [SerializeField] private LayerMask ignorePlacementLayer;
     [SerializeField] private LayerMask trapSurface;
 
+    [Space(10)]
+    [SerializeField] private bool needsWallToPlace = false;
+    [SerializeField, ShowIf(nameof(needsWallToPlace))] private LayerMask wallLayer;
+
     [Header("Preview & Object")]
     [SerializeField, ShowAssetPreview(128)] private GameObject trapPreview;
     [SerializeField, ShowAssetPreview(128)] private GameObject trapObject;
@@ -51,6 +55,8 @@ public class TrapSettings : ScriptableObject
     public GameObject TrapSpacerPreview => trapSpacerPreview;
     public GameObject TrapPreview => trapPreview;
     public GameObject TrapObject => trapObject;
+    public bool NeedsWallToPlace => needsWallToPlace;
+    public LayerMask WallLayer => wallLayer;
     public TrapPositioningMatrix2D PositioningMatrix
     {
         get => positioningMatrix;

@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
-  m_Name: FakeFloorTrap_v2
+  m_Name: WallArrowTrap
   m_EditorClassIdentifier: 
-  trapName: Fake Floor
-  id: 2
-  isAlwaysActive: 0
-  delayToHitAfterActivated: 0.7
+  trapName: Wall Arrows
+  id: 6
+  isAlwaysActive: 1
+  delayToHitAfterActivated: 1
   keepHitTriggerAfterActivated: 1
   hitTriggerActiveTime: 0.2
   canReactive: 0
@@ -29,8 +29,12 @@ MonoBehaviour:
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
-  trapPreview: {fileID: 5754541727414858320, guid: 85f7d314bea4b454ba8eb5c5fe4e6086, type: 3}
-  trapObject: {fileID: 8461495209470578536, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
+  needsWallToPlace: 1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  trapPreview: {fileID: 7748410880102556186, guid: af06452dd18325c4993965169e4ab59f, type: 3}
+  trapObject: {fileID: 8639776039233223964, guid: 6b23f36b568036649a0eb259de5266a7, type: 3}
   invalidSurfacesForSpacer:
     serializedVersion: 2
     m_Bits: 1408

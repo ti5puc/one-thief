@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 7971063529581069093}
   - component: {fileID: 7618359841302743072}
   - component: {fileID: 2846619121173167539}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Action Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -169,7 +169,7 @@ GameObject:
   - component: {fileID: 7029134343701116648}
   - component: {fileID: 4806336860873645331}
   - component: {fileID: 7174577777837799394}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Hit Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}

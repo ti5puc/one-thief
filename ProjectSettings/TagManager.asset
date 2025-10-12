@@ -18,7 +18,7 @@ TagManager:
   - TrapsPlacement
   - IgnorePlacement
   - Player
-  - 
+  - OnlyHitPlayer
   - 
   - 
   - 

@@ -52,6 +52,14 @@ public class LookAtCamera : MonoBehaviour
                             // keep initial Y and Z; compute pitch only from world vertical offset (ignore X/Z by using fixed baseline)
                             float dy = toCamera.y; // world-space vertical difference
                             float pitch = Mathf.Rad2Deg * Mathf.Atan2(dy, initialForwardDistance);
+
+                            Vector3 initialRight = initialRotation * -Vector3.right;
+                            Vector3 camOffsetXZ = new Vector3(toCamera.x, 0f, toCamera.z);
+                            float sideDot = Vector3.Dot(initialRight, camOffsetXZ);
+
+                            if (sideDot < 0f)
+                                pitch = -pitch;
+
                             transform.rotation = Quaternion.Euler(initialEuler.x + pitch, initialEuler.y, initialEuler.z);
                         }
                         break;

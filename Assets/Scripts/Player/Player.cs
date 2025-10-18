@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    public static event Action<bool> OnTrapModeChanged; // bool isTrapModeActive
+    public static event Action<bool, string> OnTrapModeChanged; // bool isTrapModeActive, string currentTrapName
     public static event Action<string> OnSelectedTrapChanged; // string trapName
 
     //---------------------------------- Inicio Movimentacao e Camera ----------------------------------
@@ -499,8 +499,6 @@ public class Player : MonoBehaviour
         isTrapModeActive = !isTrapModeActive;
         Debug.Log("Modo de Construção: " + (isTrapModeActive ? "Ativado" : "Desativado"));
 
-        OnTrapModeChanged?.Invoke(isTrapModeActive);
-
         foreach (var preview in trapPreviews)
         {
             if (preview != null)
@@ -523,6 +521,8 @@ public class Player : MonoBehaviour
             GameManager.ChangeGameStateToBuilding();
         else
             GameManager.ChangeGameStateToExploring();
+
+        OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex].TrapName);
     }
 
     private void SelectObject(InputAction.CallbackContext context)

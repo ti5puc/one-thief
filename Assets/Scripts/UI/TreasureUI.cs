@@ -35,7 +35,6 @@ public class TreasureUI : MonoBehaviour
     private void HideInteractionHint(int goldAmount) => HideInteractionHint();
     private void HideInteractionHint()
     {
-        if (GameManager.CurrentGameState != GameState.Exploring) return;
         interactionHintText.gameObject.SetActive(false);
     }
 

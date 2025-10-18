@@ -13,6 +13,9 @@ public class PlayerDeathIdentifier : MonoBehaviour
     public GameObject DeathVfxPrefab;
     public GameObject DeathGhostPrefab;
 
+    [Space(10)]
+    public GameObject[] VisualsToHide;
+
     private Rigidbody rigidBody;
     private Transform cameraTransform;
     private bool isDead = false;
@@ -73,6 +76,8 @@ public class PlayerDeathIdentifier : MonoBehaviour
         if (isDead) return;
 
         isDead = true;
+        foreach (var visual in VisualsToHide)
+            visual.SetActive(false);
 
         Vector3 upOffset = Vector3.up * DeathCameraUpOffset + Vector3.up * customCameraDeathOffsetY;
         Vector3 backOffset = -Vector3.forward * DeathCameraBackOffset + Vector3.back * customCameraDeathOffsetZ;

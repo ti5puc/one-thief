@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
 {
     public static event Action<bool, string> OnTrapModeChanged; // bool isTrapModeActive, string currentTrapName
     public static event Action<string> OnSelectedTrapChanged; // string trapName
+    public event Action<bool, bool> OnMoveChanged; // bool isMoving, bool isSprinting
 
     //---------------------------------- Inicio Movimentacao e Camera ----------------------------------
     [Header("Câmera")]
@@ -335,6 +336,7 @@ public class Player : MonoBehaviour
 
         //Locomoção normal com Sprint/Crouch
         float speed = moveSpeed;
+        OnMoveChanged?.Invoke(_moveDirection.sqrMagnitude > 0.0001f, isSprinting);
 
         if (isCrouching)
         {

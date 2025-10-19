@@ -12,14 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
   m_Name: Block
   m_EditorClassIdentifier: 
-  id: 1
   trapName: Block
-  isAlwaysActive: 1
-  delayToHitAfterActivated: 0.7
-  keepHitTriggerAfterActivated: 0
-  hitTriggerActiveTime: 0.2
-  canReactive: 0
-  delayBeforeReactivate: 4
+  id: 1
   trapPlacementLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -29,6 +23,10 @@ MonoBehaviour:
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
+  needsWallToPlace: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
   trapPreview: {fileID: 4814221619298215302, guid: 3a6449f3507d4a748a0de77f8554be36, type: 3}
   trapObject: {fileID: 1557116661947941637, guid: 1b46ba1954059d143ac944562dab84d7, type: 3}
   invalidSurfacesForSpacer:

@@ -9,17 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
+  m_Script: {fileID: 11500000, guid: 6cd7dac3bb849ba4e8e5a69902d239cf, type: 3}
   m_Name: SpikeTrap
   m_EditorClassIdentifier: 
-  id: 4
   trapName: Spikes
-  isAlwaysActive: 0
-  delayToHitAfterActivated: 1
-  keepHitTriggerAfterActivated: 1
-  hitTriggerActiveTime: 0.2
-  canReactive: 0
-  delayBeforeReactivate: 4
+  id: 4
   trapPlacementLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -29,6 +23,10 @@ MonoBehaviour:
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
+  needsWallToPlace: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
   trapPreview: {fileID: 5470613590884588052, guid: 03a95a31b43631f4680aadb209c5987f, type: 3}
   trapObject: {fileID: 4782766396064776245, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
   invalidSurfacesForSpacer:
@@ -39,3 +37,9 @@ MonoBehaviour:
     rows: 3
     cols: 3
     data: 000000000000000000000000000000000100000000000000000000000000000000000000
+  isAlwaysActive: 0
+  delayToHitAfterActivated: 1
+  keepHitTriggerAfterActivated: 1
+  hitTriggerActiveTime: 0.2
+  canReactive: 0
+  delayBeforeReactivate: 4

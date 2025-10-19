@@ -17,8 +17,8 @@ TagManager:
   - Ghost
   - TrapsPlacement
   - IgnorePlacement
-  - 
-  - 
+  - Player
+  - OnlyHitPlayer
   - 
   - 
   - 

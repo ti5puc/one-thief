@@ -19,13 +19,38 @@ public class FakeFloorTrap_v2 : TrapBase
     [SerializeField] private float deathVfxOffset = -4f;
 
     [Header("References")]
-    [SerializeField] private GameObject fakeFloorVisual;
+    // [SerializeField] private GameObject fakeFloorVisual;
     [SerializeField] private DeathTrigger deathTrigger;
+
+    private bool foundNearestGround = false;
+    private Collider nearestGround;
 
     protected override void Awake()
     {
         base.Awake();
         deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ);
+
+        if (!foundNearestGround)
+        {
+            Collider[] colliders = Physics.OverlapSphere(transform.position, 5f, LayerMask.GetMask("Ground"));
+            if (colliders.Length > 0)
+            {
+                nearestGround = colliders[0];
+                float minDistance = Vector3.Distance(transform.position, nearestGround.transform.position);
+                foreach (var collider in colliders)
+                {
+                    float distance = Vector3.Distance(transform.position, collider.transform.position);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        nearestGround = collider;
+                    }
+                }
+
+                foundNearestGround = true;
+                Debug.Log("Nearest ground object found: " + nearestGround.name);
+            }
+        }
     }
 
     protected override void OnAction(Collider player, float totalDuration)
@@ -44,13 +69,13 @@ public class FakeFloorTrap_v2 : TrapBase
 
         if (foundNearestGround)
         {
-            var groundTransform = fakeFloorVisual.transform;
+            var groundTransform = nearestGround.transform;
             Sequence shakeSeq = DOTween.Sequence();
             shakeSeq.Join(groundTransform.DOShakePosition(safeBreakDuration, vibrationStrength, vibrationFrequency));
             shakeSeq.Join(groundTransform.DOShakeRotation(safeBreakDuration, vibrationRotation, vibrationFrequency));
             shakeSeq.OnComplete(() =>
             {
-                fakeFloorVisual.SetActive(false);
+                nearestGround.gameObject.SetActive(false);
             });
         }
     }
@@ -68,10 +93,10 @@ public class FakeFloorTrap_v2 : TrapBase
         if (interval > 0f)
             seq.AppendInterval(interval);
 
-        var originalScale = fakeFloorVisual.transform.localScale;
-        fakeFloorVisual.transform.localScale = Vector3.zero;
-        fakeFloorVisual.SetActive(true);
-        seq.Append(fakeFloorVisual.transform.DOScale(originalScale, .3f)).SetEase(Ease.OutQuad);
+        var originalScale = nearestGround.transform.localScale;
+        nearestGround.transform.localScale = Vector3.zero;
+        nearestGround.gameObject.SetActive(true);
+        seq.Append(nearestGround.transform.DOScale(originalScale, .3f)).SetEase(Ease.OutQuad);
 
         Debug.Log($"Fake floor trap reactivated (riseDuration: {safeBreakDuration}, interval: {interval})");
     }

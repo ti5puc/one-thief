@@ -13,6 +13,9 @@ public class PlayerDeathIdentifier : MonoBehaviour
     public GameObject DeathVfxPrefab;
     public GameObject DeathGhostPrefab;
 
+    [Space(10)]
+    public GameObject[] VisualsToHide;
+
     private Rigidbody rigidBody;
     private Transform cameraTransform;
     private bool isDead = false;
@@ -58,11 +61,23 @@ public class PlayerDeathIdentifier : MonoBehaviour
         }
     }
 
-    public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f)
+    public void Death()
+    {
+        Death(20f, 0f, 0f, true);
+    }
+
+    public void Death(bool spawnGhost = true)
+    {
+        Death(20f, 0f, 0f, spawnGhost);
+    }
+
+    public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f, bool spawnGhost = true)
     {
         if (isDead) return;
 
         isDead = true;
+        foreach (var visual in VisualsToHide)
+            visual.SetActive(false);
 
         Vector3 upOffset = Vector3.up * DeathCameraUpOffset + Vector3.up * customCameraDeathOffsetY;
         Vector3 backOffset = -Vector3.forward * DeathCameraBackOffset + Vector3.back * customCameraDeathOffsetZ;
@@ -75,6 +90,9 @@ public class PlayerDeathIdentifier : MonoBehaviour
         cameraTransform.DOLocalMove(targetPosition, 1f).SetEase(Ease.OutQuad);
         cameraTransform.localRotation = Quaternion.Euler(customCameraDeathRotationX, 0f, 0f);
 
+        if (spawnGhost == false)
+            return;
+
         var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y + vfxOffset, transform.position.z);
         Instantiate(DeathVfxPrefab, position, DeathVfxPrefab.transform.rotation);
 
@@ -82,6 +100,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
         deathGhost = Instantiate(DeathGhostPrefab, ghostPosition, DeathGhostPrefab.transform.rotation);
     }
 
+    // TODO: placeholder here, change to movement script
     public void Knockback(Vector3 direction, float force)
     {
         if (isDead) return;

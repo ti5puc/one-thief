@@ -19,9 +19,10 @@ public class TrapNameUI : MonoBehaviour
         Player.OnSelectedTrapChanged -= SetupName;
     }
 
-    private void UpdateVisibility(bool isTrapModeActive)
+    private void UpdateVisibility(bool isTrapModeActive, string currentTrapName)
     {
         gameObject.SetActive(isTrapModeActive);
+        SetupName(currentTrapName);
     }
 
     private void SetupName(string trapName)

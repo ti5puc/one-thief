@@ -8,8 +8,9 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    public static event Action<bool> OnTrapModeChanged; // bool isTrapModeActive
+    public static event Action<bool, string> OnTrapModeChanged; // bool isTrapModeActive, string currentTrapName
     public static event Action<string> OnSelectedTrapChanged; // string trapName
+    public event Action<bool, bool> OnMoveChanged; // bool isMoving, bool isSprinting
 
     //---------------------------------- Inicio Movimentacao e Camera ----------------------------------
     [Header("Câmera")]
@@ -82,10 +83,11 @@ public class Player : MonoBehaviour
     public float interactionDistance = 10f;
     public LayerMask collisionCheckLayer;
     public float gridSize = 0.5f;
+    public Vector2 gridOffset = Vector2.zero;
     private bool canPlaceObject = false;
 
     [Header("Traps")]
-    public List<TrapSettings> TrapsSettings = new();
+    public List<PlaceableSettings> TrapsSettings = new();
 
     [Header("Referências InputSystem")]
     public InputActionReference mouseXInput;
@@ -334,6 +336,7 @@ public class Player : MonoBehaviour
 
         //Locomoção normal com Sprint/Crouch
         float speed = moveSpeed;
+        OnMoveChanged?.Invoke(_moveDirection.sqrMagnitude > 0.0001f, isSprinting);
 
         if (isCrouching)
         {
@@ -498,8 +501,6 @@ public class Player : MonoBehaviour
         isTrapModeActive = !isTrapModeActive;
         Debug.Log("Modo de Construção: " + (isTrapModeActive ? "Ativado" : "Desativado"));
 
-        OnTrapModeChanged?.Invoke(isTrapModeActive);
-
         foreach (var preview in trapPreviews)
         {
             if (preview != null)
@@ -522,6 +523,8 @@ public class Player : MonoBehaviour
             GameManager.ChangeGameStateToBuilding();
         else
             GameManager.ChangeGameStateToExploring();
+
+        OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex].TrapName);
     }
 
     private void SelectObject(InputAction.CallbackContext context)
@@ -627,9 +630,9 @@ public class Player : MonoBehaviour
             int centerRow = totalRows / 2;
             int centerCol = totalCols / 2;
 
-            float snappedX = Mathf.Round(hit.point.x / gridSize) * gridSize;
+            float snappedX = Mathf.Round((hit.point.x - gridOffset.x) / gridSize) * gridSize + gridOffset.x;
             float snappedY = Mathf.Round(hit.point.y / gridSize) * gridSize;
-            float snappedZ = Mathf.Round(hit.point.z / gridSize) * gridSize;
+            float snappedZ = Mathf.Round((hit.point.z - gridOffset.y) / gridSize) * gridSize + gridOffset.y;
             Vector3 centerPosition = new Vector3(snappedX, snappedY, snappedZ);
 
             bool allCellsValid = true;
@@ -653,7 +656,7 @@ public class Player : MonoBehaviour
                     float yRot = 90f * ghostTrapRotationQuarterTurns;
                     ghostTrap.transform.rotation = Quaternion.Euler(0f, yRot, 0f);
 
-                    bool isValid = IsTrapCellPlacementValid(cellType, ghostTrap.transform.position, ghostTrap.transform.rotation, trapSettings);
+                    bool isValid = IsTrapCellPlacementValid(cellType, ghostTrap.transform.position, ghostTrap.transform.rotation, trapSettings, ghostTrap);
                     ghostTrapValidity.Add((ghostTrap, cellType, isValid));
                     if (!isValid) allCellsValid = false;
                 }
@@ -694,19 +697,43 @@ public class Player : MonoBehaviour
         return new Vector3(rotCol * gridSize, 0f, rotRow * gridSize);
     }
 
-    private bool IsTrapCellPlacementValid(TrapPositioningType cellType, Vector3 position, Quaternion rotation, TrapSettings trapSettings)
+    private bool IsTrapCellPlacementValid(TrapPositioningType cellType, Vector3 position, Quaternion rotation, PlaceableSettings trapSettings, GameObject ghostTrap)
     {
         float checkBoxSize = gridSize * 0.45f;
         Vector3 halfExtents = new Vector3(checkBoxSize, checkBoxSize, checkBoxSize);
         if (cellType == TrapPositioningType.Trap)
         {
-            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer);
+            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer | collisionCheckLayer);
             bool hasSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapSurface);
+            // If this trap requires a wall to be placed, verify there's a wall overlapping the preview's WallCheckPoint
+            if (trapSettings.NeedsWallToPlace)
+            {
+                if (ghostTrap == null)
+                {
+                    Debug.LogError("[IsTrapCellPlacementValid] ghostTrap is null but trap requires a wall to place.");
+                    return false;
+                }
+                var trapPreviewComp = ghostTrap.GetComponent<TrapPreview>();
+                if (trapPreviewComp == null || trapPreviewComp.WallCheckPoint == null)
+                {
+                    Debug.LogError($"[IsTrapCellPlacementValid] Trap '{trapSettings.TrapName}' requires a wall to place but its preview has no WallCheckPoint.");
+                    return false;
+                }
+
+                // small sphere overlap at the wall check point to detect a wall on the configured layer
+                Vector3 wallCheckPos = trapPreviewComp.WallCheckPoint.transform.position;
+                float wallCheckRadius = Mathf.Max(0.05f, gridSize * 0.25f);
+                bool hasWall = Physics.CheckSphere(wallCheckPos, wallCheckRadius, trapSettings.WallLayer);
+                bool wallIsBlockedByPlacement = Physics.CheckSphere(wallCheckPos, wallCheckRadius, trapSettings.TrapPlacementLayer | collisionCheckLayer);
+
+                return !blockedByPlacement && hasSurface && hasWall && !wallIsBlockedByPlacement;
+            }
+
             return !blockedByPlacement && hasSurface;
         }
         else if (cellType == TrapPositioningType.Spacer)
         {
-            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer);
+            bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer | collisionCheckLayer);
             bool blockedByInvalidSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.InvalidSurfacesForSpacer);
             return !blockedByPlacement && !blockedByInvalidSurface;
         }

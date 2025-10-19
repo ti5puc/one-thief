@@ -220,4 +220,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99e4f35caee339b46b87d0deacea3eed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationMode: 1
+  rotationMode: 2

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
+  m_Name: TreasureChest
+  m_EditorClassIdentifier: 
+  trapName: Treasure Chest
+  id: 6
+  trapPlacementLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  ignorePlacementLayer:
+    serializedVersion: 2
+    m_Bits: 2048
+  trapSurface:
+    serializedVersion: 2
+    m_Bits: 64
+  needsWallToPlace: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  trapPreview: {fileID: 4516621342585438320, guid: 258ae9dea408b5d46b910656b433302c, type: 3}
+  trapObject: {fileID: 3397549143083145615, guid: ce41a096be6b59e40bf03fa81a75deb6, type: 3}
+  invalidSurfacesForSpacer:
+    serializedVersion: 2
+    m_Bits: 1408
+  trapSpacerPreview: {fileID: 1983344900661682279, guid: 470971583f3c90b42b363cc184c1ede2, type: 3}
+  positioningMatrix:
+    rows: 3
+    cols: 3
+    data: 000000000000000000000000000000000100000000000000000000000000000000000000

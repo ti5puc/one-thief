@@ -13,7 +13,6 @@ public class SpikeTrap : TrapBase
     protected override void Awake()
     {
         base.Awake();
-
         spikeTrapPart.AddRange(GetComponentsInChildren<SpikeTrapPart>());
     }
 

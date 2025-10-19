@@ -10,11 +10,11 @@ public class MainMenu : MonoBehaviour
 
     public void Options()
     {
-        SceneManager.LoadSceneAsync(6);
+        SceneManager.LoadSceneAsync(8);
     }
 
     public void Leaderboard()
     {
-        SceneManager.LoadSceneAsync(5);
+        SceneManager.LoadSceneAsync(7);
     }
 }

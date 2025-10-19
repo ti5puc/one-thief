@@ -40,14 +40,14 @@ public class PlayerDeathIdentifier : MonoBehaviour
         // TODO: remove placeholder restart
 
         if (Input.GetKeyDown(KeyCode.R))
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadScene(0);
 
         if (isDead)
         {
             // keep rotating player on Y axis after death
             transform.Rotate(Vector3.up * DeathRotateSpeed * Time.deltaTime);
             if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                SceneManager.LoadScene(0);
         }
 
         if (deathGhost != null)

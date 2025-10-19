@@ -15,14 +15,14 @@ EditorBuildSettings:
     path: Assets/Scenes/Challenge_Menu.unity
     guid: 69102645e5e873444819057bdc1dddec
   - enabled: 1
-    path: Assets/Scenes/Main_Sandbox_Play1.unity
-    guid: 10394bcdfdd295e4bb85282c4f7bb7c2
+    path: Assets/Scenes/Main_Sandbox_Play 1.unity
+    guid: 5e1b485adf7ae4b43a712425cb5f5500
   - enabled: 1
-    path: Assets/Scenes/Main_Sandbox_Play2.unity
-    guid: 607ca54d12a7e5f40a4bf69dfeee8c5d
+    path: Assets/Scenes/Main_Sandbox_Play 2.unity
+    guid: ea13931586bf19b45b85ca1df11b534a
   - enabled: 1
-    path: Assets/Scenes/Main_Sandbox_Play3.unity
-    guid: 84d2374f42a8d3145bc67ddae50aa3b2
+    path: Assets/Scenes/Main_Sandbox_Play 3.unity
+    guid: 2c3383e6bb01dda4ab3a1959c19b88cc
   - enabled: 1
     path: Assets/Scenes/Main_Sandbox_Build.unity
     guid: bd489a1837c7ccc4489800a85f077fac

@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
 {
     public static event Action<bool, string> OnTrapModeChanged; // bool isTrapModeActive, string currentTrapName
     public static event Action<string> OnSelectedTrapChanged; // string trapName
+    public static event Action<bool, List<PlaceableSettings>, int> OnToggleTrapSelect; // bool isTrapSelectionActive, int selectedTrapIndex
     public event Action<bool, bool> OnMoveChanged; // bool isMoving, bool isSprinting
 
     //---------------------------------- Inicio Movimentacao e Camera ----------------------------------
@@ -99,6 +100,7 @@ public class Player : MonoBehaviour
     public InputActionReference rotateTrapInput;
 
     private bool isTrapModeActive = false;
+    private bool isTrapSelectionActive = false;
     private int selectedTrapIndex = 0;
     private int selectedTrapPlacementIndex = 0;
     private PlayerDeathIdentifier deathIdentifier;
@@ -108,7 +110,7 @@ public class Player : MonoBehaviour
 
     public bool IsTrapModeActive => isTrapModeActive && (deathIdentifier == null || !deathIdentifier.IsDead);
 
-    void Awake()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         deathIdentifier = GetComponent<PlayerDeathIdentifier>();
@@ -122,6 +124,13 @@ public class Player : MonoBehaviour
         lastJumpPressedTime = -999f;
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
+
+        TrapSelectionCardUI.OnTrapSelected += SelectObject;
+    }
+
+    private void OnDestroy()
+    {
+        TrapSelectionCardUI.OnTrapSelected -= SelectObject;
     }
 
     private void OnEnable()
@@ -134,7 +143,7 @@ public class Player : MonoBehaviour
         placeObjectInput.action.performed += PlaceTrap;
 
         switchTrapInput.action.Enable();
-        switchTrapInput.action.performed += SelectObject;
+        switchTrapInput.action.performed += ToggleTrapSelection;
 
         rotateTrapInput.action.Enable();
         rotateTrapInput.action.performed += RotateObject;
@@ -187,7 +196,7 @@ public class Player : MonoBehaviour
         placeObjectInput.action.performed -= PlaceTrap;
 
         switchTrapInput.action.Disable();
-        switchTrapInput.action.performed -= SelectObject;
+        switchTrapInput.action.performed -= ToggleTrapSelection;
 
         rotateTrapInput.action.Disable();
         rotateTrapInput.action.performed -= RotateObject;
@@ -235,6 +244,7 @@ public class Player : MonoBehaviour
     public void OnMouseX(InputAction.CallbackContext context)
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
+        if (isTrapSelectionActive) return;
 
         float deltaX = context.ReadValue<float>() * senseX;
         transform.Rotate(0f, deltaX, 0f);
@@ -243,6 +253,7 @@ public class Player : MonoBehaviour
     public void OnMouseY(InputAction.CallbackContext context)
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
+        if (isTrapSelectionActive) return;
 
         float deltaY = context.ReadValue<float>() * senseY;
         float newXRotation = cameraTransform.localEulerAngles.x - deltaY;
@@ -272,6 +283,9 @@ public class Player : MonoBehaviour
         {
             UpdateGhostTrapPositions();
         }
+
+        if (isTrapSelectionActive) return;
+
         //-------------------------------- Inicio do Update de Movimentacao --------------------------------
 
         //Sempre atualizar o GroundCheck
@@ -312,6 +326,7 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
+        if (isTrapSelectionActive) return;
 
         //Movimentação durante o dash
         if (isDashing)
@@ -524,28 +539,46 @@ public class Player : MonoBehaviour
         else
             GameManager.ChangeGameStateToExploring();
 
+        if (isTrapModeActive == false)
+            ToggleTrapSelection(false);
+
         OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex].TrapName);
     }
 
-    private void SelectObject(InputAction.CallbackContext context)
+    private void ToggleTrapSelection(InputAction.CallbackContext context)
+    {
+        if (isTrapModeActive == false) return;
+        ToggleTrapSelection(!isTrapSelectionActive);
+    }
+
+    private void ToggleTrapSelection(bool isActive)
+    {
+        isTrapSelectionActive = isActive;
+        OnToggleTrapSelect?.Invoke(isTrapSelectionActive, TrapsSettings, selectedTrapPlacementIndex);
+
+        Cursor.lockState = isTrapSelectionActive ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = isTrapSelectionActive;
+
+        if (isTrapSelectionActive)
+            OnMoveChanged?.Invoke(false, false);
+    }
+
+    private void SelectObject(PlaceableSettings placeableSettings)
     {
         if (!isTrapModeActive) return;
+        if (!isTrapSelectionActive) return;
 
-        if (selectedTrapIndex < 0 || selectedTrapIndex >= TrapsSettings.Count)
+        int newIndex = TrapsSettings.IndexOf(placeableSettings);
+        if (newIndex == -1)
         {
-            Debug.LogWarning($"Índice de armadilha {selectedTrapIndex} é inválido.");
+            Debug.LogWarning($"PlaceableSettings {placeableSettings.TrapName} not found in TrapsSettings.");
             return;
         }
 
-        selectedTrapIndex++;
-        if (selectedTrapIndex >= TrapsSettings.Count)
-        {
-            selectedTrapIndex = 0;
-        }
-
+        selectedTrapIndex = newIndex;
         selectedTrapPlacementIndex = selectedTrapIndex;
 
-        Debug.Log($"Armadilha selecionada: {TrapsSettings[selectedTrapIndex].name}");
+        Debug.Log($"Armadilha selecionada: {TrapsSettings[selectedTrapIndex].TrapName}");
         OnSelectedTrapChanged?.Invoke(TrapsSettings[selectedTrapIndex].TrapName);
 
         if (isTrapModeActive)
@@ -764,6 +797,8 @@ public class Player : MonoBehaviour
         if (!isTrapModeActive || !canPlaceObject || ghostTrapObjects == null || ghostTrapObjects.Count == 0)
             return;
         if (selectedTrapPlacementIndex < 0 || selectedTrapPlacementIndex >= TrapsSettings.Count)
+            return;
+        if (isTrapSelectionActive)
             return;
 
         var trapSettings = TrapsSettings[selectedTrapPlacementIndex];

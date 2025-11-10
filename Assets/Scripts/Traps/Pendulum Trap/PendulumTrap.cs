@@ -31,7 +31,7 @@ public class PendulumTrap : TrapBase
 
     protected override void OnAlwaysActive()
     {
-        if (GameManager.CurrentGameState == GameState.Exploring)
+        if (GameManager.CurrentGameState != GameState.Building)
             swingSequence.Play();
         else
             swingSequence.Pause();

@@ -40,7 +40,7 @@ public class TreasureChest : MonoBehaviour
 
     private void OnActionTriggerEnter(Collider other)
     {
-        if (GameManager.CurrentGameState != GameState.Exploring) return;
+        if (GameManager.CurrentGameState == GameState.Building) return;
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
 
         isPlayerInRange = true;
@@ -55,7 +55,7 @@ public class TreasureChest : MonoBehaviour
 
     private void OnActionTriggerExit(Collider other)
     {
-        if (GameManager.CurrentGameState != GameState.Exploring) return;
+        if (GameManager.CurrentGameState == GameState.Building) return;
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
 
         isPlayerInRange = false;

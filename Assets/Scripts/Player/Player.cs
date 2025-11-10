@@ -5,9 +5,16 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class Player : MonoBehaviour
 {
+    private class PlacedTrapGroup
+    {
+        public List<GameObject> Previews = new();
+        public List<GameObject> ActualTraps = new();
+    }
+
     public static event Action<bool, string> OnTrapModeChanged; // bool isTrapModeActive, string currentTrapName
     public static event Action<string> OnSelectedTrapChanged; // string trapName
     public static event Action<bool, List<PlaceableSettings>, int> OnToggleTrapSelect; // bool isTrapSelectionActive, int selectedTrapIndex
@@ -96,20 +103,25 @@ public class Player : MonoBehaviour
     public InputActionReference moveInput;
     public InputActionReference trapModeToggleInput;
     public InputActionReference placeObjectInput;
-    public InputActionReference switchTrapInput;
+    [FormerlySerializedAs("switchTrapInput")] public InputActionReference removeTrapInput;
     public InputActionReference rotateTrapInput;
+    public InputActionReference openTrapMenuInput;
 
     private bool isTrapModeActive = false;
     private bool isTrapSelectionActive = false;
+    private bool isTrapTestMenuActive = false;
     private int selectedTrapIndex = 0;
     private int selectedTrapPlacementIndex = 0;
     private PlayerDeathIdentifier deathIdentifier;
     private List<GameObject> trapPreviews = new();
     private List<GameObject> ghostTrapObjects = new();
     private int ghostTrapRotationQuarterTurns = 0;
+    private Vector3 initialPosition;
+    private List<PlacedTrapGroup> placedTrapGroups = new();
 
     public bool IsTrapModeActive => isTrapModeActive && (deathIdentifier == null || !deathIdentifier.IsDead);
-
+    public bool IsTrapMenuActive => isTrapSelectionActive;
+    
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -124,13 +136,32 @@ public class Player : MonoBehaviour
         lastJumpPressedTime = -999f;
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
+        initialPosition = transform.position;
 
         TrapSelectionCardUI.OnTrapSelected += SelectObject;
+        TrapTestUI.OnConfirmTestTrap += TestTrapScene;
+        TrapTestUI.OnDenyTestTrap += ToggleTrapTestMenu;
     }
 
     private void OnDestroy()
     {
         TrapSelectionCardUI.OnTrapSelected -= SelectObject;
+        TrapTestUI.OnConfirmTestTrap -= TestTrapScene;
+        TrapTestUI.OnDenyTestTrap -= ToggleTrapTestMenu;
+    }
+
+    private void Start()
+    {
+        if (GameManager.CurrentGameState == GameState.Building && GameManager.CanEnterBuildMode)
+        {
+            isTrapModeActive = true;
+            foreach (var preview in trapPreviews)
+            {
+                if (preview != null)
+                    preview.SetActive(isTrapModeActive);
+            }
+            CreateGhostTrapsForSelectedTrap();
+        }
     }
 
     private void OnEnable()
@@ -142,8 +173,11 @@ public class Player : MonoBehaviour
         placeObjectInput.action.Enable();
         placeObjectInput.action.performed += PlaceTrap;
 
-        switchTrapInput.action.Enable();
-        switchTrapInput.action.performed += ToggleTrapSelection;
+        openTrapMenuInput.action.Enable();
+        openTrapMenuInput.action.performed += ToggleTrapSelection;
+        
+        removeTrapInput.action.Enable();
+        removeTrapInput.action.performed += RemoveTrap;
 
         rotateTrapInput.action.Enable();
         rotateTrapInput.action.performed += RotateObject;
@@ -195,8 +229,11 @@ public class Player : MonoBehaviour
         placeObjectInput.action.Disable();
         placeObjectInput.action.performed -= PlaceTrap;
 
-        switchTrapInput.action.Disable();
-        switchTrapInput.action.performed -= ToggleTrapSelection;
+        openTrapMenuInput.action.Disable();
+        openTrapMenuInput.action.performed -= ToggleTrapSelection;
+        
+        removeTrapInput.action.Disable();
+        removeTrapInput.action.performed -= RemoveTrap;
 
         rotateTrapInput.action.Disable();
         rotateTrapInput.action.performed -= RotateObject;
@@ -245,6 +282,7 @@ public class Player : MonoBehaviour
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
         if (isTrapSelectionActive) return;
+        if (isTrapTestMenuActive) return;
 
         float deltaX = context.ReadValue<float>() * senseX;
         transform.Rotate(0f, deltaX, 0f);
@@ -254,6 +292,7 @@ public class Player : MonoBehaviour
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
         if (isTrapSelectionActive) return;
+        if (isTrapTestMenuActive) return;
 
         float deltaY = context.ReadValue<float>() * senseY;
         float newXRotation = cameraTransform.localEulerAngles.x - deltaY;
@@ -285,6 +324,7 @@ public class Player : MonoBehaviour
         }
 
         if (isTrapSelectionActive) return;
+        if (isTrapTestMenuActive) return;
 
         //-------------------------------- Inicio do Update de Movimentacao --------------------------------
 
@@ -327,6 +367,7 @@ public class Player : MonoBehaviour
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
         if (isTrapSelectionActive) return;
+        if (isTrapTestMenuActive) return;
 
         //Movimentação durante o dash
         if (isDashing)
@@ -513,6 +554,9 @@ public class Player : MonoBehaviour
 
     private void ToggleTrapMode(InputAction.CallbackContext context)
     {
+        if (GameManager.CanEnterBuildMode == false) return;
+        if (isTrapSelectionActive) return;
+        
         isTrapModeActive = !isTrapModeActive;
         Debug.Log("Modo de Construção: " + (isTrapModeActive ? "Ativado" : "Desativado"));
 
@@ -533,18 +577,32 @@ public class Player : MonoBehaviour
         {
             DestroyGhostTraps();
         }
-
+        
         if (isTrapModeActive)
             GameManager.ChangeGameStateToBuilding();
         else
-            GameManager.ChangeGameStateToExploring();
+            GameManager.ChangeGameStateToTestingBuild();
 
         if (isTrapModeActive == false)
             ToggleTrapSelection(false);
 
+        ToggleTrapTestMenu(true, isTrapModeActive == false);
+
         OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex].TrapName);
     }
 
+    private void ToggleTrapTestMenu() => ToggleTrapTestMenu(false);
+    private void ToggleTrapTestMenu(bool changeState, bool actualState = false)
+    {
+        if (changeState)
+            isTrapTestMenuActive = actualState;
+        else
+            isTrapTestMenuActive = !isTrapTestMenuActive;
+
+        Cursor.lockState = isTrapTestMenuActive ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = isTrapTestMenuActive;
+    }
+    
     private void ToggleTrapSelection(InputAction.CallbackContext context)
     {
         if (isTrapModeActive == false) return;
@@ -800,6 +858,8 @@ public class Player : MonoBehaviour
             return;
         if (isTrapSelectionActive)
             return;
+        if (isTrapTestMenuActive)
+            return;
 
         var trapSettings = TrapsSettings[selectedTrapPlacementIndex];
         var positioningMatrix = trapSettings.PositioningMatrix;
@@ -807,6 +867,9 @@ public class Player : MonoBehaviour
         int totalCols = positioningMatrix.Cols;
         int centerRow = totalRows / 2;
         int centerCol = totalCols / 2;
+
+        // Create a new trap group to track this placement
+        PlacedTrapGroup trapGroup = new PlacedTrapGroup();
 
         int ghostTrapIdx = 0;
         for (int row = 0; row < totalRows; row++)
@@ -826,21 +889,97 @@ public class Player : MonoBehaviour
                 Quaternion rot = ghostTrap.transform.rotation;
                 if (cellType == TrapPositioningType.Trap && trapSettings.TrapObject != null)
                 {
-                    Instantiate(trapSettings.TrapObject, pos, rot);
+                    var actualTrap = Instantiate(trapSettings.TrapObject, pos, rot);
                     var pointer = Instantiate(trapSettings.TrapPreview, pos, rot);
                     pointer.SetActive(isTrapModeActive);
                     trapPreviews.Add(pointer);
+                    
+                    // Track this pair in the group
+                    trapGroup.ActualTraps.Add(actualTrap);
+                    trapGroup.Previews.Add(pointer);
                 }
                 else if (cellType == TrapPositioningType.Spacer && trapSettings.TrapSpacerPreview != null)
                 {
                     var pointer = Instantiate(trapSettings.TrapSpacerPreview, pos, rot);
                     pointer.SetActive(isTrapModeActive);
                     trapPreviews.Add(pointer);
+                    
+                    // Track this spacer preview in the group
+                    trapGroup.Previews.Add(pointer);
                 }
             }
         }
 
+        // Add the group to our tracking list
+        placedTrapGroups.Add(trapGroup);
+
         Debug.Log($"[PlaceTrap] Placement completed for {trapSettings.TrapObject.name}");
+    }
+
+    private void RemoveTrap(InputAction.CallbackContext context)
+    {
+        if (!isTrapModeActive) return;
+        if (isTrapSelectionActive) return;
+        if (isTrapTestMenuActive) return;
+        if (ghostTrapObjects == null || ghostTrapObjects.Count == 0) return;
+
+        // Use the position of the first ghost trap (center of the placement) to find placed traps
+        GameObject centerGhostTrap = ghostTrapObjects[0];
+        if (centerGhostTrap == null || !centerGhostTrap.activeSelf) return;
+
+        Vector3 targetGridPosition = centerGhostTrap.transform.position;
+        
+        // Find which trap group has a preview at this grid position
+        PlacedTrapGroup groupToRemove = null;
+        foreach (var group in placedTrapGroups)
+        {
+            foreach (var preview in group.Previews)
+            {
+                if (preview != null)
+                {
+                    // Check if this preview is at the same grid position (with small tolerance)
+                    float distance = Vector3.Distance(preview.transform.position, targetGridPosition);
+                    if (distance < gridSize * 0.1f)
+                    {
+                        groupToRemove = group;
+                        break;
+                    }
+                }
+            }
+            if (groupToRemove != null) break;
+        }
+
+        if (groupToRemove != null)
+        {
+            // Remove all actual traps in this group
+            foreach (var actualTrap in groupToRemove.ActualTraps)
+            {
+                if (actualTrap != null)
+                {
+                    Debug.Log($"[RemoveTrap] Removed trap: {actualTrap.name}");
+                    Destroy(actualTrap);
+                }
+            }
+
+            // Remove all previews in this group
+            foreach (var preview in groupToRemove.Previews)
+            {
+                if (preview != null)
+                {
+                    trapPreviews.Remove(preview);
+                    Destroy(preview);
+                }
+            }
+
+            // Remove the group from tracking
+            placedTrapGroups.Remove(groupToRemove);
+            
+            Debug.Log($"[RemoveTrap] Removed trap group with {groupToRemove.ActualTraps.Count} traps and {groupToRemove.Previews.Count} previews at position {targetGridPosition}");
+        }
+        else
+        {
+            Debug.Log($"[RemoveTrap] No trap found at grid position {targetGridPosition}");
+        }
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -870,5 +1009,11 @@ public class Player : MonoBehaviour
         Debug.Log($"[RotateObject] Rotated matrix, new ghostTrapRotationQuarterTurns={ghostTrapRotationQuarterTurns}");
 
         UpdateGhostTrapPositions();
+    }
+    
+    private void TestTrapScene()
+    {
+        ToggleTrapTestMenu();
+        transform.position = initialPosition;
     }
 }

@@ -88,7 +88,7 @@ public class WallArrowTrap : TrapBase
             }
         }
 
-        if (GameManager.CurrentGameState == GameState.Exploring)
+        if (GameManager.CurrentGameState != GameState.Building)
             ResumeSequence();
         else
             PauseSequence();

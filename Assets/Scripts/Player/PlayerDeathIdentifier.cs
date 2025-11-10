@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -19,6 +20,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
     private Rigidbody rigidBody;
     private Transform cameraTransform;
     private bool isDead = false;
+    private bool isTestingTraps = false;
     private float vfxOffset;
     private GameObject deathGhost;
 
@@ -33,6 +35,15 @@ public class PlayerDeathIdentifier : MonoBehaviour
     {
         cameraTransform = GetComponentInChildren<Camera>().transform;
         rigidBody = GetComponent<Rigidbody>();
+        
+        TrapTestUI.OnConfirmTestTrap += OnTrapTestConfirmed;
+        TrapTestUI.OnDenyTestTrap += OnTrapTestDenied;
+    }
+
+    private void OnDestroy()
+    {
+        TrapTestUI.OnConfirmTestTrap -= OnTrapTestConfirmed;
+        TrapTestUI.OnDenyTestTrap -= OnTrapTestDenied;
     }
 
     private void Update()
@@ -74,6 +85,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
     public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f, bool spawnGhost = true)
     {
         if (isDead) return;
+        if (isTestingTraps) return;
 
         isDead = true;
         foreach (var visual in VisualsToHide)
@@ -105,5 +117,15 @@ public class PlayerDeathIdentifier : MonoBehaviour
     {
         if (isDead) return;
         rigidBody.AddForce(direction.normalized * force, ForceMode.Impulse);
+    }
+    
+    private void OnTrapTestConfirmed()
+    {
+        isTestingTraps = false;
+    }
+
+    private void OnTrapTestDenied()
+    {
+        isTestingTraps = true;
     }
 }

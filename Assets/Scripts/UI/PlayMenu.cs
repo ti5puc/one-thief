@@ -15,6 +15,9 @@ public class PlayMenu : MonoBehaviour
 
     public void Build()
     {
+        GameManager.SetCanEnterBuildMode(true);
+        GameManager.ChangeGameStateToBuilding();
+
         SceneManager.LoadSceneAsync(6);
     }
 }

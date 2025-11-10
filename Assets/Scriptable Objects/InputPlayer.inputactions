@@ -52,7 +52,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SwitchTrap",
+                    "name": "RemoveTrap",
                     "type": "Button",
                     "id": "4a95cee6-0022-4501-a526-b80ec288d3fe",
                     "expectedControlType": "",
@@ -70,7 +70,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Interact",
+                    "name": "InteractAndTrapMenu",
                     "type": "Button",
                     "id": "99fc7ad1-2c6c-4f52-8176-960cd1b26d56",
                     "expectedControlType": "",
@@ -186,7 +186,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchTrap",
+                    "action": "RemoveTrap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -208,7 +208,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Interact",
+                    "action": "InteractAndTrapMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

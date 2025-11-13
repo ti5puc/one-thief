@@ -5,6 +5,16 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.RayTracingAccelerationStructure;
+
+
+[System.Serializable]
+public class TrapGridSaveData
+{
+    public int rows;
+    public int cols;
+    public int[] data; // matriz achatada
+}
 
 public class Player : MonoBehaviour
 {
@@ -86,6 +96,13 @@ public class Player : MonoBehaviour
     public Vector2 gridOffset = Vector2.zero;
     private bool canPlaceObject = false;
 
+    //---------- >>> NOVO <<< ----------//
+    [Header("Grid / Save")]
+    public int gridRows = 100;
+    public int gridCols = 100;
+    private int[,] trapIdGrid;
+    //---------- >>> NOVO <<< ----------//
+
     [Header("Traps")]
     public List<PlaceableSettings> TrapsSettings = new();
 
@@ -118,10 +135,19 @@ public class Player : MonoBehaviour
 
         capsule = GetComponent<CapsuleCollider>();
 
+        //Matriz de IDs de traps para salvamento de layout
+        trapIdGrid = new int[gridRows, gridCols]; 
+
         // Evita problemas de pulo ao iniciar
         lastJumpPressedTime = -999f;
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
+
+        //---------- >>> NOVO <<< ----------//
+        // >>> NOVO: inicializa a matriz de IDs de traps <<<
+        if (trapIdGrid == null)
+            trapIdGrid = new int[gridRows, gridCols]; // tudo inicializa em 0 = vazio
+        //---------- >>> NOVO <<< ----------//
     }
 
     private void OnEnable()
@@ -305,7 +331,25 @@ public class Player : MonoBehaviour
                 }
             }
         }
-        //-------------------------------- Inicio do Update de Movimentacao --------------------------------
+        //-------------------------------- Fim do Update de Movimentacao --------------------------------
+
+        // >>> NOVO: atalhos de debug para salvar / carregar / reconstruir <<<
+
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            SaveTrapGridToDisk();
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            bool ok = LoadTrapGridFromDisk();
+            Debug.Log($"[DEBUG] LoadTrapGridFromDisk retornou: {ok}");
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            RebuildTrapsFromGrid();
+        }
 
     }
 
@@ -759,6 +803,30 @@ public class Player : MonoBehaviour
         Gizmos.matrix = Matrix4x4.identity;
     }
 
+
+    //----------------- >>> NOVO <<< ----------------- //
+    // row = eixo Z, col = eixo X
+    // row = eixo Z, col = eixo X, com (0,0) do mundo no centro da matriz
+    private bool TryWorldToGrid(Vector3 worldPos, out int row, out int col)
+    {
+        int centerRow = gridRows / 2;
+        int centerCol = gridCols / 2;
+
+        col = centerCol + Mathf.RoundToInt((worldPos.x - gridOffset.x) / gridSize);
+        row = centerRow + Mathf.RoundToInt((worldPos.z - gridOffset.y) / gridSize);
+
+        if (row < 0 || row >= gridRows || col < 0 || col >= gridCols)
+        {
+            Debug.LogWarning($"[TryWorldToGrid] Fora dos limites: worldPos={worldPos} -> row={row}, col={col}");
+            row = col = -1;
+            return false;
+        }
+
+        return true;
+    }
+    //----------------- >>> NOVO <<< ----------------- //
+
+
     private void PlaceTrap(InputAction.CallbackContext context)
     {
         if (!isTrapModeActive || !canPlaceObject || ghostTrapObjects == null || ghostTrapObjects.Count == 0)
@@ -780,24 +848,41 @@ public class Player : MonoBehaviour
             {
                 var cellType = positioningMatrix[row, col];
                 if (cellType == TrapPositioningType.None) continue;
+
                 Vector3 offset = new Vector3((col - centerCol) * gridSize, 0f, (row - centerRow) * gridSize);
+
                 if (ghostTrapIdx >= ghostTrapObjects.Count)
                 {
                     Debug.LogError($"[PlaceTrap] ghostTrapIdx {ghostTrapIdx} out of range for {ghostTrapObjects.Count} ghosts");
                     continue;
                 }
+
                 GameObject ghostTrap = ghostTrapObjects[ghostTrapIdx++];
                 Vector3 pos = ghostTrap.transform.position;
                 Quaternion rot = ghostTrap.transform.rotation;
+
                 if (cellType == TrapPositioningType.Trap && trapSettings.TrapObject != null)
                 {
-                    Instantiate(trapSettings.TrapObject, pos, rot);
+                    var trapInstance = Instantiate(trapSettings.TrapObject, pos, rot);
+
+                    if (TryWorldToGrid(pos, out int gridRow, out int gridCol))
+                    {
+                        trapIdGrid[gridRow, gridCol] = selectedTrapPlacementIndex + 1;
+                        Debug.Log($"[GRID WRITE] TrapID={selectedTrapPlacementIndex + 1} em ({gridRow},{gridCol})");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[PlaceTrap] Trap fora dos limites da matriz. WorldPos={pos}");
+                    }
+
                     var pointer = Instantiate(trapSettings.TrapPreview, pos, rot);
                     pointer.SetActive(isTrapModeActive);
                     trapPreviews.Add(pointer);
                 }
+
                 else if (cellType == TrapPositioningType.Spacer && trapSettings.TrapSpacerPreview != null)
                 {
+                    // Spacers, por enquanto, não entram na matriz de IDs (poderíamos se você quiser no futuro)
                     var pointer = Instantiate(trapSettings.TrapSpacerPreview, pos, rot);
                     pointer.SetActive(isTrapModeActive);
                     trapPreviews.Add(pointer);
@@ -836,4 +921,151 @@ public class Player : MonoBehaviour
 
         UpdateGhostTrapPositions();
     }
+
+    //transforma a matriz 2D em array 1D para salvar
+    private int[] FlattenGrid(int[,] grid, int rows, int cols)
+    {
+        int[] flat = new int[rows * cols];
+        int idx = 0;
+
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++)
+                flat[idx++] = grid[r, c];
+
+        return flat;
+    }
+
+    //transforma o array 1D de volta em matriz 2D ao carregar
+    private int[,] UnflattenGrid(int[] flat, int rows, int cols)
+    {
+        int[,] grid = new int[rows, cols];
+        int idx = 0;
+
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++)
+                grid[r, c] = flat[idx++];
+
+        return grid;
+    }
+
+    //Salva a matriz de IDs de traps no disco em formato JSON
+    //public void SaveTrapGridToDisk()
+    //{
+    //    TrapGridSaveData data = new TrapGridSaveData();
+    //    data.rows = gridRows;
+    //    data.cols = gridCols;
+    //    data.data = FlattenGrid(trapIdGrid, gridRows, gridCols);
+
+    //    string json = JsonUtility.ToJson(data, true);
+
+    //    string path = System.IO.Path.Combine(Application.persistentDataPath, "trapGrid.json");
+
+    //    System.IO.File.WriteAllText(path, json);
+
+    //    Debug.Log($"[SAVE] Grid salvo em: {path}");
+
+    //}
+
+    public void SaveTrapGridToDisk()
+    {
+        if (trapIdGrid == null)
+        {
+            Debug.LogError("[SAVE] trapIdGrid é null, nada para salvar.");
+            return;
+        }
+
+        // Debug extra: checar se existem valores != 0 antes de salvar
+        int nonZero = 0;
+        for (int r = 0; r < gridRows; r++)
+            for (int c = 0; c < gridCols; c++)
+                if (trapIdGrid[r, c] != 0)
+                    nonZero++;
+
+        Debug.Log($"[SAVE] Células != 0 na matriz em memória: {nonZero}");
+
+        TrapGridSaveData data = new TrapGridSaveData
+        {
+            rows = gridRows,
+            cols = gridCols,
+            data = FlattenGrid(trapIdGrid, gridRows, gridCols)
+        };
+
+        string json = JsonUtility.ToJson(data, true);
+        string path = System.IO.Path.Combine(Application.persistentDataPath, "trapGrid.json");
+        System.IO.File.WriteAllText(path, json);
+
+        Debug.Log($"[SAVE] Grid salvo em: {path}");
+    }
+
+
+    //Carrega a matriz de IDs de traps do disco em formato JSON
+    public bool LoadTrapGridFromDisk()
+    {
+        string path = System.IO.Path.Combine(Application.persistentDataPath, "trapGrid.json");
+
+        if (!System.IO.File.Exists(path))
+        {
+            Debug.LogWarning("[LOAD] Arquivo de grid não encontrado");
+            return false;
+        }
+
+        string json = System.IO.File.ReadAllText(path);
+
+        TrapGridSaveData data = JsonUtility.FromJson<TrapGridSaveData>(json);
+
+        trapIdGrid = UnflattenGrid(data.data, data.rows, data.cols);
+
+        Debug.Log("[LOAD] Grid carregado com sucesso");
+
+        return true;
+    }
+
+    //Reconstrói as traps no mundo com base na matriz de IDs carregada
+    public void RebuildTrapsFromGrid()
+    {
+        if (trapIdGrid == null)
+        {
+            Debug.LogWarning("[LOAD] trapIdGrid é null, nada para reconstruir.");
+            return;
+        }
+
+        int centerRow = gridRows / 2;
+        int centerCol = gridCols / 2;
+
+        for (int r = 0; r < gridRows; r++)
+        {
+            for (int c = 0; c < gridCols; c++)
+            {
+                int id = trapIdGrid[r, c];
+
+                if (id <= 0) continue; // 0 = vazio
+
+                int trapIndex = id - 1;
+
+                if (trapIndex < 0 || trapIndex >= TrapsSettings.Count)
+                {
+                    Debug.LogWarning($"[LOAD] ID inválido na célula [{r},{c}]: {id}");
+                    continue;
+                }
+
+                // Conversão inversa do TryWorldToGrid:
+                // col = centerCol + (x - offset.x)/gridSize
+                // row = centerRow + (z - offset.y)/gridSize
+                // =>
+                // x = offset.x + (col - centerCol) * gridSize
+                // z = offset.y + (row - centerRow) * gridSize
+
+                float x = gridOffset.x + (c - centerCol) * gridSize;
+                float z = gridOffset.y + (r - centerRow) * gridSize;
+                float y = 0f; // ajuste se precisar
+
+                Vector3 pos = new Vector3(x, y, z);
+
+                Instantiate(TrapsSettings[trapIndex].TrapObject, pos, Quaternion.identity);
+            }
+        }
+
+        Debug.Log("[LOAD] Reconstrução de traps concluída.");
+    }
+
 }

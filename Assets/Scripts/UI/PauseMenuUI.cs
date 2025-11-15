@@ -16,6 +16,7 @@ public class PauseMenuUI : MonoBehaviour
     [SerializeField] private InputActionReference pauseMenuAction;
 
     private bool isShowing;
+    private bool wasBuilding;
     
     private void Awake()
     {
@@ -52,6 +53,9 @@ public class PauseMenuUI : MonoBehaviour
         isShowing = true;
         gameObject.SetActive(true);
         
+        bool isExploring = GameManager.CurrentGameState == GameState.Exploring;
+        testButton.interactable = isExploring == false;
+        
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -73,12 +77,20 @@ public class PauseMenuUI : MonoBehaviour
     private void Test()
     {
         OnTest?.Invoke();
+        
+        wasBuilding = GameManager.CurrentGameState != GameState.Exploring;
+        GameManager.ChangeGameStateToExploring();
+        
         Hide();
     }
     
     private void ResetScene()
     {
         GameManager.Resume();
+        
+        if (wasBuilding)
+            GameManager.ChangeGameStateToTestingBuild();
+        
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }
     

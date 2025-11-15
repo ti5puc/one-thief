@@ -9,7 +9,7 @@ public class Initializer : MonoBehaviour
     [SerializeField] private GameObject layoutOnScene;
     [SerializeField] private GameObject[] layouts;
 
-    private void Awake()
+    private void Start()
     {
         if (playerOnScene != null)
             gameObject.SetActive(false);

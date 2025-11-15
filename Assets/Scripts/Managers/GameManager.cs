@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
 
         if (startOnBuildingForDebug)
         {
-            currentGameState = GameState.Building;
+            currentGameState = GameState.TestingBuild;
             canEnterBuildMode = true;
         }
     }
@@ -86,13 +86,11 @@ public class GameManager : MonoBehaviour
 
     public static void Pause()
     {
-        Time.timeScale = 0f;
         Instance.isGamePaused = true;
     }
 
     public static void Resume()
     {
-        Time.timeScale = 1f;
         Instance.isGamePaused = false;
     }
 }

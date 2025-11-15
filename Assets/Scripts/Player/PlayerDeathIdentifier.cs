@@ -22,7 +22,6 @@ public class PlayerDeathIdentifier : MonoBehaviour
     private Rigidbody rigidBody;
     private Transform cameraTransform;
     private bool isDead = false;
-    private bool isTestingTraps = false;
     private float vfxOffset;
     private GameObject deathGhost;
 
@@ -45,8 +44,6 @@ public class PlayerDeathIdentifier : MonoBehaviour
         {
             // keep rotating player on Y axis after death
             transform.Rotate(Vector3.up * DeathRotateSpeed * Time.deltaTime);
-            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
-                OnTryResetDeath?.Invoke();
         }
 
         if (deathGhost != null)
@@ -73,7 +70,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
     public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f, bool spawnGhost = true)
     {
         if (isDead) return;
-        if (isTestingTraps) return;
+        if (GameManager.CurrentGameState != GameState.Exploring) return;
 
         isDead = true;
         foreach (var visual in VisualsToHide)
@@ -105,15 +102,5 @@ public class PlayerDeathIdentifier : MonoBehaviour
     {
         if (isDead) return;
         rigidBody.AddForce(direction.normalized * force, ForceMode.Impulse);
-    }
-    
-    private void OnTrapTestConfirmed()
-    {
-        isTestingTraps = false;
-    }
-
-    private void OnTrapTestDenied()
-    {
-        isTestingTraps = true;
     }
 }

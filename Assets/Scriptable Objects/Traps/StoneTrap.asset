@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cd7dac3bb849ba4e8e5a69902d239cf, type: 3}
   m_Name: StoneTrap
   m_EditorClassIdentifier: 
-  trapName: Stone Fall
+  trapName: Weight Fall
   id: 5
   trapPlacementLayer:
     serializedVersion: 2

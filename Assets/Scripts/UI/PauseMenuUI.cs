@@ -87,9 +87,12 @@ public class PauseMenuUI : MonoBehaviour
     private void ResetScene()
     {
         GameManager.Resume();
-        
+
         if (wasBuilding)
+        {
             GameManager.ChangeGameStateToTestingBuild();
+            SaveSystem.NextSaveToLoad = string.Empty;
+        }
         
         SaveSystem.ClearAllSaves();
         

@@ -97,6 +97,7 @@ public class Player : MonoBehaviour
     public int gridRows = 100;
     public int gridCols = 100;
     private int[,] trapIdGrid;
+    private int[,] trapRotationGrid; // Stores rotation (quarter turns) for each grid cell
     //---------- >>> NOVO <<< ----------//
 
     [Header("Traps")]
@@ -144,7 +145,8 @@ public class Player : MonoBehaviour
         deathIdentifier.OnTryResetDeath += ResetPlayer;
 
         //Matriz de IDs de traps para salvamento de layout
-        trapIdGrid = new int[gridRows, gridCols]; 
+        trapIdGrid = new int[gridRows, gridCols];
+        trapRotationGrid = new int[gridRows, gridCols]; // Initialize rotation grid
 
         // Evita problemas de pulo ao iniciar
         lastJumpPressedTime = -999f;
@@ -155,6 +157,8 @@ public class Player : MonoBehaviour
         // >>> NOVO: inicializa a matriz de IDs de traps <<<
         if (trapIdGrid == null)
             trapIdGrid = new int[gridRows, gridCols]; // tudo inicializa em 0 = vazio
+        if (trapRotationGrid == null)
+            trapRotationGrid = new int[gridRows, gridCols];
         //---------- >>> NOVO <<< ----------//
         TrapSelectionCardUI.OnTrapSelected += SelectObject;
         PauseMenuUI.OnTest += ResetPlayer;
@@ -178,6 +182,11 @@ public class Player : MonoBehaviour
                     preview.SetActive(isTrapModeActive);
             }
             CreateGhostTrapsForSelectedTrap();
+        }
+
+        if (GameManager.CurrentGameState == GameState.Exploring && !string.IsNullOrEmpty(SaveSystem.NextSaveToLoad))
+        {
+            playerSave.LoadAndRebuild(this, SaveSystem.NextSaveToLoad);
         }
     }
 
@@ -915,7 +924,8 @@ public class Player : MonoBehaviour
                     if (TryWorldToGrid(pos, out int gridRow, out int gridCol))
                     {
                         trapIdGrid[gridRow, gridCol] = selectedTrapPlacementIndex + 1;
-                        Debug.Log($"[GRID WRITE] TrapID={selectedTrapPlacementIndex + 1} em ({gridRow},{gridCol})");
+                        trapRotationGrid[gridRow, gridCol] = ghostTrapRotationQuarterTurns;
+                        Debug.Log($"[GRID WRITE] TrapID={selectedTrapPlacementIndex + 1} Rotation={ghostTrapRotationQuarterTurns} em ({gridRow},{gridCol})");
                     }
                     else
                     {
@@ -1008,6 +1018,9 @@ public class Player : MonoBehaviour
 
     public int[,] GetTrapIdGrid() => trapIdGrid;
     public void SetTrapIdGrid(int[,] grid) => trapIdGrid = grid;
+    
+    public int[,] GetTrapRotationGrid() => trapRotationGrid;
+    public void SetTrapRotationGrid(int[,] grid) => trapRotationGrid = grid;
 
     public void RebuildTrapsFromGrid()
     {
@@ -1081,12 +1094,20 @@ public class Player : MonoBehaviour
                 int matrixCenterRow = totalRows / 2;
                 int matrixCenterCol = totalCols / 2;
 
+                // Get rotation from grid
+                int savedRotation = 0;
+                if (trapRotationGrid != null && r < trapRotationGrid.GetLength(0) && c < trapRotationGrid.GetLength(1))
+                {
+                    savedRotation = trapRotationGrid[r, c];
+                }
+
                 // Calculate the center position of this trap group
                 float x = gridOffset.x + (c - centerCol) * gridSize;
                 float z = gridOffset.y + (r - centerRow) * gridSize;
                 float y = 0f;
                 Vector3 centerPos = new Vector3(x, y, z);
-                Quaternion rot = Quaternion.identity;
+                float yRotation = 90f * savedRotation;
+                Quaternion rot = Quaternion.Euler(0f, yRotation, 0f);
 
                 // Create a trap group for this placement
                 PlacedTrapGroup trapGroup = new PlacedTrapGroup();
@@ -1099,15 +1120,23 @@ public class Player : MonoBehaviour
                         var cellType = positioningMatrix[matRow, matCol];
                         if (cellType == TrapPositioningType.None) continue;
 
-                        // Calculate offset from center
-                        int relRow = matRow - matrixCenterRow;
-                        int relCol = matCol - matrixCenterCol;
-                        Vector3 offset = new Vector3(relCol * gridSize, 0f, relRow * gridSize);
+                        // Calculate offset from center with rotation applied
+                        Vector3 offset = GetRotatedTrapOffset(matRow, matCol, matrixCenterRow, matrixCenterCol, savedRotation);
                         Vector3 cellPos = centerPos + offset;
 
                         // Mark this grid cell as processed
-                        int gridRow = r + relRow;
-                        int gridCol = c + relCol;
+                        int relRow = matRow - matrixCenterRow;
+                        int relCol = matCol - matrixCenterCol;
+                        // Apply rotation to calculate actual grid position
+                        int rotRow = relRow, rotCol = relCol;
+                        for (int rotIdx = 0; rotIdx < savedRotation; rotIdx++)
+                        {
+                            int temp = rotRow;
+                            rotRow = -rotCol;
+                            rotCol = temp;
+                        }
+                        int gridRow = r + rotRow;
+                        int gridCol = c + rotCol;
                         if (gridRow >= 0 && gridRow < gridRows && gridCol >= 0 && gridCol < gridCols)
                         {
                             processedCells[gridRow, gridCol] = true;

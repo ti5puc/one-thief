@@ -14,6 +14,7 @@ public class BuildMenu : MonoBehaviour
         GameManager.ChangeGameStateToTestingBuild();
         
         GameManager.NextLayoutIndex = 0;
+        SaveSystem.NextSaveToLoad = string.Empty;
         
         SceneManager.LoadSceneAsync(6);
     }
@@ -24,6 +25,7 @@ public class BuildMenu : MonoBehaviour
         GameManager.ChangeGameStateToTestingBuild();
 
         GameManager.NextLayoutIndex = 1;
+        SaveSystem.NextSaveToLoad = string.Empty;
         
         SceneManager.LoadSceneAsync(6);
     }
@@ -34,6 +36,7 @@ public class BuildMenu : MonoBehaviour
         GameManager.ChangeGameStateToTestingBuild();
 
         GameManager.NextLayoutIndex = 2;
+        SaveSystem.NextSaveToLoad = string.Empty;
         
         SceneManager.LoadSceneAsync(6);
     }

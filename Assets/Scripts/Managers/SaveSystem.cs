@@ -1,4 +1,5 @@
 using System.IO;
+using NaughtyAttributes;
 using UnityEngine;
 
 [System.Serializable]
@@ -7,6 +8,7 @@ public class SaveData
     public int Rows;
     public int Cols;
     public int[] Data; // matriz achatada
+    public int[] Rotations; // rotações (quarter turns) para cada célula
 }
 
 public class SaveSystem : MonoBehaviour
@@ -14,7 +16,15 @@ public class SaveSystem : MonoBehaviour
     private const string SAVE_FOLDER = "Saves";
     private const string FILE_EXTENSION = ".json";
 
+    [Header("Debug")]
+    [SerializeField, ReadOnly] private string nextSaveToLoad; 
+    
     public static SaveSystem Instance { get; private set; }
+    public static string NextSaveToLoad
+    {
+        get => Instance.nextSaveToLoad;
+        set => Instance.nextSaveToLoad = value;
+    }
     
     private void Awake()
     {
@@ -27,11 +37,17 @@ public class SaveSystem : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
     
-    public static bool Save(string saveId, int[,] trapIdGrid, int rows, int cols)
+    public static bool Save(string saveId, int[,] trapIdGrid, int[,] rotationGrid, int rows, int cols)
     {
         if (trapIdGrid == null)
         {
             Debug.LogError("[TrapGridSaveSystem] trapIdGrid é null, nada para salvar.");
+            return false;
+        }
+
+        if (rotationGrid == null)
+        {
+            Debug.LogError("[TrapGridSaveSystem] rotationGrid é null, nada para salvar.");
             return false;
         }
 
@@ -64,7 +80,8 @@ public class SaveSystem : MonoBehaviour
             {
                 Rows = rows,
                 Cols = cols,
-                Data = FlattenGrid(trapIdGrid, rows, cols)
+                Data = FlattenGrid(trapIdGrid, rows, cols),
+                Rotations = FlattenGrid(rotationGrid, rows, cols)
             };
 
             // Serialize to JSON
@@ -84,9 +101,10 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
-    public static bool Load(string saveId, out int[,] trapIdGrid, out int rows, out int cols)
+    public static bool Load(string saveId, out int[,] trapIdGrid, out int[,] rotationGrid, out int rows, out int cols)
     {
         trapIdGrid = null;
+        rotationGrid = null;
         rows = 0;
         cols = 0;
 
@@ -100,15 +118,31 @@ public class SaveSystem : MonoBehaviour
         {
             string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
             string filePath = Path.Combine(saveFolderPath, saveId + FILE_EXTENSION);
+            string json = null;
+            bool loadedFromResources = false;
 
-            if (!File.Exists(filePath))
+            if (File.Exists(filePath))
             {
-                Debug.LogWarning($"[TrapGridSaveSystem] Arquivo de save '{saveId}' não encontrado em: {filePath}");
-                return false;
+                // Read from file
+                json = File.ReadAllText(filePath);
             }
-
-            // Read from file
-            string json = File.ReadAllText(filePath);
+            else
+            {
+                // Try loading from Resources/Saves Placeholder
+                string resourcePath = $"Saves Placeholder/{saveId}";
+                TextAsset textAsset = Resources.Load<TextAsset>(resourcePath);
+                if (textAsset != null)
+                {
+                    json = textAsset.text;
+                    loadedFromResources = true;
+                    Debug.Log($"[TrapGridSaveSystem] Save '{saveId}' carregado de Resources: {resourcePath}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[TrapGridSaveSystem] Arquivo de save '{saveId}' não encontrado em: {filePath} nem em Resources/{resourcePath}");
+                    return false;
+                }
+            }
 
             // Deserialize
             SaveData data = JsonUtility.FromJson<SaveData>(json);
@@ -123,8 +157,20 @@ public class SaveSystem : MonoBehaviour
             rows = data.Rows;
             cols = data.Cols;
             trapIdGrid = UnflattenGrid(data.Data, rows, cols);
+            
+            // Unflatten rotations (handle backward compatibility)
+            if (data.Rotations != null && data.Rotations.Length > 0)
+            {
+                rotationGrid = UnflattenGrid(data.Rotations, rows, cols);
+            }
+            else
+            {
+                // For old saves without rotation data, initialize to zero
+                rotationGrid = new int[rows, cols];
+                Debug.LogWarning("[TrapGridSaveSystem] Save file has no rotation data, initializing to zero.");
+            }
 
-            Debug.Log($"[TrapGridSaveSystem] Grid '{saveId}' carregado com sucesso de: {filePath}");
+            Debug.Log($"[TrapGridSaveSystem] Grid '{saveId}' carregado com sucesso de: {(loadedFromResources ? "Resources" : filePath)}");
             return true;
         }
         catch (System.Exception ex)
@@ -242,4 +288,3 @@ public class SaveSystem : MonoBehaviour
         return grid;
     }
 }
-

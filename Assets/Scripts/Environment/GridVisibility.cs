@@ -22,5 +22,10 @@ public class GridVisibility : MonoBehaviour
             meshRenderer.enabled = current;
             lastTrapModeActive = current;
         }
+        
+        var playerPos = player.transform.position;
+        playerPos.y = transform.position.y;
+        
+        transform.position = playerPos;
     }
 }

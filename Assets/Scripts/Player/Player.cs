@@ -62,7 +62,7 @@ public class Player : MonoBehaviour
     public float jumpBufferTime = 0.1f;  // Tempo pertmitido para o jogador apertar pulo antes de estar no chão
 
     [Header("Sprint")]
-    public bool isSprinting = false;
+    public bool isSprinting = true; // Inverted: true by default (always sprinting)
     public bool canSprint = false;
     public float sprintMultiplier = 1.7f;
 
@@ -126,18 +126,14 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         deathIdentifier = GetComponent<PlayerDeathIdentifier>();
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
         capsule = GetComponent<CapsuleCollider>();
-
-        // Evita problemas de pulo ao iniciar
         lastJumpPressedTime = -999f;
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
         initialPosition = transform.position;
-
+        isSprinting = true; // Always start sprinting
         deathIdentifier.OnTryResetDeath += ResetPlayer;
         TrapSelectionCardUI.OnTrapSelected += SelectObject;
         PauseMenuUI.OnTest += ResetPlayer;
@@ -380,23 +376,18 @@ public class Player : MonoBehaviour
             if (Time.time >= dashEndTime)
             {
                 isDashing = false;
-
-                // Restaura gravidade
                 rb.useGravity = true;
-
-                // Zera o movimento vertical
                 var v = rb.linearVelocity; v.y = 0f; rb.linearVelocity = v;
+                isSprinting = true; // Always resume sprinting after dash
             }
             return; // Durante o dash ignora o resto da movimentação
         }
 
-        //Locomoção normal com Sprint/Crouch
         float speed = moveSpeed;
         OnMoveChanged?.Invoke(_moveDirection.sqrMagnitude > 0.0001f, isSprinting);
 
         if (isCrouching)
         {
-            //Sem sprint enquanto agachado
             isSprinting = false;
             speed *= crouchSpeedMultiplier;
         }
@@ -406,13 +397,9 @@ public class Player : MonoBehaviour
         }
 
         Vector3 moveDirection = transform.TransformDirection(new Vector3(_moveDirection.x, 0f, _moveDirection.y));
-
-        // Diagonal corrigida
         if (moveDirection.sqrMagnitude > 1f) moveDirection.Normalize();
-
         Vector3 newPosition = rb.position + moveDirection * speed * Time.fixedDeltaTime;
         rb.MovePosition(newPosition);
-
     }
 
     //----------------------------- Inicio Funcoes dos Comandos de Movimentacao -----------------------------
@@ -472,30 +459,22 @@ public class Player : MonoBehaviour
         if (Time.time < lastDashTime + dashCooldown) return;
 
         isDashing = true;
-        isSprinting = false;
+        // Do NOT set isSprinting = false here, let sprint resume after dash
         lastDashTime = Time.time;
         dashEndTime = Time.time + dashDuration;
 
-        // Evitando que o dash seja afetado pela inclinação da camera
         Vector3 inputDir = new Vector3(_moveDirection.x, 0f, _moveDirection.y);
-        // Direção fixa durante o dash:
         if (inputDir.sqrMagnitude > 0.0001f)
         {
-            // Converte o input (local da câmera) para mundo e remove componente vertical
             Vector3 worldDir = cameraTransform.TransformDirection(inputDir);
             dashDirection = Vector3.ProjectOnPlane(worldDir, Vector3.up).normalized;
         }
         else
         {
-            // Sem input: dasha para onde a câmera aponta (somente yaw)
             Vector3 camFwd = cameraTransform.forward;
             dashDirection = Vector3.ProjectOnPlane(camFwd, Vector3.up).normalized;
         }
-
-        // Desabilita gravidade durante o dash
         rb.useGravity = false;
-
-        // Movimento vertical zerado durante o dash
         var v = rb.linearVelocity;
         v.y = 0f;
         rb.linearVelocity = v;
@@ -541,13 +520,14 @@ public class Player : MonoBehaviour
     //Sprint
     void OnSprintPress(InputAction.CallbackContext ctx)
     {
-        if (isCrouching) CrouchOff(); // Correr levanta o player
-        isSprinting = true;
+        // Holding sprint: walk (not sprinting)
+        isSprinting = false;
     }
 
     void OnSprintRelease(InputAction.CallbackContext ctx)
     {
-        isSprinting = false;
+        // Released: sprint
+        isSprinting = true;
     }
 
     //----------------------------- Fim Funcoes dos Comandos de Movimentacao -----------------------------

@@ -1,12 +1,17 @@
-using JetBrains.Annotations;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+
+
+[System.Serializable]
+public class TrapGridSaveData
+{
+    public int Rows;
+    public int Cols;
+    public int[] Data; // matriz achatada
+}
 
 public class Player : MonoBehaviour
 {
@@ -34,12 +39,12 @@ public class Player : MonoBehaviour
 
     [Header("Crouch")]
     public bool canCrouch = true;
-    public bool isCrouching = false;
+    public bool isCrouching;
     public float defaultStandHeight = 2f;
     public float crouchHeight = 0.8f;
     public float cameraCrouchOffset = -0.4f;
     public float crouchSpeedMultiplier = 0.55f;
-    public bool canSlide = false;
+    public bool canSlide;
 
     [Header("GroundCheck")]
     public LayerMask groundLayer;
@@ -52,9 +57,9 @@ public class Player : MonoBehaviour
 
     [Header("JumpAndDoubleJump")]
     public bool canJump = true;
-    public bool canDoubleJump = false;
+    public bool canDoubleJump;
     public int maxAirJumps = 2;         // Total de pulos no ar
-    public int airJumpsRemaining = 0;   // Pulos no ar restantes
+    public int airJumpsRemaining;   // Pulos no ar restantes
     public float jumpForce = 5f;
     public float airJumpForceMultiplier = 0.9f;
     public float lastJumpPressedTime;
@@ -63,12 +68,12 @@ public class Player : MonoBehaviour
 
     [Header("Sprint")]
     public bool isSprinting = true; // Inverted: true by default (always sprinting)
-    public bool canSprint = false;
+    public bool canSprint;
     public float sprintMultiplier = 1.7f;
 
     [Header("Dash")]
     public bool canDash = true;
-    public bool isDashing = false;
+    public bool isDashing;
     public float dashSpeed = 13f;
     public float dashCooldown = 2f;
     public float dashDuration = 0.2f;
@@ -93,10 +98,17 @@ public class Player : MonoBehaviour
     public LayerMask collisionCheckLayer;
     public float gridSize = 0.5f;
     public Vector2 gridOffset = Vector2.zero;
-    private bool canPlaceObject = false;
+    private bool canPlaceObject;
+
+    //---------- >>> NOVO <<< ----------//
+    [Header("Grid / Save")]
+    public int gridRows = 100;
+    public int gridCols = 100;
+    private int[,] trapIdGrid;
+    //---------- >>> NOVO <<< ----------//
 
     [Header("Traps")]
-    public List<PlaceableSettings> TrapsSettings = new();
+    public List<PlaceableSettings> trapsSettings = new();
 
     [Header("Referências InputSystem")]
     public InputActionReference mouseXInput;
@@ -108,16 +120,16 @@ public class Player : MonoBehaviour
     public InputActionReference rotateTrapInput;
     public InputActionReference openTrapMenuInput;
 
-    private bool isTrapModeActive = false;
-    private bool isTrapSelectionActive = false;
-    private int selectedTrapIndex = 0;
-    private int selectedTrapPlacementIndex = 0;
+    private bool isTrapModeActive;
+    private bool isTrapSelectionActive;
+    private int selectedTrapIndex;
+    private int selectedTrapPlacementIndex;
     private PlayerDeathIdentifier deathIdentifier;
-    private List<GameObject> trapPreviews = new();
+    private readonly List<GameObject> trapPreviews = new();
     private List<GameObject> ghostTrapObjects = new();
-    private int ghostTrapRotationQuarterTurns = 0;
+    private int ghostTrapRotationQuarterTurns;
     private Vector3 initialPosition;
-    private List<PlacedTrapGroup> placedTrapGroups = new();
+    private readonly List<PlacedTrapGroup> placedTrapGroups = new();
 
     public bool IsTrapModeActive => isTrapModeActive && (deathIdentifier == null || !deathIdentifier.IsDead);
     public bool IsTrapMenuActive => isTrapSelectionActive;
@@ -129,12 +141,25 @@ public class Player : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         capsule = GetComponent<CapsuleCollider>();
-        lastJumpPressedTime = -999f;
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
         initialPosition = transform.position;
         isSprinting = true; // Always start sprinting
         deathIdentifier.OnTryResetDeath += ResetPlayer;
+
+        //Matriz de IDs de traps para salvamento de layout
+        trapIdGrid = new int[gridRows, gridCols]; 
+
+        // Evita problemas de pulo ao iniciar
+        lastJumpPressedTime = -999f;
+        lastGroundedTime = -999f;
+        airJumpsRemaining = 0;
+
+        //---------- >>> NOVO <<< ----------//
+        // >>> NOVO: inicializa a matriz de IDs de traps <<<
+        if (trapIdGrid == null)
+            trapIdGrid = new int[gridRows, gridCols]; // tudo inicializa em 0 = vazio
+        //---------- >>> NOVO <<< ----------//
         TrapSelectionCardUI.OnTrapSelected += SelectObject;
         PauseMenuUI.OnTest += ResetPlayer;
     }
@@ -202,8 +227,8 @@ public class Player : MonoBehaviour
         if (crouchInput)
         {
             crouchInput.action.Enable();
-            //crouchInput.action.performed += OnCrouchPress;
-            //crouchInput.action.canceled += OnCrouchRelease;
+            //CrouchInput.action.performed += OnCrouchPress;
+            //CrouchInput.action.canceled += OnCrouchRelease;
         }
         if (sprintInput)
         {
@@ -260,8 +285,8 @@ public class Player : MonoBehaviour
 
         if (crouchInput)
         {
-            //crouchInput.action.performed -= OnCrouchPress;
-            //crouchInput.action.canceled -= OnCrouchRelease;
+            //CrouchInput.action.performed -= OnCrouchPress;
+            //CrouchInput.action.canceled -= OnCrouchRelease;
             crouchInput.action.Disable();
         }
 
@@ -355,7 +380,25 @@ public class Player : MonoBehaviour
                 }
             }
         }
-        //-------------------------------- Inicio do Update de Movimentacao --------------------------------
+        //-------------------------------- Fim do Update de Movimentacao --------------------------------
+
+        // >>> NOVO: atalhos de debug para salvar / carregar / reconstruir <<<
+
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            SaveTrapGridToDisk();
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            bool ok = LoadTrapGridFromDisk();
+            Debug.Log($"[DEBUG] LoadTrapGridFromDisk retornou: {ok}");
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            RebuildTrapsFromGrid();
+        }
 
     }
 
@@ -368,7 +411,7 @@ public class Player : MonoBehaviour
         //Movimentação durante o dash
         if (isDashing)
         {
-            Vector3 step = dashDirection * dashSpeed * Time.fixedDeltaTime;
+            Vector3 step = dashDirection * (dashSpeed * Time.fixedDeltaTime);
             Vector3 target = rb.position + step;
 
             rb.MovePosition(target);
@@ -398,11 +441,9 @@ public class Player : MonoBehaviour
 
         Vector3 moveDirection = transform.TransformDirection(new Vector3(_moveDirection.x, 0f, _moveDirection.y));
         if (moveDirection.sqrMagnitude > 1f) moveDirection.Normalize();
-        Vector3 newPosition = rb.position + moveDirection * speed * Time.fixedDeltaTime;
+        Vector3 newPosition = rb.position + moveDirection * (speed * Time.fixedDeltaTime);
         rb.MovePosition(newPosition);
     }
-
-    //----------------------------- Inicio Funcoes dos Comandos de Movimentacao -----------------------------
 
     void GroundCheck()
     {
@@ -428,7 +469,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    //Pulo
     void DoJump(bool isAirJump)
     {
         // zera componente vertical para consistência
@@ -453,13 +493,12 @@ public class Player : MonoBehaviour
         lastJumpPressedTime = Time.time;
     }
 
-    //Dash
     void OnDash(InputAction.CallbackContext ctx)
     {
         if (Time.time < lastDashTime + dashCooldown) return;
 
         isDashing = true;
-        // Do NOT set isSprinting = false here, let sprint resume after dash
+        // Do NOT set IsSprinting = false here, let sprint resume after dash
         lastDashTime = Time.time;
         dashEndTime = Time.time + dashDuration;
 
@@ -566,7 +605,7 @@ public class Player : MonoBehaviour
         if (isTrapModeActive == false)
             ToggleTrapSelection(false);
 
-        OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex].TrapName);
+        OnTrapModeChanged?.Invoke(isTrapModeActive, trapsSettings[selectedTrapIndex].TrapName);
     }
     
     private void ToggleTrapSelection(InputAction.CallbackContext context)
@@ -578,7 +617,7 @@ public class Player : MonoBehaviour
     private void ToggleTrapSelection(bool isActive)
     {
         isTrapSelectionActive = isActive;
-        OnToggleTrapSelect?.Invoke(isTrapSelectionActive, TrapsSettings, selectedTrapPlacementIndex);
+        OnToggleTrapSelect?.Invoke(isTrapSelectionActive, trapsSettings, selectedTrapPlacementIndex);
 
         Cursor.lockState = isTrapSelectionActive ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isTrapSelectionActive;
@@ -592,7 +631,7 @@ public class Player : MonoBehaviour
         if (!isTrapModeActive) return;
         if (!isTrapSelectionActive) return;
 
-        int newIndex = TrapsSettings.IndexOf(placeableSettings);
+        int newIndex = trapsSettings.IndexOf(placeableSettings);
         if (newIndex == -1)
         {
             Debug.LogWarning($"PlaceableSettings {placeableSettings.TrapName} not found in TrapsSettings.");
@@ -602,8 +641,8 @@ public class Player : MonoBehaviour
         selectedTrapIndex = newIndex;
         selectedTrapPlacementIndex = selectedTrapIndex;
 
-        Debug.Log($"Armadilha selecionada: {TrapsSettings[selectedTrapIndex].TrapName}");
-        OnSelectedTrapChanged?.Invoke(TrapsSettings[selectedTrapIndex].TrapName);
+        Debug.Log($"Armadilha selecionada: {trapsSettings[selectedTrapIndex].TrapName}");
+        OnSelectedTrapChanged?.Invoke(trapsSettings[selectedTrapIndex].TrapName);
 
         if (isTrapModeActive)
         {
@@ -614,9 +653,9 @@ public class Player : MonoBehaviour
     private void CreateGhostTrapsForSelectedTrap()
     {
         DestroyGhostTraps();
-        if (selectedTrapIndex < 0 || selectedTrapIndex >= TrapsSettings.Count)
+        if (selectedTrapIndex < 0 || selectedTrapIndex >= trapsSettings.Count)
             return;
-        var trapSettings = TrapsSettings[selectedTrapIndex];
+        var trapSettings = trapsSettings[selectedTrapIndex];
         var positioningMatrix = trapSettings.PositioningMatrix;
         int totalRows = positioningMatrix.Rows;
         int totalCols = positioningMatrix.Cols;
@@ -644,10 +683,10 @@ public class Player : MonoBehaviour
                 var trapPreview = ghostTrap.GetComponent<TrapPreview>();
                 if (trapPreview != null)
                 {
-                    foreach (var collider in trapPreview.Colliders)
+                    foreach (var coll in trapPreview.Colliders)
                     {
-                        if (collider != null)
-                            collider.gameObject.layer = ignoreLayer;
+                        if (coll != null)
+                            coll.gameObject.layer = ignoreLayer;
                     }
                 }
             }
@@ -672,15 +711,15 @@ public class Player : MonoBehaviour
         Ray ray = cameraTransform.GetComponent<Camera>().ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
         LayerMask trapSurfaceLayer = 0;
-        if (selectedTrapIndex >= 0 && selectedTrapIndex < TrapsSettings.Count)
+        if (selectedTrapIndex >= 0 && selectedTrapIndex < trapsSettings.Count)
         {
-            var settings = TrapsSettings[selectedTrapIndex];
+            var settings = trapsSettings[selectedTrapIndex];
             trapSurfaceLayer = settings.TrapSurface | settings.TrapPlacementLayer;
         }
 
         if (Physics.Raycast(ray, out hit, interactionDistance, trapSurfaceLayer))
         {
-            var trapSettings = TrapsSettings[selectedTrapIndex];
+            var trapSettings = trapsSettings[selectedTrapIndex];
             var positioningMatrix = trapSettings.PositioningMatrix;
             int totalRows = positioningMatrix.Rows;
             int totalCols = positioningMatrix.Cols;
@@ -762,7 +801,6 @@ public class Player : MonoBehaviour
         {
             bool blockedByPlacement = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapPlacementLayer | collisionCheckLayer);
             bool hasSurface = Physics.CheckBox(position, halfExtents, rotation, trapSettings.TrapSurface);
-            // If this trap requires a wall to be placed, verify there's a wall overlapping the preview's WallCheckPoint
             if (trapSettings.NeedsWallToPlace)
             {
                 if (ghostTrap == null)
@@ -777,7 +815,6 @@ public class Player : MonoBehaviour
                     return false;
                 }
 
-                // small sphere overlap at the wall check point to detect a wall on the configured layer
                 Vector3 wallCheckPos = trapPreviewComp.WallCheckPoint.transform.position;
                 float wallCheckRadius = Mathf.Max(0.05f, gridSize * 0.25f);
                 bool hasWall = Physics.CheckSphere(wallCheckPos, wallCheckRadius, trapSettings.WallLayer);
@@ -816,25 +853,45 @@ public class Player : MonoBehaviour
         Gizmos.matrix = Matrix4x4.identity;
     }
 
+    //----------------- >>> NOVO <<< ----------------- //
+    // row = eixo Z, col = eixo X
+    // row = eixo Z, col = eixo X, com (0,0) do mundo no centro da matriz
+    private bool TryWorldToGrid(Vector3 worldPos, out int row, out int col)
+    {
+        int centerRow = gridRows / 2;
+        int centerCol = gridCols / 2;
+
+        col = centerCol + Mathf.RoundToInt((worldPos.x - gridOffset.x) / gridSize);
+        row = centerRow + Mathf.RoundToInt((worldPos.z - gridOffset.y) / gridSize);
+
+        if (row < 0 || row >= gridRows || col < 0 || col >= gridCols)
+        {
+            Debug.LogWarning($"[TryWorldToGrid] Fora dos limites: worldPos={worldPos} -> row={row}, col={col}");
+            row = col = -1;
+            return false;
+        }
+
+        return true;
+    }
+    //----------------- >>> NOVO <<< ----------------- //
+
+
     private void PlaceTrap(InputAction.CallbackContext context)
     {
         if (!isTrapModeActive || !canPlaceObject || ghostTrapObjects == null || ghostTrapObjects.Count == 0)
             return;
-        if (selectedTrapPlacementIndex < 0 || selectedTrapPlacementIndex >= TrapsSettings.Count)
+        if (selectedTrapPlacementIndex < 0 || selectedTrapPlacementIndex >= trapsSettings.Count)
             return;
         if (isTrapSelectionActive)
             return;
         if (GameManager.IsGamePaused)
             return;
 
-        var trapSettings = TrapsSettings[selectedTrapPlacementIndex];
+        var trapSettings = trapsSettings[selectedTrapPlacementIndex];
         var positioningMatrix = trapSettings.PositioningMatrix;
         int totalRows = positioningMatrix.Rows;
         int totalCols = positioningMatrix.Cols;
-        int centerRow = totalRows / 2;
-        int centerCol = totalCols / 2;
 
-        // Create a new trap group to track this placement
         PlacedTrapGroup trapGroup = new PlacedTrapGroup();
 
         int ghostTrapIdx = 0;
@@ -844,39 +901,50 @@ public class Player : MonoBehaviour
             {
                 var cellType = positioningMatrix[row, col];
                 if (cellType == TrapPositioningType.None) continue;
-                Vector3 offset = new Vector3((col - centerCol) * gridSize, 0f, (row - centerRow) * gridSize);
+
                 if (ghostTrapIdx >= ghostTrapObjects.Count)
                 {
                     Debug.LogError($"[PlaceTrap] ghostTrapIdx {ghostTrapIdx} out of range for {ghostTrapObjects.Count} ghosts");
                     continue;
                 }
+
                 GameObject ghostTrap = ghostTrapObjects[ghostTrapIdx++];
                 Vector3 pos = ghostTrap.transform.position;
                 Quaternion rot = ghostTrap.transform.rotation;
+
                 if (cellType == TrapPositioningType.Trap && trapSettings.TrapObject != null)
                 {
-                    var actualTrap = Instantiate(trapSettings.TrapObject, pos, rot);
+                    var trapInstance = Instantiate(trapSettings.TrapObject, pos, rot);
+
+                    if (TryWorldToGrid(pos, out int gridRow, out int gridCol))
+                    {
+                        trapIdGrid[gridRow, gridCol] = selectedTrapPlacementIndex + 1;
+                        Debug.Log($"[GRID WRITE] TrapID={selectedTrapPlacementIndex + 1} em ({gridRow},{gridCol})");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[PlaceTrap] Trap fora dos limites da matriz. WorldPos={pos}");
+                    }
+
                     var pointer = Instantiate(trapSettings.TrapPreview, pos, rot);
                     pointer.SetActive(isTrapModeActive);
                     trapPreviews.Add(pointer);
                     
-                    // Track this pair in the group
-                    trapGroup.ActualTraps.Add(actualTrap);
+                    trapGroup.ActualTraps.Add(trapInstance);
                     trapGroup.Previews.Add(pointer);
                 }
+
                 else if (cellType == TrapPositioningType.Spacer && trapSettings.TrapSpacerPreview != null)
                 {
                     var pointer = Instantiate(trapSettings.TrapSpacerPreview, pos, rot);
                     pointer.SetActive(isTrapModeActive);
                     trapPreviews.Add(pointer);
                     
-                    // Track this spacer preview in the group
                     trapGroup.Previews.Add(pointer);
                 }
             }
         }
 
-        // Add the group to our tracking list
         placedTrapGroups.Add(trapGroup);
 
         Debug.Log($"[PlaceTrap] Placement completed for {trapSettings.TrapObject.name}");
@@ -889,13 +957,11 @@ public class Player : MonoBehaviour
         if (GameManager.IsGamePaused) return;
         if (ghostTrapObjects == null || ghostTrapObjects.Count == 0) return;
 
-        // Use the position of the first ghost trap (center of the placement) to find placed traps
         GameObject centerGhostTrap = ghostTrapObjects[0];
         if (centerGhostTrap == null || !centerGhostTrap.activeSelf) return;
 
         Vector3 targetGridPosition = centerGhostTrap.transform.position;
         
-        // Find which trap group has a preview at this grid position
         PlacedTrapGroup groupToRemove = null;
         foreach (var group in placedTrapGroups)
         {
@@ -903,7 +969,6 @@ public class Player : MonoBehaviour
             {
                 if (preview != null)
                 {
-                    // Check if this preview is at the same grid position (with small tolerance)
                     float distance = Vector3.Distance(preview.transform.position, targetGridPosition);
                     if (distance < gridSize * 0.1f)
                     {
@@ -917,7 +982,6 @@ public class Player : MonoBehaviour
 
         if (groupToRemove != null)
         {
-            // Remove all actual traps in this group
             foreach (var actualTrap in groupToRemove.ActualTraps)
             {
                 if (actualTrap != null)
@@ -927,7 +991,6 @@ public class Player : MonoBehaviour
                 }
             }
 
-            // Remove all previews in this group
             foreach (var preview in groupToRemove.Previews)
             {
                 if (preview != null)
@@ -937,7 +1000,6 @@ public class Player : MonoBehaviour
                 }
             }
 
-            // Remove the group from tracking
             placedTrapGroups.Remove(groupToRemove);
             
             Debug.Log($"[RemoveTrap] Removed trap group with {groupToRemove.ActualTraps.Count} traps and {groupToRemove.Previews.Count} previews at position {targetGridPosition}");
@@ -948,10 +1010,105 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void SaveTrapGridToDisk()
+    {
+        if (trapIdGrid == null)
+        {
+            Debug.LogError("[SAVE] trapIdGrid é null, nada para salvar.");
+            return;
+        }
+
+        int nonZero = 0;
+        for (int r = 0; r < gridRows; r++)
+            for (int c = 0; c < gridCols; c++)
+                if (trapIdGrid[r, c] != 0)
+                    nonZero++;
+
+        Debug.Log($"[SAVE] Células != 0 na matriz em memória: {nonZero}");
+
+        TrapGridSaveData data = new TrapGridSaveData
+        {
+            Rows = gridRows,
+            Cols = gridCols,
+            Data = FlattenGrid(trapIdGrid, gridRows, gridCols)
+        };
+
+        string json = JsonUtility.ToJson(data, true);
+        string path = System.IO.Path.Combine(Application.persistentDataPath, "trapGrid.json");
+        System.IO.File.WriteAllText(path, json);
+
+        Debug.Log($"[SAVE] Grid salvo em: {path}");
+    }
+
+    public bool LoadTrapGridFromDisk()
+    {
+        string path = System.IO.Path.Combine(Application.persistentDataPath, "trapGrid.json");
+
+        if (!System.IO.File.Exists(path))
+        {
+            Debug.LogWarning("[LOAD] Arquivo de grid não encontrado");
+            return false;
+        }
+
+        string json = System.IO.File.ReadAllText(path);
+
+        TrapGridSaveData data = JsonUtility.FromJson<TrapGridSaveData>(json);
+
+        trapIdGrid = UnflattenGrid(data.Data, data.Rows, data.Cols);
+
+        Debug.Log("[LOAD] Grid carregado com sucesso");
+
+        return true;
+    }
+
+    public void RebuildTrapsFromGrid()
+    {
+        if (trapIdGrid == null)
+        {
+            Debug.LogWarning("[LOAD] trapIdGrid é null, nada para reconstruir.");
+            return;
+        }
+
+        int centerRow = gridRows / 2;
+        int centerCol = gridCols / 2;
+
+        for (int r = 0; r < gridRows; r++)
+        {
+            for (int c = 0; c < gridCols; c++)
+            {
+                int id = trapIdGrid[r, c];
+
+                if (id <= 0) continue;
+
+                int trapIndex = id - 1;
+
+                if (trapIndex < 0 || trapIndex >= trapsSettings.Count)
+                {
+                    Debug.LogWarning($"[LOAD] ID inválido na célula [{r},{c}]: {id}");
+                    continue;
+                }
+
+                float x = gridOffset.x + (c - centerCol) * gridSize;
+                float z = gridOffset.y + (r - centerRow) * gridSize;
+                float y = 0f;
+
+                Vector3 pos = new Vector3(x, y, z);
+
+                Instantiate(trapsSettings[trapIndex].TrapObject, pos, Quaternion.identity);
+            }
+        }
+
+        Debug.Log("[LOAD] Reconstrução de traps concluída.");
+    }
+
+    private void ResetPlayer()
+    {
+        transform.position = initialPosition;
+    }
+
     public void OnMove(InputAction.CallbackContext context)
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
-
         _moveDirection = context.ReadValue<Vector2>();
     }
 
@@ -972,14 +1129,26 @@ public class Player : MonoBehaviour
         if (ghostTrapRotationQuarterTurns < 0)
             ghostTrapRotationQuarterTurns += 4;
 
-        Debug.Log($"[RotateObject] Rotated matrix, new ghostTrapRotationQuarterTurns={ghostTrapRotationQuarterTurns}");
-
         UpdateGhostTrapPositions();
     }
-    
-    private void ResetPlayer()
+
+    private int[] FlattenGrid(int[,] grid, int rows, int cols)
     {
-        // TODO: reload with save
-        transform.position = initialPosition;
+        int[] flat = new int[rows * cols];
+        int idx = 0;
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++)
+                flat[idx++] = grid[r, c];
+        return flat;
+    }
+
+    private int[,] UnflattenGrid(int[] flat, int rows, int cols)
+    {
+        int[,] grid = new int[rows, cols];
+        int idx = 0;
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++)
+                grid[r, c] = flat[idx++];
+        return grid;
     }
 }

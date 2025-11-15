@@ -28,7 +28,7 @@ public class TreasureUI : MonoBehaviour
 
     private void ShowInteractionHint()
     {
-        if (GameManager.CurrentGameState != GameState.Exploring) return;
+        if (GameManager.CurrentGameState == GameState.Building) return;
         interactionHintText.gameObject.SetActive(true);
     }
 

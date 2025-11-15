@@ -16,11 +16,16 @@ public class GridVisibility : MonoBehaviour
     {
         if (player == null) return;
 
-        bool current = player.IsTrapModeActive;
+        bool current = player.IsTrapModeActive || player.IsTrapMenuActive;
         if (lastTrapModeActive == null || lastTrapModeActive != current)
         {
             meshRenderer.enabled = current;
             lastTrapModeActive = current;
         }
+        
+        var playerPos = player.transform.position;
+        playerPos.y = transform.position.y;
+        
+        transform.position = playerPos;
     }
 }

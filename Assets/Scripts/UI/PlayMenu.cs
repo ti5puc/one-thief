@@ -15,6 +15,6 @@ public class PlayMenu : MonoBehaviour
 
     public void Build()
     {
-        SceneManager.LoadSceneAsync(6);
+        SceneManager.LoadSceneAsync(3);
     }
 }

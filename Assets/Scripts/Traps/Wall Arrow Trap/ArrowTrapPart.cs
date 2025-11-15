@@ -114,7 +114,7 @@ public class ArrowTrapPart : MonoBehaviour
 
     private void HandleHit(Collider collider)
     {
-        if (GameManager.CurrentGameState != GameState.Exploring) return;
+        if (GameManager.CurrentGameState == GameState.Building) return;
         if (!isActive) return;
 
         isActive = false;

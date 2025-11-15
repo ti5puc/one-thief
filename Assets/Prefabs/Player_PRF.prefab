@@ -1949,6 +1949,7 @@ GameObject:
   - component: {fileID: 5856191721542497056}
   - component: {fileID: 222876035836668833}
   - component: {fileID: 4709547402259770845}
+  - component: {fileID: 967808722856602637}
   m_Layer: 12
   m_Name: Player_PRF
   m_TagString: Player
@@ -2088,6 +2089,8 @@ MonoBehaviour:
     m_Bits: 5120
   gridSize: 3
   gridOffset: {x: 1.5, y: 1.5}
+  gridRows: 100
+  gridCols: 100
   TrapsSettings:
   - {fileID: 11400000, guid: 9954616668777f24185d271a034f68a4, type: 2}
   - {fileID: 11400000, guid: beb3a9a286eaf3744b2384fabe31c8f3, type: 2}
@@ -2102,8 +2105,9 @@ MonoBehaviour:
   moveInput: {fileID: -6278439149609088581, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   trapModeToggleInput: {fileID: -9076133995565769474, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   placeObjectInput: {fileID: 4681775384105584087, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
-  switchTrapInput: {fileID: 7208104644596361715, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
+  removeTrapInput: {fileID: 7208104644596361715, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   rotateTrapInput: {fileID: 6095268211286430691, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
+  openTrapMenuInput: {fileID: 2940476943831502051, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
 --- !u!114 &5856191721542497056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2199,6 +2203,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentGold: 0
+--- !u!114 &967808722856602637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7740545308212024546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e7c06d7f95a4924abebb278480f70e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7786075631906621561
 GameObject:
   m_ObjectHideFlags: 0

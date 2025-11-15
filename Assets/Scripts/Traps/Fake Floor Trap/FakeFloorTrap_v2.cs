@@ -67,7 +67,7 @@ public class FakeFloorTrap_v2 : TrapBase
         if (interval > 0f)
             seq.AppendInterval(interval);
 
-        if (foundNearestGround)
+        if (foundNearestGround && nearestGround != null)
         {
             var groundTransform = nearestGround.transform;
             Sequence shakeSeq = DOTween.Sequence();

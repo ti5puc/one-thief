@@ -1,9 +1,12 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerDeathIdentifier : MonoBehaviour
 {
+    public event Action OnTryResetDeath;
+    
     [Header("Death Camera Offset")]
     public float DeathCameraUpOffset = 2f;
     public float DeathCameraBackOffset = 4f;
@@ -37,17 +40,10 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
     private void Update()
     {
-        // TODO: remove placeholder restart
-
-        if (Input.GetKeyDown(KeyCode.R))
-            SceneManager.LoadScene(0);
-
         if (isDead)
         {
             // keep rotating player on Y axis after death
             transform.Rotate(Vector3.up * DeathRotateSpeed * Time.deltaTime);
-            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
-                SceneManager.LoadScene(0);
         }
 
         if (deathGhost != null)
@@ -74,6 +70,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
     public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f, bool spawnGhost = true)
     {
         if (isDead) return;
+        if (GameManager.CurrentGameState != GameState.Exploring) return;
 
         isDead = true;
         foreach (var visual in VisualsToHide)

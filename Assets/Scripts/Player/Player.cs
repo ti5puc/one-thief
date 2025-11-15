@@ -109,7 +109,6 @@ public class Player : MonoBehaviour
 
     private bool isTrapModeActive = false;
     private bool isTrapSelectionActive = false;
-    private bool isTrapTestMenuActive = false;
     private int selectedTrapIndex = 0;
     private int selectedTrapPlacementIndex = 0;
     private PlayerDeathIdentifier deathIdentifier;
@@ -138,16 +137,16 @@ public class Player : MonoBehaviour
         airJumpsRemaining = 0;
         initialPosition = transform.position;
 
+        deathIdentifier.OnTryResetDeath += ResetPlayer;
         TrapSelectionCardUI.OnTrapSelected += SelectObject;
-        TrapTestUI.OnConfirmTestTrap += TestTrapScene;
-        TrapTestUI.OnDenyTestTrap += ToggleTrapTestMenu;
+        PauseMenuUI.OnTest += ResetPlayer;
     }
 
     private void OnDestroy()
     {
+        deathIdentifier.OnTryResetDeath -= ResetPlayer;
         TrapSelectionCardUI.OnTrapSelected -= SelectObject;
-        TrapTestUI.OnConfirmTestTrap -= TestTrapScene;
-        TrapTestUI.OnDenyTestTrap -= ToggleTrapTestMenu;
+        PauseMenuUI.OnTest -= ResetPlayer;
     }
 
     private void Start()
@@ -282,7 +281,7 @@ public class Player : MonoBehaviour
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
         if (isTrapSelectionActive) return;
-        if (isTrapTestMenuActive) return;
+        if (GameManager.IsGamePaused) return;
 
         float deltaX = context.ReadValue<float>() * senseX;
         transform.Rotate(0f, deltaX, 0f);
@@ -292,7 +291,7 @@ public class Player : MonoBehaviour
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
         if (isTrapSelectionActive) return;
-        if (isTrapTestMenuActive) return;
+        if (GameManager.IsGamePaused) return;
 
         float deltaY = context.ReadValue<float>() * senseY;
         float newXRotation = cameraTransform.localEulerAngles.x - deltaY;
@@ -324,7 +323,7 @@ public class Player : MonoBehaviour
         }
 
         if (isTrapSelectionActive) return;
-        if (isTrapTestMenuActive) return;
+        if (GameManager.IsGamePaused) return;
 
         //-------------------------------- Inicio do Update de Movimentacao --------------------------------
 
@@ -367,7 +366,7 @@ public class Player : MonoBehaviour
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
         if (isTrapSelectionActive) return;
-        if (isTrapTestMenuActive) return;
+        if (GameManager.IsGamePaused) return;
 
         //Movimentação durante o dash
         if (isDashing)
@@ -586,21 +585,7 @@ public class Player : MonoBehaviour
         if (isTrapModeActive == false)
             ToggleTrapSelection(false);
 
-        ToggleTrapTestMenu(true, isTrapModeActive == false);
-
         OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex].TrapName);
-    }
-
-    private void ToggleTrapTestMenu() => ToggleTrapTestMenu(false);
-    private void ToggleTrapTestMenu(bool changeState, bool actualState = false)
-    {
-        if (changeState)
-            isTrapTestMenuActive = actualState;
-        else
-            isTrapTestMenuActive = !isTrapTestMenuActive;
-
-        Cursor.lockState = isTrapTestMenuActive ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = isTrapTestMenuActive;
     }
     
     private void ToggleTrapSelection(InputAction.CallbackContext context)
@@ -858,7 +843,7 @@ public class Player : MonoBehaviour
             return;
         if (isTrapSelectionActive)
             return;
-        if (isTrapTestMenuActive)
+        if (GameManager.IsGamePaused)
             return;
 
         var trapSettings = TrapsSettings[selectedTrapPlacementIndex];
@@ -920,7 +905,7 @@ public class Player : MonoBehaviour
     {
         if (!isTrapModeActive) return;
         if (isTrapSelectionActive) return;
-        if (isTrapTestMenuActive) return;
+        if (GameManager.IsGamePaused) return;
         if (ghostTrapObjects == null || ghostTrapObjects.Count == 0) return;
 
         // Use the position of the first ghost trap (center of the placement) to find placed traps
@@ -1011,9 +996,9 @@ public class Player : MonoBehaviour
         UpdateGhostTrapPositions();
     }
     
-    private void TestTrapScene()
+    private void ResetPlayer()
     {
-        ToggleTrapTestMenu();
+        // TODO: reload with save
         transform.position = initialPosition;
     }
 }

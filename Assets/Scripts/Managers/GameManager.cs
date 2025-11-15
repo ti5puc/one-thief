@@ -23,12 +23,20 @@ public class GameManager : MonoBehaviour
     [Header("Debug")]
     [SerializeField, ReadOnly] private GameState currentGameState;
     [SerializeField, ReadOnly] private bool canEnterBuildMode;
+    [SerializeField, ReadOnly] private int nextLayoutIndex;
+    [SerializeField, ReadOnly] private bool isGamePaused;
     
     public static GameManager Instance { get; private set; }
     public static GameState CurrentGameState => Instance.currentGameState;
     public static LayerMask GroundLayerMask => Instance.groundLayerMask;
     public static string PlayerTag => Instance.playerTag;
     public static bool CanEnterBuildMode => Instance.canEnterBuildMode;
+    public static int NextLayoutIndex
+    {
+        get => Instance.nextLayoutIndex;
+        set => Instance.nextLayoutIndex = value;
+    }
+    public static bool IsGamePaused => Instance.isGamePaused;
 
     private void Awake()
     {
@@ -74,5 +82,17 @@ public class GameManager : MonoBehaviour
         
         Instance.currentGameState = GameState.TestingBuild;
         OnGameStateChanged?.Invoke(Instance.currentGameState);
+    }
+
+    public static void Pause()
+    {
+        Time.timeScale = 0f;
+        Instance.isGamePaused = true;
+    }
+
+    public static void Resume()
+    {
+        Time.timeScale = 1f;
+        Instance.isGamePaused = false;
     }
 }

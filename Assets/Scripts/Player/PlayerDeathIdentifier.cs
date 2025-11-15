@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class PlayerDeathIdentifier : MonoBehaviour
 {
+    public event Action OnTryResetDeath;
+    
     [Header("Death Camera Offset")]
     public float DeathCameraUpOffset = 2f;
     public float DeathCameraBackOffset = 4f;
@@ -35,30 +37,16 @@ public class PlayerDeathIdentifier : MonoBehaviour
     {
         cameraTransform = GetComponentInChildren<Camera>().transform;
         rigidBody = GetComponent<Rigidbody>();
-        
-        TrapTestUI.OnConfirmTestTrap += OnTrapTestConfirmed;
-        TrapTestUI.OnDenyTestTrap += OnTrapTestDenied;
-    }
-
-    private void OnDestroy()
-    {
-        TrapTestUI.OnConfirmTestTrap -= OnTrapTestConfirmed;
-        TrapTestUI.OnDenyTestTrap -= OnTrapTestDenied;
     }
 
     private void Update()
     {
-        // TODO: remove placeholder restart
-
-        if (Input.GetKeyDown(KeyCode.R))
-            SceneManager.LoadScene(0);
-
         if (isDead)
         {
             // keep rotating player on Y axis after death
             transform.Rotate(Vector3.up * DeathRotateSpeed * Time.deltaTime);
             if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
-                SceneManager.LoadScene(0);
+                OnTryResetDeath?.Invoke();
         }
 
         if (deathGhost != null)

@@ -18,8 +18,8 @@ public class Initializer : MonoBehaviour
         {
             Destroy(layoutOnScene);
 
-            int randomIndex = Random.Range(0, layouts.Length);
-            layoutOnScene = Instantiate(layouts[randomIndex]);
+            int layoutIndex = GameManager.NextLayoutIndex;
+            layoutOnScene = Instantiate(layouts[layoutIndex]);
         }
 
         if (playerOnScene != null)

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ChallengeMenu : MonoBehaviour
+public class BuildMenu : MonoBehaviour
 {
     public void Return()
     {
@@ -10,8 +10,8 @@ public class ChallengeMenu : MonoBehaviour
 
     public void PlayStage1()
     {
-        GameManager.SetCanEnterBuildMode(false);
-        GameManager.ChangeGameStateToExploring();
+        GameManager.SetCanEnterBuildMode(true);
+        GameManager.ChangeGameStateToTestingBuild();
         
         GameManager.NextLayoutIndex = 0;
         
@@ -20,8 +20,8 @@ public class ChallengeMenu : MonoBehaviour
 
     public void PlayStage2()
     {
-        GameManager.SetCanEnterBuildMode(false);
-        GameManager.ChangeGameStateToExploring();
+        GameManager.SetCanEnterBuildMode(true);
+        GameManager.ChangeGameStateToTestingBuild();
 
         GameManager.NextLayoutIndex = 1;
         
@@ -30,11 +30,11 @@ public class ChallengeMenu : MonoBehaviour
 
     public void PlayStage3()
     {
-        GameManager.SetCanEnterBuildMode(false);
-        GameManager.ChangeGameStateToExploring();
-        
-        GameManager.NextLayoutIndex = 2;
+        GameManager.SetCanEnterBuildMode(true);
+        GameManager.ChangeGameStateToTestingBuild();
 
+        GameManager.NextLayoutIndex = 2;
+        
         SceneManager.LoadSceneAsync(6);
     }
 }

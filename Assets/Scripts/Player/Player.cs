@@ -5,14 +5,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 
-[System.Serializable]
-public class TrapGridSaveData
-{
-    public int Rows;
-    public int Cols;
-    public int[] Data; // matriz achatada
-}
-
 public class Player : MonoBehaviour
 {
     private class PlacedTrapGroup
@@ -108,7 +100,7 @@ public class Player : MonoBehaviour
     //---------- >>> NOVO <<< ----------//
 
     [Header("Traps")]
-    public List<PlaceableSettings> trapsSettings = new();
+    public List<PlaceableSettings> TrapsSettings = new();
 
     [Header("Referências InputSystem")]
     public InputActionReference mouseXInput;
@@ -130,6 +122,7 @@ public class Player : MonoBehaviour
     private int ghostTrapRotationQuarterTurns;
     private Vector3 initialPosition;
     private readonly List<PlacedTrapGroup> placedTrapGroups = new();
+    private PlayerSave playerSave;
 
     public bool IsTrapModeActive => isTrapModeActive && (deathIdentifier == null || !deathIdentifier.IsDead);
     public bool IsTrapMenuActive => isTrapSelectionActive;
@@ -138,8 +131,11 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         deathIdentifier = GetComponent<PlayerDeathIdentifier>();
+        playerSave = GetComponent<PlayerSave>();
+            
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        
         capsule = GetComponent<CapsuleCollider>();
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
@@ -386,18 +382,18 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            SaveTrapGridToDisk();
+            playerSave.Save(this, "debug_save");
         }
 
         if (Input.GetKeyDown(KeyCode.O))
         {
-            bool ok = LoadTrapGridFromDisk();
-            Debug.Log($"[DEBUG] LoadTrapGridFromDisk retornou: {ok}");
+            bool ok = playerSave.Load(this,"debug_save");
+            Debug.Log($"[DEBUG] Load retornou: {ok}");
         }
 
         if (Input.GetKeyDown(KeyCode.P))
         {
-            RebuildTrapsFromGrid();
+            playerSave.LoadAndRebuild(this,"debug_save");
         }
 
     }
@@ -605,7 +601,7 @@ public class Player : MonoBehaviour
         if (isTrapModeActive == false)
             ToggleTrapSelection(false);
 
-        OnTrapModeChanged?.Invoke(isTrapModeActive, trapsSettings[selectedTrapIndex].TrapName);
+        OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex].TrapName);
     }
     
     private void ToggleTrapSelection(InputAction.CallbackContext context)
@@ -617,7 +613,7 @@ public class Player : MonoBehaviour
     private void ToggleTrapSelection(bool isActive)
     {
         isTrapSelectionActive = isActive;
-        OnToggleTrapSelect?.Invoke(isTrapSelectionActive, trapsSettings, selectedTrapPlacementIndex);
+        OnToggleTrapSelect?.Invoke(isTrapSelectionActive, TrapsSettings, selectedTrapPlacementIndex);
 
         Cursor.lockState = isTrapSelectionActive ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isTrapSelectionActive;
@@ -631,7 +627,7 @@ public class Player : MonoBehaviour
         if (!isTrapModeActive) return;
         if (!isTrapSelectionActive) return;
 
-        int newIndex = trapsSettings.IndexOf(placeableSettings);
+        int newIndex = TrapsSettings.IndexOf(placeableSettings);
         if (newIndex == -1)
         {
             Debug.LogWarning($"PlaceableSettings {placeableSettings.TrapName} not found in TrapsSettings.");
@@ -641,8 +637,8 @@ public class Player : MonoBehaviour
         selectedTrapIndex = newIndex;
         selectedTrapPlacementIndex = selectedTrapIndex;
 
-        Debug.Log($"Armadilha selecionada: {trapsSettings[selectedTrapIndex].TrapName}");
-        OnSelectedTrapChanged?.Invoke(trapsSettings[selectedTrapIndex].TrapName);
+        Debug.Log($"Armadilha selecionada: {TrapsSettings[selectedTrapIndex].TrapName}");
+        OnSelectedTrapChanged?.Invoke(TrapsSettings[selectedTrapIndex].TrapName);
 
         if (isTrapModeActive)
         {
@@ -653,9 +649,9 @@ public class Player : MonoBehaviour
     private void CreateGhostTrapsForSelectedTrap()
     {
         DestroyGhostTraps();
-        if (selectedTrapIndex < 0 || selectedTrapIndex >= trapsSettings.Count)
+        if (selectedTrapIndex < 0 || selectedTrapIndex >= TrapsSettings.Count)
             return;
-        var trapSettings = trapsSettings[selectedTrapIndex];
+        var trapSettings = TrapsSettings[selectedTrapIndex];
         var positioningMatrix = trapSettings.PositioningMatrix;
         int totalRows = positioningMatrix.Rows;
         int totalCols = positioningMatrix.Cols;
@@ -711,15 +707,15 @@ public class Player : MonoBehaviour
         Ray ray = cameraTransform.GetComponent<Camera>().ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
         LayerMask trapSurfaceLayer = 0;
-        if (selectedTrapIndex >= 0 && selectedTrapIndex < trapsSettings.Count)
+        if (selectedTrapIndex >= 0 && selectedTrapIndex < TrapsSettings.Count)
         {
-            var settings = trapsSettings[selectedTrapIndex];
+            var settings = TrapsSettings[selectedTrapIndex];
             trapSurfaceLayer = settings.TrapSurface | settings.TrapPlacementLayer;
         }
 
         if (Physics.Raycast(ray, out hit, interactionDistance, trapSurfaceLayer))
         {
-            var trapSettings = trapsSettings[selectedTrapIndex];
+            var trapSettings = TrapsSettings[selectedTrapIndex];
             var positioningMatrix = trapSettings.PositioningMatrix;
             int totalRows = positioningMatrix.Rows;
             int totalCols = positioningMatrix.Cols;
@@ -880,14 +876,14 @@ public class Player : MonoBehaviour
     {
         if (!isTrapModeActive || !canPlaceObject || ghostTrapObjects == null || ghostTrapObjects.Count == 0)
             return;
-        if (selectedTrapPlacementIndex < 0 || selectedTrapPlacementIndex >= trapsSettings.Count)
+        if (selectedTrapPlacementIndex < 0 || selectedTrapPlacementIndex >= TrapsSettings.Count)
             return;
         if (isTrapSelectionActive)
             return;
         if (GameManager.IsGamePaused)
             return;
-
-        var trapSettings = trapsSettings[selectedTrapPlacementIndex];
+        
+        var trapSettings = TrapsSettings[selectedTrapPlacementIndex];
         var positioningMatrix = trapSettings.PositioningMatrix;
         int totalRows = positioningMatrix.Rows;
         int totalCols = positioningMatrix.Cols;
@@ -1010,99 +1006,150 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void SaveTrapGridToDisk()
-    {
-        if (trapIdGrid == null)
-        {
-            Debug.LogError("[SAVE] trapIdGrid é null, nada para salvar.");
-            return;
-        }
-
-        int nonZero = 0;
-        for (int r = 0; r < gridRows; r++)
-            for (int c = 0; c < gridCols; c++)
-                if (trapIdGrid[r, c] != 0)
-                    nonZero++;
-
-        Debug.Log($"[SAVE] Células != 0 na matriz em memória: {nonZero}");
-
-        TrapGridSaveData data = new TrapGridSaveData
-        {
-            Rows = gridRows,
-            Cols = gridCols,
-            Data = FlattenGrid(trapIdGrid, gridRows, gridCols)
-        };
-
-        string json = JsonUtility.ToJson(data, true);
-        string path = System.IO.Path.Combine(Application.persistentDataPath, "trapGrid.json");
-        System.IO.File.WriteAllText(path, json);
-
-        Debug.Log($"[SAVE] Grid salvo em: {path}");
-    }
-
-    public bool LoadTrapGridFromDisk()
-    {
-        string path = System.IO.Path.Combine(Application.persistentDataPath, "trapGrid.json");
-
-        if (!System.IO.File.Exists(path))
-        {
-            Debug.LogWarning("[LOAD] Arquivo de grid não encontrado");
-            return false;
-        }
-
-        string json = System.IO.File.ReadAllText(path);
-
-        TrapGridSaveData data = JsonUtility.FromJson<TrapGridSaveData>(json);
-
-        trapIdGrid = UnflattenGrid(data.Data, data.Rows, data.Cols);
-
-        Debug.Log("[LOAD] Grid carregado com sucesso");
-
-        return true;
-    }
+    public int[,] GetTrapIdGrid() => trapIdGrid;
+    public void SetTrapIdGrid(int[,] grid) => trapIdGrid = grid;
 
     public void RebuildTrapsFromGrid()
     {
         if (trapIdGrid == null)
         {
-            Debug.LogWarning("[LOAD] trapIdGrid é null, nada para reconstruir.");
+            Debug.LogWarning("[Player] trapIdGrid é null, nada para reconstruir.");
             return;
         }
 
+        // First, delete all existing traps and their previews
+        int destroyedTraps = 0;
+        int destroyedPreviews = 0;
+        
+        foreach (var group in placedTrapGroups)
+        {
+            foreach (var actualTrap in group.ActualTraps)
+            {
+                if (actualTrap != null)
+                {
+                    Destroy(actualTrap);
+                    destroyedTraps++;
+                }
+            }
+
+            foreach (var preview in group.Previews)
+            {
+                if (preview != null)
+                {
+                    trapPreviews.Remove(preview);
+                    Destroy(preview);
+                    destroyedPreviews++;
+                }
+            }
+        }
+        
+        placedTrapGroups.Clear();
+        Debug.Log($"[Player] Destroyed {destroyedTraps} existing traps and {destroyedPreviews} previews before rebuild.");
+
+        // Destroy all ghost traps
+        DestroyGhostTraps();
+        Debug.Log("[Player] Destroyed all ghost traps before rebuild.");
+
+        // Now rebuild traps from the grid
         int centerRow = gridRows / 2;
         int centerCol = gridCols / 2;
+
+        // Track which cells we've already processed to avoid duplicates
+        bool[,] processedCells = new bool[gridRows, gridCols];
+        int trapsRebuilt = 0;
 
         for (int r = 0; r < gridRows; r++)
         {
             for (int c = 0; c < gridCols; c++)
             {
+                if (processedCells[r, c]) continue;
+                
                 int id = trapIdGrid[r, c];
-
-                if (id <= 0) continue;
+                if (id <= 0) continue; // 0 = vazio
 
                 int trapIndex = id - 1;
-
-                if (trapIndex < 0 || trapIndex >= trapsSettings.Count)
+                if (trapIndex < 0 || trapIndex >= TrapsSettings.Count)
                 {
-                    Debug.LogWarning($"[LOAD] ID inválido na célula [{r},{c}]: {id}");
+                    Debug.LogWarning($"[Player] ID inválido na célula [{r},{c}]: {id}");
                     continue;
                 }
 
+                var trapSettings = TrapsSettings[trapIndex];
+                var positioningMatrix = trapSettings.PositioningMatrix;
+                int totalRows = positioningMatrix.Rows;
+                int totalCols = positioningMatrix.Cols;
+                int matrixCenterRow = totalRows / 2;
+                int matrixCenterCol = totalCols / 2;
+
+                // Calculate the center position of this trap group
                 float x = gridOffset.x + (c - centerCol) * gridSize;
                 float z = gridOffset.y + (r - centerRow) * gridSize;
                 float y = 0f;
+                Vector3 centerPos = new Vector3(x, y, z);
+                Quaternion rot = Quaternion.identity;
 
-                Vector3 pos = new Vector3(x, y, z);
+                // Create a trap group for this placement
+                PlacedTrapGroup trapGroup = new PlacedTrapGroup();
 
-                Instantiate(trapsSettings[trapIndex].TrapObject, pos, Quaternion.identity);
+                // Iterate through the positioning matrix and recreate all cells
+                for (int matRow = 0; matRow < totalRows; matRow++)
+                {
+                    for (int matCol = 0; matCol < totalCols; matCol++)
+                    {
+                        var cellType = positioningMatrix[matRow, matCol];
+                        if (cellType == TrapPositioningType.None) continue;
+
+                        // Calculate offset from center
+                        int relRow = matRow - matrixCenterRow;
+                        int relCol = matCol - matrixCenterCol;
+                        Vector3 offset = new Vector3(relCol * gridSize, 0f, relRow * gridSize);
+                        Vector3 cellPos = centerPos + offset;
+
+                        // Mark this grid cell as processed
+                        int gridRow = r + relRow;
+                        int gridCol = c + relCol;
+                        if (gridRow >= 0 && gridRow < gridRows && gridCol >= 0 && gridCol < gridCols)
+                        {
+                            processedCells[gridRow, gridCol] = true;
+                        }
+
+                        // Instantiate based on cell type
+                        if (cellType == TrapPositioningType.Trap && trapSettings.TrapObject != null)
+                        {
+                            var trapInstance = Instantiate(trapSettings.TrapObject, cellPos, rot);
+                            trapGroup.ActualTraps.Add(trapInstance);
+
+                            if (trapSettings.TrapPreview != null)
+                            {
+                                var preview = Instantiate(trapSettings.TrapPreview, cellPos, rot);
+                                preview.SetActive(isTrapModeActive);
+                                trapPreviews.Add(preview);
+                                trapGroup.Previews.Add(preview);
+                            }
+                        }
+                        else if (cellType == TrapPositioningType.Spacer && trapSettings.TrapSpacerPreview != null)
+                        {
+                            var spacerPreview = Instantiate(trapSettings.TrapSpacerPreview, cellPos, rot);
+                            spacerPreview.SetActive(isTrapModeActive);
+                            trapPreviews.Add(spacerPreview);
+                            trapGroup.Previews.Add(spacerPreview);
+                        }
+                    }
+                }
+
+                placedTrapGroups.Add(trapGroup);
+                trapsRebuilt++;
             }
         }
 
-        Debug.Log("[LOAD] Reconstrução de traps concluída.");
+        Debug.Log($"[Player] Reconstrução de traps concluída. {trapsRebuilt} trap groups reconstruídas com previews e spacers.");
     }
 
     private void ResetPlayer()
     {
+        playerSave.Save(this, "current_build");
+        playerSave.LoadAndRebuild(this, "current_build");
+        
         transform.position = initialPosition;
     }
 
@@ -1130,25 +1177,5 @@ public class Player : MonoBehaviour
             ghostTrapRotationQuarterTurns += 4;
 
         UpdateGhostTrapPositions();
-    }
-
-    private int[] FlattenGrid(int[,] grid, int rows, int cols)
-    {
-        int[] flat = new int[rows * cols];
-        int idx = 0;
-        for (int r = 0; r < rows; r++)
-            for (int c = 0; c < cols; c++)
-                flat[idx++] = grid[r, c];
-        return flat;
-    }
-
-    private int[,] UnflattenGrid(int[] flat, int rows, int cols)
-    {
-        int[,] grid = new int[rows, cols];
-        int idx = 0;
-        for (int r = 0; r < rows; r++)
-            for (int c = 0; c < cols; c++)
-                grid[r, c] = flat[idx++];
-        return grid;
     }
 }

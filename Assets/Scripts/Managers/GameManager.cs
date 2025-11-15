@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     [Space(10)]
     [SerializeField] private bool startOnBuildingForDebug;
-
+    
     [Header("Debug")]
     [SerializeField, ReadOnly] private GameState currentGameState;
     [SerializeField, ReadOnly] private bool canEnterBuildMode;

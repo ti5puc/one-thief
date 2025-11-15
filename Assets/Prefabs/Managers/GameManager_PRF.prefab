@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9068626366106268895}
   - component: {fileID: 5491950621697232143}
+  - component: {fileID: 6110033945106823461}
   m_Layer: 0
   m_Name: GameManager_PRF
   m_TagString: Untagged
@@ -48,4 +49,20 @@ MonoBehaviour:
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 64
+  startOnBuildingForDebug: 0
   currentGameState: 0
+  canEnterBuildMode: 0
+  nextLayoutIndex: 0
+  isGamePaused: 0
+--- !u!114 &6110033945106823461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4112526501749098894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9391f471b8864485b5490557bf23d136, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

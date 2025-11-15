@@ -91,6 +91,8 @@ public class PauseMenuUI : MonoBehaviour
         if (wasBuilding)
             GameManager.ChangeGameStateToTestingBuild();
         
+        SaveSystem.ClearAllSaves();
+        
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }
     

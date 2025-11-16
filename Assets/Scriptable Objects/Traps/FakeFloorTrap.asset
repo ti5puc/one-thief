@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Fake Floor
   id: 2
+  icon: {fileID: -1816858994, guid: 7bfe0bc9536c49e479f4bc4d4ea8c680, type: 3}
+  placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2
     m_Bits: 1024

@@ -9,6 +9,9 @@ public class PlaceableSettings : ScriptableObject
     [InfoBox("To set this ID go to One Thief > Trap Settings > Assign Unique IDs")]
     [SerializeField, ReadOnly] protected int id;
 
+    [Space(10), ShowAssetPreview(60)]
+    [SerializeField] private Sprite icon;
+    
     [Space(10)]
     [SerializeField] protected int placementCost = 0;
     
@@ -33,6 +36,7 @@ public class PlaceableSettings : ScriptableObject
     [SerializeField, HideInInspector] protected TrapPositioningMatrix2D positioningMatrix = new TrapPositioningMatrix2D(3, 3);
 
     public string TrapName => trapName;
+    public Sprite Icon => icon;
     public LayerMask TrapPlacementLayer => trapPlacementLayer;
     public LayerMask IgnorePlacementLayer => ignorePlacementLayer;
     public LayerMask TrapSurface => trapSurface;

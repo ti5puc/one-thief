@@ -9,6 +9,7 @@ public class TrapSelectionCardUI : MonoBehaviour, IPointerEnterHandler, IPointer
     public static event Action<PlaceableSettings> OnTrapSelected;
 
     [SerializeField] private TMP_Text trapNameText;
+    [SerializeField] private Image iconImage;
     [SerializeField] private Button selectButton;
 
     private TrapSelectionUI parentUI;
@@ -34,6 +35,11 @@ public class TrapSelectionCardUI : MonoBehaviour, IPointerEnterHandler, IPointer
 
         currentSettings = trapSettings;
         trapNameText.text = trapIndex.ToString();
+
+        bool hasIcon = trapSettings.Icon != null;
+        iconImage.gameObject.SetActive(hasIcon);
+        if (hasIcon)
+            iconImage.sprite = trapSettings.Icon;
 
         UpdateInteractable();
     }

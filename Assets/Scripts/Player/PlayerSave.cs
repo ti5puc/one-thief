@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 
 public class PlayerSave : MonoBehaviour
 {
+    public static event Action OnLevelLoaded;
+    
     public bool Save(Player player, string saveId)
     {
         return SaveSystem.Save(saveId, player.GetTrapIdGrid(), player.GetTrapRotationGrid(), player.gridRows, player.gridCols);
@@ -29,8 +32,11 @@ public class PlayerSave : MonoBehaviour
         if (Load(player, saveId))
         {
             player.RebuildTrapsFromGrid();
+            OnLevelLoaded?.Invoke();
+            
             return true;
         }
+        
         return false;
     }
 }

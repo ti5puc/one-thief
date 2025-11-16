@@ -6,7 +6,8 @@ public class TreasureChest : MonoBehaviour
 {
     public static event Action OnPlayerEnteredChestArea;
     public static event Action OnPlayerExitedChestArea;
-    public static event Action<int> OnChestOpened; // int goldAmount
+    public static event Action<int> OnAnyChestOpened; // int goldAmount
+    public event Action<int> OnChestOpened; // int goldAmount
 
     [SerializeField] private int goldAmount = 150;
 
@@ -68,6 +69,7 @@ public class TreasureChest : MonoBehaviour
         if (isChestOpened) return;
 
         isChestOpened = true;
+        OnAnyChestOpened?.Invoke(goldAmount);
         OnChestOpened?.Invoke(goldAmount);
 
         gameObject.SetActive(false);

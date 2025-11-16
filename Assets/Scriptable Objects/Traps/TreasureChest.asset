@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Treasure Chest
   id: 6
+  placementCost: 150
   trapPlacementLayer:
     serializedVersion: 2
     m_Bits: 1024

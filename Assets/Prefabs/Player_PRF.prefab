@@ -1948,7 +1948,6 @@ GameObject:
   - component: {fileID: 5860915698881936115}
   - component: {fileID: 5856191721542497056}
   - component: {fileID: 222876035836668833}
-  - component: {fileID: 4709547402259770845}
   - component: {fileID: 967808722856602637}
   m_Layer: 12
   m_Name: Player_PRF
@@ -2190,19 +2189,6 @@ MonoBehaviour:
   m_DefaultActionMap: Gameplay
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 8128707438241957933}
---- !u!114 &4709547402259770845
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7740545308212024546}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11a66c334546dd348b532739ae0782b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentGold: 0
 --- !u!114 &967808722856602637
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -19,6 +19,9 @@ public class GameManager : MonoBehaviour
 
     [Space(10)]
     [SerializeField] private bool startOnBuildingForDebug;
+
+    [Space(10)]
+    [SerializeField] private PlaceableSettings treasureChestReference;
     
     [Header("Debug")]
     [SerializeField, ReadOnly] private GameState currentGameState;
@@ -37,6 +40,7 @@ public class GameManager : MonoBehaviour
         set => Instance.nextLayoutIndex = value;
     }
     public static bool IsGamePaused => Instance.isGamePaused;
+    public static PlaceableSettings TreasureChestReference => Instance.treasureChestReference;
 
     private void Awake()
     {

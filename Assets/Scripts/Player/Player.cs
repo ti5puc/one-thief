@@ -13,8 +13,8 @@ public class Player : MonoBehaviour
         public List<GameObject> ActualTraps = new();
     }
 
-    public static event Action<bool, string> OnTrapModeChanged; // bool isTrapModeActive, string currentTrapName
-    public static event Action<string> OnSelectedTrapChanged; // string trapName
+    public static event Action<bool, PlaceableSettings> OnTrapModeChanged; // bool isTrapModeActive
+    public static event Action<PlaceableSettings> OnSelectedTrapChanged;
     public static event Action<bool, List<PlaceableSettings>, int> OnToggleTrapSelect; // bool isTrapSelectionActive, int selectedTrapIndex
     public event Action<bool, bool> OnMoveChanged; // bool isMoving, bool isSprinting
 
@@ -610,7 +610,7 @@ public class Player : MonoBehaviour
         if (isTrapModeActive == false)
             ToggleTrapSelection(false);
 
-        OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex].TrapName);
+        OnTrapModeChanged?.Invoke(isTrapModeActive, TrapsSettings[selectedTrapIndex]);
     }
     
     private void ToggleTrapSelection(InputAction.CallbackContext context)
@@ -635,6 +635,12 @@ public class Player : MonoBehaviour
     {
         if (!isTrapModeActive) return;
         if (!isTrapSelectionActive) return;
+        
+        if (IsGoldSufficientForPlacement(placeableSettings.PlacementCost) == false)
+        {
+            Debug.LogWarning($"O jogador não tem ouro suficiente para selecionar a armadilha {placeableSettings.TrapName}.");
+            return;
+        }
 
         int newIndex = TrapsSettings.IndexOf(placeableSettings);
         if (newIndex == -1)
@@ -647,7 +653,7 @@ public class Player : MonoBehaviour
         selectedTrapPlacementIndex = selectedTrapIndex;
 
         Debug.Log($"Armadilha selecionada: {TrapsSettings[selectedTrapIndex].TrapName}");
-        OnSelectedTrapChanged?.Invoke(TrapsSettings[selectedTrapIndex].TrapName);
+        OnSelectedTrapChanged?.Invoke(TrapsSettings[selectedTrapIndex]);
 
         if (isTrapModeActive)
         {
@@ -896,6 +902,12 @@ public class Player : MonoBehaviour
         var positioningMatrix = trapSettings.PositioningMatrix;
         int totalRows = positioningMatrix.Rows;
         int totalCols = positioningMatrix.Cols;
+        
+        if (IsGoldSufficientForPlacement(trapSettings.PlacementCost) == false)
+        {
+            Debug.Log("[PlaceTrap] Ouro insuficiente para colocar a armadilha.");
+            return;
+        }
 
         PlacedTrapGroup trapGroup = new PlacedTrapGroup();
 
@@ -952,6 +964,7 @@ public class Player : MonoBehaviour
         }
 
         placedTrapGroups.Add(trapGroup);
+        PlayerInventory.Instance.AddGoldToRemove(trapSettings.PlacementCost);
 
         Debug.Log($"[PlaceTrap] Placement completed for {trapSettings.TrapObject.name}");
     }
@@ -1206,5 +1219,13 @@ public class Player : MonoBehaviour
             ghostTrapRotationQuarterTurns += 4;
 
         UpdateGhostTrapPositions();
+    }
+    
+    private bool IsGoldSufficientForPlacement(int trapSettingsPlacementCost)
+    {
+        var gold = PlayerInventory.Instance.CurrentGold;
+        var toPlaceCost = PlayerInventory.Instance.GoldCache + trapSettingsPlacementCost;
+        
+        return gold >= toPlaceCost;
     }
 }

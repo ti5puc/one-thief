@@ -4,15 +4,18 @@ using UnityEngine;
 public class TreasureUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text goldAmountText;
+    [SerializeField] private TMP_Text goldToGainAmountText;
     [SerializeField] private TMP_Text interactionHintText;
 
     private void Awake()
     {
         TreasureChest.OnPlayerEnteredChestArea += ShowInteractionHint;
         TreasureChest.OnPlayerExitedChestArea += HideInteractionHint;
-        TreasureChest.OnChestOpened += HideInteractionHint;
-
-        PlayerGold.OnGoldChanged += OnGoldChanged;
+        TreasureChest.OnAnyChestOpened += HideInteractionHint;
+        
+        PlayerInventory.OnGoldToGainChanged += OnGoldToGainChanged;
+        PlayerInventory.OnGoldToRemoveChanged += OnGoldToRemoveChanged;
+        PlayerInventory.OnGoldChanged += OnGoldChanged;
 
         HideInteractionHint();
     }
@@ -21,9 +24,17 @@ public class TreasureUI : MonoBehaviour
     {
         TreasureChest.OnPlayerEnteredChestArea -= ShowInteractionHint;
         TreasureChest.OnPlayerExitedChestArea -= HideInteractionHint;
-        TreasureChest.OnChestOpened -= HideInteractionHint;
+        TreasureChest.OnAnyChestOpened -= HideInteractionHint;
 
-        PlayerGold.OnGoldChanged -= OnGoldChanged;
+        PlayerInventory.OnGoldToGainChanged -= OnGoldToGainChanged;
+        PlayerInventory.OnGoldToRemoveChanged -= OnGoldToRemoveChanged;
+        PlayerInventory.OnGoldChanged -= OnGoldChanged;
+    }
+
+    private void Start()
+    {
+        OnGoldChanged(PlayerInventory.Instance.CurrentGold);
+        goldToGainAmountText.gameObject.SetActive(false);
     }
 
     private void ShowInteractionHint()
@@ -38,6 +49,18 @@ public class TreasureUI : MonoBehaviour
         interactionHintText.gameObject.SetActive(false);
     }
 
+    private void OnGoldToGainChanged(int newGoldAmount)
+    {
+        goldToGainAmountText.gameObject.SetActive(newGoldAmount > 0);
+        goldToGainAmountText.text = $"+ $ {newGoldAmount}";
+    }
+    
+    private void OnGoldToRemoveChanged(int newGoldAmount)
+    {
+        goldToGainAmountText.gameObject.SetActive(newGoldAmount > 0);
+        goldToGainAmountText.text = $"- $ {newGoldAmount}";
+    }
+    
     private void OnGoldChanged(int newGoldAmount)
     {
         goldAmountText.text = $"$ {newGoldAmount}";

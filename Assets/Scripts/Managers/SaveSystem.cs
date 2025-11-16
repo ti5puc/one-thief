@@ -14,18 +14,19 @@ public class SaveData
 public class SaveSystem : MonoBehaviour
 {
     private const string SAVE_FOLDER = "Saves";
+    private const string INVENTORY_FILE = "inventory";
     private const string FILE_EXTENSION = ".json";
-
-    [Header("Debug")]
-    [SerializeField, ReadOnly] private string nextSaveToLoad; 
     
+    [Header("Debug")]
+    [SerializeField, ReadOnly] private string nextSaveToLoad;
+
     public static SaveSystem Instance { get; private set; }
     public static string NextSaveToLoad
     {
         get => Instance.nextSaveToLoad;
         set => Instance.nextSaveToLoad = value;
     }
-    
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -33,10 +34,11 @@ public class SaveSystem : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-    
+
     public static bool Save(string saveId, int[,] trapIdGrid, int[,] rotationGrid, int rows, int cols)
     {
         if (trapIdGrid == null)
@@ -69,9 +71,9 @@ public class SaveSystem : MonoBehaviour
             // Debug: count non-zero cells
             int nonZero = 0;
             for (int r = 0; r < rows; r++)
-                for (int c = 0; c < cols; c++)
-                    if (trapIdGrid[r, c] != 0)
-                        nonZero++;
+            for (int c = 0; c < cols; c++)
+                if (trapIdGrid[r, c] != 0)
+                    nonZero++;
 
             Debug.Log($"[TrapGridSaveSystem] Salvando '{saveId}' com {nonZero} células != 0");
 
@@ -86,7 +88,7 @@ public class SaveSystem : MonoBehaviour
 
             // Serialize to JSON
             string json = JsonUtility.ToJson(data, true);
-            
+
             // Save to file
             string filePath = Path.Combine(saveFolderPath, saveId + FILE_EXTENSION);
             File.WriteAllText(filePath, json);
@@ -139,7 +141,8 @@ public class SaveSystem : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning($"[TrapGridSaveSystem] Arquivo de save '{saveId}' não encontrado em: {filePath} nem em Resources/{resourcePath}");
+                    Debug.LogWarning(
+                        $"[TrapGridSaveSystem] Arquivo de save '{saveId}' não encontrado em: {filePath} nem em Resources/{resourcePath}");
                     return false;
                 }
             }
@@ -157,7 +160,7 @@ public class SaveSystem : MonoBehaviour
             rows = data.Rows;
             cols = data.Cols;
             trapIdGrid = UnflattenGrid(data.Data, rows, cols);
-            
+
             // Unflatten rotations (handle backward compatibility)
             if (data.Rotations != null && data.Rotations.Length > 0)
             {
@@ -170,7 +173,8 @@ public class SaveSystem : MonoBehaviour
                 Debug.LogWarning("[TrapGridSaveSystem] Save file has no rotation data, initializing to zero.");
             }
 
-            Debug.Log($"[TrapGridSaveSystem] Grid '{saveId}' carregado com sucesso de: {(loadedFromResources ? "Resources" : filePath)}");
+            Debug.Log(
+                $"[TrapGridSaveSystem] Grid '{saveId}' carregado com sucesso de: {(loadedFromResources ? "Resources" : filePath)}");
             return true;
         }
         catch (System.Exception ex)
@@ -221,7 +225,7 @@ public class SaveSystem : MonoBehaviour
         try
         {
             string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
-            
+
             if (!Directory.Exists(saveFolderPath))
                 return new string[0];
 
@@ -245,12 +249,13 @@ public class SaveSystem : MonoBehaviour
     public static void ClearAllSaves()
     {
         string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
-            
+
         if (!Directory.Exists(saveFolderPath))
             return;
-        
+
         // Find all .json files in the Saves directory
-        string[] jsonFiles = System.IO.Directory.GetFiles(saveFolderPath, "*.json", System.IO.SearchOption.TopDirectoryOnly);
+        string[] jsonFiles =
+            System.IO.Directory.GetFiles(saveFolderPath, "*.json", System.IO.SearchOption.TopDirectoryOnly);
         int deletedCount = 0;
         foreach (string file in jsonFiles)
         {
@@ -273,8 +278,8 @@ public class SaveSystem : MonoBehaviour
         int[] flat = new int[rows * cols];
         int idx = 0;
         for (int r = 0; r < rows; r++)
-            for (int c = 0; c < cols; c++)
-                flat[idx++] = grid[r, c];
+        for (int c = 0; c < cols; c++)
+            flat[idx++] = grid[r, c];
         return flat;
     }
 
@@ -283,8 +288,52 @@ public class SaveSystem : MonoBehaviour
         int[,] grid = new int[rows, cols];
         int idx = 0;
         for (int r = 0; r < rows; r++)
-            for (int c = 0; c < cols; c++)
-                grid[r, c] = flat[idx++];
+        for (int c = 0; c < cols; c++)
+            grid[r, c] = flat[idx++];
         return grid;
+    }
+    
+    public static void SaveInventory(InventoryData data)
+    {
+        string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+        
+        if (!Directory.Exists(saveFolderPath))
+        {
+            Directory.CreateDirectory(saveFolderPath);
+        }
+        
+        try
+        {
+            var inventoryFilePath = Path.Combine(saveFolderPath, INVENTORY_FILE + FILE_EXTENSION);
+            
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(inventoryFilePath, json);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[InventorySaveSystem] Failed to save inventory: {ex.Message}");
+        }
+    }
+
+    public static InventoryData LoadInventory()
+    {
+        string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+        var inventoryFilePath = Path.Combine(saveFolderPath, INVENTORY_FILE + FILE_EXTENSION);
+        
+        try
+        {
+            if (File.Exists(inventoryFilePath))
+            {
+                string json = File.ReadAllText(inventoryFilePath);
+                InventoryData data = JsonUtility.FromJson<InventoryData>(json);
+                return data;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[InventorySaveSystem] Failed to load inventory: {ex.Message}");
+        }
+
+        return null;
     }
 }

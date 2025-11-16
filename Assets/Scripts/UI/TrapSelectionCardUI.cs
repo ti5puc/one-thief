@@ -35,19 +35,27 @@ public class TrapSelectionCardUI : MonoBehaviour, IPointerEnterHandler, IPointer
         currentSettings = trapSettings;
         trapNameText.text = trapIndex.ToString();
 
-        selectButton.interactable = !isSelected;
+        UpdateInteractable();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (parentUI != null && currentSettings != null)
-            parentUI.ToggleTooltip(currentSettings.TrapName, true);
+        {
+            var trapName = $"{currentSettings.TrapName}";
+            var tooltip = currentSettings.PlacementCost > 0 ? trapName + $"\n $ {currentSettings.PlacementCost}" : trapName;
+            parentUI.ToggleTooltip(tooltip, true);
+        }
+        
+        UpdateInteractable();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (parentUI != null && currentSettings != null)
             parentUI.ToggleTooltip(string.Empty, false);
+        
+        UpdateInteractable();
     }
 
     private void OnSelectButtonClicked()
@@ -60,5 +68,15 @@ public class TrapSelectionCardUI : MonoBehaviour, IPointerEnterHandler, IPointer
     {
         if (currentSettings != null && settings != currentSettings)
             selectButton.interactable = true;
+        
+        UpdateInteractable();
+    }
+    
+    private void UpdateInteractable()
+    {
+        if (currentSettings is null) return;
+        
+        var gold = PlayerInventory.Instance.CurrentGold;
+        selectButton.interactable = gold >= currentSettings.PlacementCost;
     }
 }

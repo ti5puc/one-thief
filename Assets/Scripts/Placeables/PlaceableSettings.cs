@@ -9,6 +9,9 @@ public class PlaceableSettings : ScriptableObject
     [InfoBox("To set this ID go to One Thief > Trap Settings > Assign Unique IDs")]
     [SerializeField, ReadOnly] protected int id;
 
+    [Space(10)]
+    [SerializeField] protected int placementCost = 0;
+    
     [Header("Layer Settings")]
     [SerializeField] protected LayerMask trapPlacementLayer;
     [SerializeField] protected LayerMask ignorePlacementLayer;
@@ -39,6 +42,7 @@ public class PlaceableSettings : ScriptableObject
     public GameObject TrapObject => trapObject;
     public bool NeedsWallToPlace => needsWallToPlace;
     public LayerMask WallLayer => wallLayer;
+    public int PlacementCost => placementCost;
     public TrapPositioningMatrix2D PositioningMatrix
     {
         get => positioningMatrix;

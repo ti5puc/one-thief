@@ -3,16 +3,35 @@ using UnityEditor;
 
 public class SaveMenuOptions
 {
+	[MenuItem("One Thief/Saves/Clear current build save")]
+	public static void ClearCurrentBuild()
+	{
+		SaveSystem.DeleteSave("current_build");
+	}
+	
+	[MenuItem("One Thief/Saves/Clear inventory save")]
+	public static void ClearInventory()
+	{
+		SaveSystem.DeleteSave("inventory");
+	}
+	
 	[MenuItem("One Thief/Saves/Clear all saves")]
 	public static void ClearAllSaves()
 	{
 		SaveSystem.ClearAllSaves();
 	}
 	
-	[MenuItem("One Thief/Saves/Export save")]
-	public static void ExportSave()
+	[MenuItem("One Thief/Saves/Export current build save")]
+	public static void ExportCurrentBuildSave()
 	{
 		ExportSaveWindow.ShowWindow();
+	}
+	
+	[MenuItem("One Thief/Saves/Open saves folder")]
+	public static void OpenSavesFolder()
+	{
+		string saveFolderPath = System.IO.Path.Combine(Application.persistentDataPath, "Saves");
+		EditorUtility.RevealInFinder(saveFolderPath);
 	}
 }
 

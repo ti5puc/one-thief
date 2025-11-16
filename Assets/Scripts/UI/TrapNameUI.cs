@@ -27,17 +27,17 @@ public class TrapNameUI : MonoBehaviour
         gameObject.SetActive(!isActive);
     }
 
-    private void UpdateVisibility(bool isTrapModeActive, string currentTrapName)
+    private void UpdateVisibility(bool isTrapModeActive, PlaceableSettings settings)
     {
         gameObject.SetActive(isTrapModeActive);
-        SetupName(currentTrapName);
+        SetupName(settings);
     }
 
-    private void SetupName(string trapName)
+    private void SetupName(PlaceableSettings settings)
     {
         if (trapNameText != null)
         {
-            trapNameText.text = $"Trap: {trapName}";
+            trapNameText.text = $"Trap: {settings.TrapName}";
         }
     }
 }

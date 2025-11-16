@@ -94,6 +94,8 @@ public class PauseMenuUI : MonoBehaviour
             SaveSystem.NextSaveToLoad = string.Empty;
         }
         
+        PlayerInventory.Instance.ClearGoldCache();
+        
         SaveSystem.ClearAllSaves();
         
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
@@ -101,6 +103,7 @@ public class PauseMenuUI : MonoBehaviour
     
     private void ToMenu()
     {
+        PlayerInventory.Instance.ClearGoldCache();
         GameManager.Resume();
         SceneManager.LoadSceneAsync(0);
     }

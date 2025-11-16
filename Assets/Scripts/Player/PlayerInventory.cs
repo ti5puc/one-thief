@@ -83,6 +83,7 @@ public class PlayerInventory : MonoBehaviour
     public void AddGoldToGain(int amount)
     {
         if (amount <= 0) return;
+        if (GameManager.IsTestingToSubmit) return;
 
         goldCache += amount;
         

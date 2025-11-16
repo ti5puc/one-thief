@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     [SerializeField, ReadOnly] private bool canEnterBuildMode;
     [SerializeField, ReadOnly] private int nextLayoutIndex;
     [SerializeField, ReadOnly] private bool isGamePaused;
+    [SerializeField, ReadOnly] private bool isTestingToSubmit;
     
     public static GameManager Instance { get; private set; }
     public static GameState CurrentGameState => Instance.currentGameState;
@@ -41,6 +42,11 @@ public class GameManager : MonoBehaviour
     }
     public static bool IsGamePaused => Instance.isGamePaused;
     public static PlaceableSettings TreasureChestReference => Instance.treasureChestReference;
+    public static bool IsTestingToSubmit
+    {
+        get => Instance.isTestingToSubmit;
+        set => Instance.isTestingToSubmit = value;
+    }
 
     private void Awake()
     {

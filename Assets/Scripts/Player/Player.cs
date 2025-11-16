@@ -184,7 +184,7 @@ public class Player : MonoBehaviour
             CreateGhostTrapsForSelectedTrap();
         }
 
-        if (GameManager.CurrentGameState == GameState.Exploring && !string.IsNullOrEmpty(SaveSystem.NextSaveToLoad))
+        if (GameManager.CurrentGameState == GameState.Exploring || !string.IsNullOrEmpty(SaveSystem.NextSaveToLoad))
         {
             playerSave.LoadAndRebuild(this, SaveSystem.NextSaveToLoad);
         }

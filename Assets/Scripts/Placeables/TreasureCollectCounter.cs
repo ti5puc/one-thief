@@ -19,22 +19,28 @@ public class TreasureCollectCounter : MonoBehaviour
     private void OnDestroy()
     {
         PlayerSave.OnLevelLoaded -= CacheTreasuresOnScene;
-        
-        foreach (var treasure in treasuresOnScene)
-            treasure.OnChestOpened -= HandleTreasureCollected;
+        if (treasuresOnScene != null)
+        {
+            treasuresOnScene.RemoveAll(t => t == null);
+            foreach (var treasure in treasuresOnScene)
+                treasure.OnChestOpened -= HandleTreasureCollected;
+        }
     }
 
     private void CacheTreasuresOnScene()
     {
         treasuresOnScene = FindObjectsOfType<TreasureChest>().ToList();
+        treasuresOnScene.RemoveAll(t => t == null);
         foreach (var treasure in treasuresOnScene)
             treasure.OnChestOpened += HandleTreasureCollected;
+        
+        
     }
     
     private void HandleTreasureCollected(int goldAmount)
     {
+        treasuresOnScene.RemoveAll(t => t == null);
         collectedTreasureCount++;
-        
         if (collectedTreasureCount >= treasuresOnScene.Count)
             OnAllTreasuresCollected?.Invoke();
     }

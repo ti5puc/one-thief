@@ -18,6 +18,7 @@ public class TreasureChest : MonoBehaviour
 
     private bool isPlayerInRange = false;
     private bool isChestOpened = false;
+    private bool isChestActive = false;
 
     private void Awake()
     {
@@ -27,21 +28,26 @@ public class TreasureChest : MonoBehaviour
         actionTrigger.OnEnter += OnActionTriggerEnter;
         actionTrigger.OnStay += OnActionTriggerStay;
         actionTrigger.OnExit += OnActionTriggerExit;
+        
+        PlayerSave.OnLevelLoaded += ActivateChest;
     }
 
     private void OnDestroy()
     {
-        openChestAction.action.Disable();
+        // openChestAction.action.Disable();
         openChestAction.action.performed -= OnTryToOpenChest;
 
         actionTrigger.OnEnter -= OnActionTriggerEnter;
         actionTrigger.OnStay -= OnActionTriggerStay;
         actionTrigger.OnExit -= OnActionTriggerExit;
+        
+        PlayerSave.OnLevelLoaded -= ActivateChest;
     }
 
     private void OnActionTriggerEnter(Collider other)
     {
         if (GameManager.CurrentGameState == GameState.Building) return;
+        if (isChestActive == false) return;
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
 
         isPlayerInRange = true;
@@ -57,6 +63,7 @@ public class TreasureChest : MonoBehaviour
     private void OnActionTriggerExit(Collider other)
     {
         if (GameManager.CurrentGameState == GameState.Building) return;
+        if (isChestActive == false) return;
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
 
         isPlayerInRange = false;
@@ -65,13 +72,21 @@ public class TreasureChest : MonoBehaviour
 
     private void OnTryToOpenChest(InputAction.CallbackContext context)
     {
+        if (GameManager.CurrentGameState == GameState.Building) return;
+        if (isChestActive == false) return;
         if (isPlayerInRange == false) return;
         if (isChestOpened) return;
 
         isChestOpened = true;
+        
         OnAnyChestOpened?.Invoke(goldAmount);
         OnChestOpened?.Invoke(goldAmount);
 
         gameObject.SetActive(false);
+    }
+
+    private void ActivateChest()
+    {
+        isChestActive = true;
     }
 }

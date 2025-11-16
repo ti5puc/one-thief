@@ -22,6 +22,7 @@ public class WinUI : MonoBehaviour
     private void Awake()
     {
         submitButton.onClick.AddListener(OnSubmitButtonClicked);
+        denyButton.onClick.AddListener(OnDenyButtonClicked);
         okButton.onClick.AddListener(OnWinExploring);
 
         TreasureCollectCounter.OnAllTreasuresCollected += TryShow;
@@ -32,6 +33,7 @@ public class WinUI : MonoBehaviour
     private void OnDestroy()
     {
         submitButton.onClick.RemoveListener(OnSubmitButtonClicked);
+        denyButton.onClick.RemoveListener(OnDenyButtonClicked);
         okButton.onClick.RemoveListener(OnWinExploring);
             
         TreasureCollectCounter.OnAllTreasuresCollected -= TryShow;
@@ -39,7 +41,7 @@ public class WinUI : MonoBehaviour
 
     private void TryShow()
     {
-        if (GameManager.CurrentGameState == GameState.Exploring)
+        if (GameManager.CurrentGameState == GameState.Exploring && GameManager.IsTestingToSubmit == false)
             ShowCollectAll();
         else
             ShowSubmit();
@@ -81,6 +83,34 @@ public class WinUI : MonoBehaviour
     private void OnSubmitButtonClicked()
     {
         PlayerInventory.Instance.SpendGoldToRemove();
+        
+        GameManager.Resume();
+        GameManager.IsTestingToSubmit = false;
+        GameManager.SetCanEnterBuildMode(true);
+
+        GameManager.ChangeGameStateToTestingBuild();
+        SaveSystem.NextSaveToLoad = "current_build";
+        
+        PlayerInventory.Instance.ClearGoldCache();
+        
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
+        
+        Hide();
+    }
+
+    private void OnDenyButtonClicked()
+    {
+        GameManager.Resume();
+        GameManager.IsTestingToSubmit = false;
+        GameManager.SetCanEnterBuildMode(true);
+
+        GameManager.ChangeGameStateToTestingBuild();
+        SaveSystem.NextSaveToLoad = "current_build";
+        
+        PlayerInventory.Instance.ClearGoldCache();
+        
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
+        
         Hide();
     }
 

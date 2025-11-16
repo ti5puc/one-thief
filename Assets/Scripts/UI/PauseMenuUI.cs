@@ -81,12 +81,16 @@ public class PauseMenuUI : MonoBehaviour
         wasBuilding = GameManager.CurrentGameState != GameState.Exploring;
         GameManager.ChangeGameStateToExploring();
         
+        GameManager.IsTestingToSubmit = true;
+        GameManager.SetCanEnterBuildMode(false);
+        
         Hide();
     }
     
     private void ResetScene()
     {
         GameManager.Resume();
+        GameManager.IsTestingToSubmit = false;
 
         if (wasBuilding)
         {
@@ -104,6 +108,8 @@ public class PauseMenuUI : MonoBehaviour
     private void ToMenu()
     {
         PlayerInventory.Instance.ClearGoldCache();
+        GameManager.IsTestingToSubmit = false;
+        
         GameManager.Resume();
         SceneManager.LoadSceneAsync(0);
     }

@@ -51,6 +51,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   startOnBuildingForDebug: 0
+  treasureChestReference: {fileID: 11400000, guid: 3ce63ce4d092b664c955bc7a5307f335, type: 2}
   currentGameState: 0
   canEnterBuildMode: 0
   nextLayoutIndex: 0
@@ -81,3 +82,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentGold: 0
+  goldCache: 0

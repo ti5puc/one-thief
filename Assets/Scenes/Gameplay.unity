@@ -263,6 +263,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c2603575a2e5884aa0bed1df00d70c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  treasureChestSettings: {fileID: 11400000, guid: 3ce63ce4d092b664c955bc7a5307f335, type: 2}
+  collectedTreasureCount: 0
+  treasuresOnScene: []
 --- !u!1 &1019274249
 GameObject:
   m_ObjectHideFlags: 0
@@ -834,7 +837,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8327315114471207459, guid: 8acf3c11c8b0f0345a97ac554640911a, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -85.333
+      value: 0.0000076293945
       objectReference: {fileID: 0}
     - target: {fileID: 8645449688687042586, guid: 8acf3c11c8b0f0345a97ac554640911a, type: 3}
       propertyPath: m_AnchorMax.y

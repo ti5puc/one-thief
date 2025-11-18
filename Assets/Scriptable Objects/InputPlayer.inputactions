@@ -233,6 +233,54 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Hack",
+            "id": "fbabcbcb-ca96-4406-9689-d1eaed2ccd0c",
+            "actions": [
+                {
+                    "name": "Gain Gold",
+                    "type": "Button",
+                    "id": "8934c58e-1fc0-459d-97a7-ec0f7ef1375f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "God Mode",
+                    "type": "Button",
+                    "id": "141dd1fa-839d-4052-8507-a1d85d7ed5ec",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "d2d51d2e-bc96-4b13-a50f-8fc73ecea27e",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Gain Gold",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "de3289eb-055b-4d2a-bf2b-2cd6754845be",
+                    "path": "<Keyboard>/f2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "God Mode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

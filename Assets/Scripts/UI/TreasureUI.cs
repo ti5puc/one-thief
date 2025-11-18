@@ -40,6 +40,9 @@ public class TreasureUI : MonoBehaviour
     private void ShowInteractionHint()
     {
         if (GameManager.CurrentGameState == GameState.Building) return;
+        
+        bool isExploring = GameManager.CurrentGameState == GameState.Exploring;
+        interactionHintText.text = isExploring ? "Aperte 'E' para interagir" : "(Desabilitado) Aperte 'E' para interagir";
         interactionHintText.gameObject.SetActive(true);
     }
 

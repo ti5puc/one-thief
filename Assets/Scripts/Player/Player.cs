@@ -16,6 +16,7 @@ public class Player : MonoBehaviour
     public static event Action<bool, PlaceableSettings> OnTrapModeChanged; // bool isTrapModeActive
     public static event Action<PlaceableSettings> OnSelectedTrapChanged;
     public static event Action<bool, List<PlaceableSettings>, int> OnToggleTrapSelect; // bool isTrapSelectionActive, int selectedTrapIndex
+    public static event Action<PlaceableSettings> OnTrapPlaced;
     public event Action<bool, bool> OnMoveChanged; // bool isMoving, bool isSprinting
 
     //---------------------------------- Inicio Movimentacao e Camera ----------------------------------
@@ -134,15 +135,13 @@ public class Player : MonoBehaviour
         deathIdentifier = GetComponent<PlayerDeathIdentifier>();
         playerSave = GetComponent<PlayerSave>();
             
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        GameManager.HideCursor();
         
         capsule = GetComponent<CapsuleCollider>();
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
         initialPosition = transform.position;
         isSprinting = true; // Always start sprinting
-        deathIdentifier.OnTryResetDeath += ResetPlayer;
 
         //Matriz de IDs de traps para salvamento de layout
         trapIdGrid = new int[gridRows, gridCols];
@@ -160,13 +159,13 @@ public class Player : MonoBehaviour
         if (trapRotationGrid == null)
             trapRotationGrid = new int[gridRows, gridCols];
         //---------- >>> NOVO <<< ----------//
+        
         TrapSelectionCardUI.OnTrapSelected += SelectObject;
         PauseMenuUI.OnTest += ResetPlayer;
     }
 
     private void OnDestroy()
     {
-        deathIdentifier.OnTryResetDeath -= ResetPlayer;
         TrapSelectionCardUI.OnTrapSelected -= SelectObject;
         PauseMenuUI.OnTest -= ResetPlayer;
     }
@@ -966,6 +965,8 @@ public class Player : MonoBehaviour
         placedTrapGroups.Add(trapGroup);
         PlayerInventory.Instance.AddGoldToRemove(trapSettings.PlacementCost);
 
+        OnTrapPlaced?.Invoke(trapSettings);
+        
         Debug.Log($"[PlaceTrap] Placement completed for {trapSettings.TrapObject.name}");
     }
 
@@ -1189,6 +1190,9 @@ public class Player : MonoBehaviour
 
     private void ResetPlayer()
     {
+        if (isTrapModeActive)
+            ToggleTrapMode(new InputAction.CallbackContext());
+        
         playerSave.Save(this, "current_build");
         playerSave.LoadAndRebuild(this, "current_build");
         

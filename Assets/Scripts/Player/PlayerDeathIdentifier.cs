@@ -1,11 +1,12 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class PlayerDeathIdentifier : MonoBehaviour
 {
-    public event Action OnTryResetDeath;
+    public static event Action<bool> OnGodModeChanged;
     
     [Header("Death Camera Offset")]
     public float DeathCameraUpOffset = 2f;
@@ -18,14 +19,22 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
     [Space(10)]
     public GameObject[] VisualsToHide;
+    
+    [Header("Hacks")]
+    public InputActionReference godModeHackAction;
 
     private Rigidbody rigidBody;
     private Transform cameraTransform;
     private bool isDead = false;
     private float vfxOffset;
     private GameObject deathGhost;
+    private bool isGodMode = false;
 
-    public bool IsDead => isDead;
+    public bool IsDead
+    {
+        get => isDead;
+        set => isDead = GameManager.IsPlayerDead = value;
+    }
     public float VfxOffset
     {
         get => vfxOffset;
@@ -36,11 +45,22 @@ public class PlayerDeathIdentifier : MonoBehaviour
     {
         cameraTransform = GetComponentInChildren<Camera>().transform;
         rigidBody = GetComponent<Rigidbody>();
+        
+        GameManager.IsPlayerDead = false;
+        
+        godModeHackAction.action.Enable();
+        godModeHackAction.action.performed += ToggleGodMode;
+    }
+
+    private void OnDestroy()
+    {
+        godModeHackAction.action.Disable();
+        godModeHackAction.action.performed -= ToggleGodMode;
     }
 
     private void Update()
     {
-        if (isDead)
+        if (IsDead)
         {
             // keep rotating player on Y axis after death
             transform.Rotate(Vector3.up * DeathRotateSpeed * Time.deltaTime);
@@ -69,10 +89,11 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
     public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f, bool spawnGhost = true)
     {
-        if (isDead) return;
+        if (IsDead) return;
         if (GameManager.CurrentGameState != GameState.Exploring) return;
+        if (isGodMode) return;
 
-        isDead = true;
+        IsDead = true;
         foreach (var visual in VisualsToHide)
             visual.SetActive(false);
 
@@ -100,7 +121,14 @@ public class PlayerDeathIdentifier : MonoBehaviour
     // TODO: placeholder here, change to movement script
     public void Knockback(Vector3 direction, float force)
     {
-        if (isDead) return;
+        if (IsDead) return;
         rigidBody.AddForce(direction.normalized * force, ForceMode.Impulse);
+    }
+    
+    private void ToggleGodMode(InputAction.CallbackContext obj)
+    {
+        isGodMode = !isGodMode;
+        OnGodModeChanged?.Invoke(isGodMode);
+        Debug.Log($"God Mode: {isGodMode}");
     }
 }

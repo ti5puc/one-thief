@@ -2070,7 +2070,7 @@ MonoBehaviour:
   sprintMultiplier: 1.7
   canDash: 1
   isDashing: 0
-  dashSpeed: 13
+  dashSpeed: 20
   dashCooldown: 2
   dashDuration: 0.2
   lastDashTime: 0
@@ -2127,6 +2127,7 @@ MonoBehaviour:
   VisualsToHide:
   - {fileID: 5548165457095905791}
   - {fileID: 7677672585785594346}
+  godModeHackAction: {fileID: -585635485221877810, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
 --- !u!114 &222876035836668833
 MonoBehaviour:
   m_ObjectHideFlags: 0

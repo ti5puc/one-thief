@@ -246,7 +246,7 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
-    public static void ClearAllSaves()
+    public static void ClearAllSaves(bool alsoClearInventory = false)
     {
         string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
 
@@ -256,6 +256,12 @@ public class SaveSystem : MonoBehaviour
         // Find all .json files in the Saves directory
         string[] jsonFiles =
             System.IO.Directory.GetFiles(saveFolderPath, "*.json", System.IO.SearchOption.TopDirectoryOnly);
+        
+        if (alsoClearInventory == false)
+        {
+            jsonFiles = System.Array.FindAll(jsonFiles, file => !file.EndsWith(INVENTORY_FILE + FILE_EXTENSION));
+        }
+        
         int deletedCount = 0;
         foreach (string file in jsonFiles)
         {

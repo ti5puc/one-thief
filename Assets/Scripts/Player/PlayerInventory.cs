@@ -1,6 +1,7 @@
 using System;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [System.Serializable]
 public class InventoryData
@@ -13,6 +14,8 @@ public class PlayerInventory : MonoBehaviour
     public static event Action<int> OnGoldChanged;
     public static event Action<int> OnGoldToGainChanged;
     public static event Action<int> OnGoldToRemoveChanged;
+    
+    [SerializeField] private InputActionReference gainGoldHackAction;
 
     [Header("Debug")]
     [SerializeField, ReadOnly] private int currentGold = 0;
@@ -41,6 +44,8 @@ public class PlayerInventory : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         loadedData = SaveSystem.LoadInventory();
+        gainGoldHackAction.action.Enable();
+        gainGoldHackAction.action.performed += GainGoldHack;
         
         TreasureChest.OnAnyChestOpened += AddGoldToGain;
         WinUI.OnGetGold += ApplyGoldInCache;
@@ -48,6 +53,9 @@ public class PlayerInventory : MonoBehaviour
 
     private void OnDestroy()
     {
+        // gainGoldHackAction.action.Disable();
+        // gainGoldHackAction.action.performed -= GainGoldHack;
+        
         TreasureChest.OnAnyChestOpened -= AddGoldToGain;
         WinUI.OnGetGold -= ApplyGoldInCache;
     }
@@ -84,6 +92,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (amount <= 0) return;
         if (GameManager.IsTestingToSubmit) return;
+        if (GameManager.CurrentGameState != GameState.Exploring) return;
 
         goldCache += amount;
         
@@ -93,6 +102,7 @@ public class PlayerInventory : MonoBehaviour
     public void AddGoldToRemove(int amount)
     {
         if (amount <= 0) return;
+        if (GameManager.CurrentGameState == GameState.Exploring) return;
 
         goldCache += amount;
         
@@ -103,5 +113,11 @@ public class PlayerInventory : MonoBehaviour
     {
         goldCache = 0;
         OnGoldToRemoveChanged?.Invoke(goldCache);
+    }
+    
+    private void GainGoldHack(InputAction.CallbackContext callback)
+    {
+        goldCache += 1000;
+        ApplyGoldInCache();
     }
 }

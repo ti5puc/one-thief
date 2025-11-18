@@ -46,9 +46,7 @@ public class WinUI : MonoBehaviour
         else
             ShowSubmit();
         
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
+        GameManager.ShowCursor();
         GameManager.Pause();
     }
 
@@ -73,10 +71,6 @@ public class WinUI : MonoBehaviour
     private void Hide()
     {
         gameObject.SetActive(false);
-        
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        
         GameManager.Resume();
     }
 
@@ -93,9 +87,9 @@ public class WinUI : MonoBehaviour
         
         PlayerInventory.Instance.ClearGoldCache();
         
-        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
-        
         Hide();
+        
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void OnDenyButtonClicked()
@@ -109,9 +103,9 @@ public class WinUI : MonoBehaviour
         
         PlayerInventory.Instance.ClearGoldCache();
         
-        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
-        
         Hide();
+        
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void OnWinExploring()
@@ -120,6 +114,9 @@ public class WinUI : MonoBehaviour
         Hide();
         
         GameManager.Resume();
+        
+        GameManager.ShowCursor();
+        
         SceneManager.LoadSceneAsync(2);
     }
 }

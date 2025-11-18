@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     [SerializeField, ReadOnly] private int nextLayoutIndex;
     [SerializeField, ReadOnly] private bool isGamePaused;
     [SerializeField, ReadOnly] private bool isTestingToSubmit;
+    [SerializeField, ReadOnly] private bool isPlayerDead;
     
     public static GameManager Instance { get; private set; }
     public static GameState CurrentGameState => Instance.currentGameState;
@@ -46,6 +47,11 @@ public class GameManager : MonoBehaviour
     {
         get => Instance.isTestingToSubmit;
         set => Instance.isTestingToSubmit = value;
+    }
+    public static bool IsPlayerDead
+    {
+        get => Instance.isPlayerDead;
+        set => Instance.isPlayerDead = value;
     }
 
     private void Awake()
@@ -102,5 +108,17 @@ public class GameManager : MonoBehaviour
     public static void Resume()
     {
         Instance.isGamePaused = false;
+    }
+
+    public static void ShowCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+    
+    public static void HideCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }

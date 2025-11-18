@@ -56,6 +56,7 @@ MonoBehaviour:
   canEnterBuildMode: 0
   nextLayoutIndex: 0
   isGamePaused: 0
+  isTestingToSubmit: 0
 --- !u!114 &6110033945106823461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,5 +82,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11a66c334546dd348b532739ae0782b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gainGoldHackAction: {fileID: -1582508917883300530, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   currentGold: 0
   goldCache: 0

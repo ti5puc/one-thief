@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class PauseMenuUI : MonoBehaviour
 {
+    public static event Action<bool> OnPauseMenuToggled;
     public static event Action OnTest;
     
     [SerializeField] private Button testButton;
@@ -58,6 +59,8 @@ public class PauseMenuUI : MonoBehaviour
             Hide();
         else
             Show();
+        
+        OnPauseMenuToggled?.Invoke(isShowing);
     }
 
     private void Show()

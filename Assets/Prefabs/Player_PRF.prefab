@@ -2122,6 +2122,12 @@ MonoBehaviour:
   DeathCameraUpOffset: 3
   DeathCameraBackOffset: 6
   DeathRotateSpeed: 15
+  CameraCollisionLayers:
+    serializedVersion: 2
+    m_Bits: 448
+  CameraCollisionOffset: 0.3
+  CameraRadius: 0.2
+  DebugDrawCameraRay: 1
   DeathVfxPrefab: {fileID: 8043088371599049586, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
   DeathGhostPrefab: {fileID: 2131966748788340744, guid: b8ab386616f53be47ad211b822fa2a1b, type: 3}
   VisualsToHide:

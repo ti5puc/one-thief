@@ -317,6 +317,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4939384826510103470, guid: 26b3a0668d07d8b478a34a6a66bd99f0, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: -371822498365833450, guid: 26b3a0668d07d8b478a34a6a66bd99f0, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.7039502
@@ -348,6 +352,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 26b3a0668d07d8b478a34a6a66bd99f0, type: 3}
       propertyPath: m_Name
       value: BauTesouro
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 26b3a0668d07d8b478a34a6a66bd99f0, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 5898347811066135751, guid: 26b3a0668d07d8b478a34a6a66bd99f0, type: 3}
+      propertyPath: m_Layer
+      value: 14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 5573061471786094552}
   - component: {fileID: 7917020274339450601}
   - component: {fileID: 4458363588344485219}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: SuporteTetoMachado
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -217,7 +217,7 @@ GameObject:
   - component: {fileID: 8096763105581403200}
   - component: {fileID: 3836544205068804205}
   - component: {fileID: 4011126846947701028}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: PenduloMartelo
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5720024000124533416}
   - component: {fileID: 5052427844330077973}
   - component: {fileID: 4749100170186794782}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Corrente (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -271,7 +271,7 @@ GameObject:
   - component: {fileID: 2642653680751431365}
   - component: {fileID: 4107633464810396495}
   - component: {fileID: 4744370980960075228}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Corrente (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -548,9 +548,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5283438198820806680, guid: 43e8cfde35d24a640b5ff92bb734570f, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: -971053742508355258, guid: 43e8cfde35d24a640b5ff92bb734570f, type: 3}
+      propertyPath: m_Layer
+      value: 14
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 43e8cfde35d24a640b5ff92bb734570f, type: 3}
       propertyPath: m_Name
       value: Aramadilha Peso
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 43e8cfde35d24a640b5ff92bb734570f, type: 3}
+      propertyPath: m_Layer
+      value: 14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

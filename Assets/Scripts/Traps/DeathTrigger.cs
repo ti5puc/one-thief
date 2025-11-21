@@ -8,6 +8,7 @@ public class DeathTrigger : MonoBehaviour
     private float customDeathCameraRotationX = 20f;
     private float customDeathCameraOffsetY = 0f;
     private float customDeathCameraOffsetZ = 0f;
+    private float deathVfxOffset = 0f;
 
     private void Awake()
     {
@@ -24,18 +25,20 @@ public class DeathTrigger : MonoBehaviour
         if (other.CompareTag("Player") == false) return;
 
         var controller = other.GetComponent<PlayerDeathIdentifier>();
-
+        controller.VfxOffset = deathVfxOffset;
+        
         if (hasCustomDeathCam)
             controller.Death(customDeathCameraRotationX, customDeathCameraOffsetY, customDeathCameraOffsetZ, false);
         else
             controller.Death();
     }
 
-    public void SetCustomDeathCam(float rotationX, float offsetY, float offsetZ)
+    public void SetCustomDeathCam(float rotationX, float offsetY, float offsetZ, float deathVfxOffset = 0f)
     {
         hasCustomDeathCam = true;
         customDeathCameraRotationX = rotationX;
         customDeathCameraOffsetY = offsetY;
         customDeathCameraOffsetZ = offsetZ;
+        this.deathVfxOffset = deathVfxOffset;
     }
 }

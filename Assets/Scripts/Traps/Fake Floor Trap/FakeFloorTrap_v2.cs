@@ -28,7 +28,7 @@ public class FakeFloorTrap_v2 : TrapBase
     protected override void Awake()
     {
         base.Awake();
-        deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ);
+        deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ, deathVfxOffset);
 
         if (!foundNearestGround)
         {
@@ -56,9 +56,6 @@ public class FakeFloorTrap_v2 : TrapBase
     protected override void OnAction(Collider player, float totalDuration)
     {
         Debug.Log("Player activated fake floor trap");
-
-        var movePlaceholder = player.GetComponent<PlayerDeathIdentifier>();
-        movePlaceholder.VfxOffset = deathVfxOffset;
 
         float safeBreakDuration = Mathf.Min(vibrationDuration, totalDuration);
         float interval = Mathf.Max(totalDuration - safeBreakDuration, 0f);

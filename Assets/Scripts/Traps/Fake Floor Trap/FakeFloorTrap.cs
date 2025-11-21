@@ -38,7 +38,7 @@ public class FakeFloorTrap : TrapBase
 
         var movePlaceholder = player.GetComponent<PlayerDeathIdentifier>();
         // movePlaceholder.DisableMove();
-        movePlaceholder.VfxOffset = deathVfxOffset;
+        // movePlaceholder.VfxOffset = deathVfxOffset;
 
         var seq = DOTween.Sequence();
         seq.Join(movePlaceholder.transform.DOMoveX(transform.position.x, 0.3f).SetEase(Ease.InCubic));

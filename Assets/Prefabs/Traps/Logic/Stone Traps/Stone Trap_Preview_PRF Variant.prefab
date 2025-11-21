@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 724177514027430961, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2880030363265575833, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -20,6 +24,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3144562098874440295, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3345284530043731052, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4744370980960075228, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -31,6 +43,10 @@ PrefabInstance:
     - target: {fileID: 5472426638618749807, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
       propertyPath: m_Name
       value: Stone Trap_Preview_PRF Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189296657409357424, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6409271001242897213, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -87,6 +103,10 @@ PrefabInstance:
     - target: {fileID: 7759474340679854848, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
       propertyPath: m_IsTrigger
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8036904046220989641, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8133794337271243333, guid: 82d2b38ffcc05db40bd77b92d76d74d7, type: 3}
       propertyPath: m_LocalPosition.y

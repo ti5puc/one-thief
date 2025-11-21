@@ -144,14 +144,21 @@ public class PauseMenuUI : MonoBehaviour
         {
             GameManager.IsTestingToSubmit = false;
             GameManager.SetCanEnterBuildMode(true);
-            
+
             GameManager.ChangeGameStateToTestingBuild();
+                
+            SaveSystem.NextSaveToLoad = string.Empty;
+            SaveSystem.ClearAllSaves();
         }
         
         GameManager.IsPlayerDead = false;
-        SaveSystem.NextSaveToLoad = string.Empty;
         PlayerInventory.Instance.ClearGoldCache();
-        SaveSystem.ClearAllSaves();
+        
+        if (GameManager.CurrentGameState != GameState.Exploring && !GameManager.IsTestingToSubmit)
+        {
+            SaveSystem.NextSaveToLoad = string.Empty;
+            SaveSystem.ClearAllSaves();
+        }
         
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }

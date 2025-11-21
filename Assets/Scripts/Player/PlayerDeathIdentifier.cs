@@ -82,12 +82,12 @@ public class PlayerDeathIdentifier : MonoBehaviour
         Death(20f, 0f, 0f, true);
     }
 
-    public void Death(bool spawnGhost = true)
+    public void Death(bool spawnBloodVfx = true)
     {
-        Death(20f, 0f, 0f, spawnGhost);
+        Death(20f, 0f, 0f, spawnBloodVfx);
     }
 
-    public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f, bool spawnGhost = true)
+    public void Death(float customCameraDeathRotationX = 20f, float customCameraDeathOffsetY = 0f, float customCameraDeathOffsetZ = 0f, bool spawnBloodVfx = true)
     {
         if (IsDead) return;
         if (GameManager.CurrentGameState != GameState.Exploring) return;
@@ -108,14 +108,16 @@ public class PlayerDeathIdentifier : MonoBehaviour
         cameraTransform.DOLocalMove(targetPosition, 1f).SetEase(Ease.OutQuad);
         cameraTransform.localRotation = Quaternion.Euler(customCameraDeathRotationX, 0f, 0f);
 
-        if (spawnGhost == false)
-            return;
-
-        var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y + vfxOffset, transform.position.z);
-        Instantiate(DeathVfxPrefab, position, DeathVfxPrefab.transform.rotation);
-
         var ghostPosition = new Vector3(transform.position.x, DeathGhostPrefab.transform.position.y + vfxOffset, transform.position.z);
         deathGhost = Instantiate(DeathGhostPrefab, ghostPosition, DeathGhostPrefab.transform.rotation);
+
+        if (spawnBloodVfx)
+        {
+            var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y + vfxOffset, transform.position.z);
+            Instantiate(DeathVfxPrefab, position, DeathVfxPrefab.transform.rotation);
+        }
+
+        VfxOffset = 0f;
     }
 
     // TODO: placeholder here, change to movement script

@@ -14,11 +14,15 @@ public class PauseMenuUI : MonoBehaviour
     [SerializeField] private Button resetButton;
     [SerializeField] private Button menuButton;
     
+    [Space(5)]
+    [SerializeField] private TMP_Text treasureHintText;
+    
     [Space(10)]
     [SerializeField] private InputActionReference pauseMenuAction;
 
     private bool isShowing;
     private bool shouldBackToBuild;
+    private bool isWinUIOpen;
     
     private void Awake()
     {
@@ -28,6 +32,9 @@ public class PauseMenuUI : MonoBehaviour
         testButton.onClick.AddListener(Test);
         resetButton.onClick.AddListener(ResetScene);
         menuButton.onClick.AddListener(ToMenu);
+
+        WinUI.OnShow += OnWinUIOpen;
+        WinUI.OnHide += OnWinUIHide;
         
         Hide();
     }
@@ -40,6 +47,9 @@ public class PauseMenuUI : MonoBehaviour
         testButton.onClick.RemoveListener(Test);
         resetButton.onClick.RemoveListener(ResetScene);
         menuButton.onClick.RemoveListener(ToMenu);
+        
+        WinUI.OnShow -= OnWinUIOpen;
+        WinUI.OnHide -= OnWinUIHide;
     }
 
     private void TogglePauseMenu(InputAction.CallbackContext callback)
@@ -52,6 +62,8 @@ public class PauseMenuUI : MonoBehaviour
 
     private void Show()
     {
+        if (isWinUIOpen) return;
+        
         isShowing = true;
         gameObject.SetActive(true);
 
@@ -63,8 +75,13 @@ public class PauseMenuUI : MonoBehaviour
         else
         {
             bool isExploring = GameManager.CurrentGameState == GameState.Exploring;
-            testButton.interactable = isExploring == false;
+            var treasureCounter = FindFirstObjectByType<TreasureCollectCounter>();
+            var hasNoTreasureOnScene = treasureCounter != null && treasureCounter.TreasuresOnScene <= 0;
+
             testButtonText.text = "Testar fase";
+            treasureHintText.gameObject.SetActive(hasNoTreasureOnScene);
+
+            testButton.interactable = !isExploring && !hasNoTreasureOnScene;
         }
         
         GameManager.ShowCursor();
@@ -147,5 +164,18 @@ public class PauseMenuUI : MonoBehaviour
         
         GameManager.Resume();
         SceneManager.LoadSceneAsync(0);
+    }
+
+    private void OnWinUIOpen()
+    {
+        isWinUIOpen = true;
+        
+        if (isShowing)
+            Hide();
+    }
+
+    private void OnWinUIHide()
+    {
+        isWinUIOpen = false;
     }
 }

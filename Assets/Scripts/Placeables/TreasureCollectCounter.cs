@@ -14,6 +14,9 @@ public class TreasureCollectCounter : MonoBehaviour
     [SerializeField, ReadOnly] private int collectedTreasureCount = 0;
     [SerializeField, ReadOnly] private List<TreasureChest> treasuresOnScene;
     
+    public int CollectedTreasureCount => collectedTreasureCount;
+    public int TreasuresOnScene => treasuresOnScene.Count;
+    
     private void Awake()
     {
         Player.OnTrapPlaced += CacheTreasuresOnScene;

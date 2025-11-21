@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class WinUI : MonoBehaviour
 {
+    public static event Action OnShow;
+    public static event Action OnHide;
     public static event Action OnGetGold;
     
     [SerializeField] private TMP_Text messageText;
@@ -48,6 +50,8 @@ public class WinUI : MonoBehaviour
         
         GameManager.ShowCursor();
         GameManager.Pause();
+        
+        OnShow?.Invoke();
     }
 
     private void ShowSubmit()
@@ -72,6 +76,8 @@ public class WinUI : MonoBehaviour
     {
         gameObject.SetActive(false);
         GameManager.Resume();
+            
+        OnHide?.Invoke();
     }
 
     private void OnSubmitButtonClicked()

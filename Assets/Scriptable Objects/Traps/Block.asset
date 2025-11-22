@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Block
   id: 1
+  icon: {fileID: 0}
+  placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2
     m_Bits: 1024

@@ -20,12 +20,16 @@ public class PlayerVisual : MonoBehaviour
     private void Awake()
     {
         PauseMenuUI.OnPauseMenuToggled += HandlePauseMenuToggled;
+        WinUI.OnShow += HandleWinMenuShow;
+        WinUI.OnHide += HandleWinMenuHide;
         player.OnMoveChanged += HandleMoveChanged;
     }
 
     private void OnDestroy()
     {
         PauseMenuUI.OnPauseMenuToggled -= HandlePauseMenuToggled;
+        WinUI.OnShow -= HandleWinMenuShow;
+        WinUI.OnHide -= HandleWinMenuHide;
         player.OnMoveChanged -= HandleMoveChanged;
     }
 
@@ -43,5 +47,15 @@ public class PlayerVisual : MonoBehaviour
             animator.SetBool(isMovingParam, false);
         else
             animator.SetBool(isMovingParam, lastStateIsMoving);
+    }
+    
+    private void HandleWinMenuShow()
+    {
+        animator.SetBool(isMovingParam, false);
+    }
+    
+    private void HandleWinMenuHide()
+    {
+        animator.SetBool(isMovingParam, lastStateIsMoving);
     }
 }

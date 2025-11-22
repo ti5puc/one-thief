@@ -22,4 +22,9 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(4);
     }
+    
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }

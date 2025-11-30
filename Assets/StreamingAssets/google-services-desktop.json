@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1076752640802",
+    "project_id": "one-thief",
+    "storage_bucket": "one-thief.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076752640802:android:bc6c4987aadefff620d37b",
+        "android_client_info": {
+          "package_name": "com.OneStudio.onethief"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3Ft9j9rPupphMwKOAwvQ5kdmFO9PYmzk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

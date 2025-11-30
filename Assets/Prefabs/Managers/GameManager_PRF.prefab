@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5491950621697232143}
   - component: {fileID: 6110033945106823461}
   - component: {fileID: 9081538443426681278}
+  - component: {fileID: 9202723860242890255}
   m_Layer: 0
   m_Name: GameManager_PRF
   m_TagString: Untagged
@@ -57,6 +58,7 @@ MonoBehaviour:
   nextLayoutIndex: 0
   isGamePaused: 0
   isTestingToSubmit: 0
+  isPlayerDead: 0
 --- !u!114 &6110033945106823461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,3 +87,15 @@ MonoBehaviour:
   gainGoldHackAction: {fileID: -1582508917883300530, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   currentGold: 0
   goldCache: 0
+--- !u!114 &9202723860242890255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4112526501749098894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd7d3e3e98490c448ba6eaa892f8af54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

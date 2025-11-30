@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -314,6 +315,12 @@ public class SaveSystem : MonoBehaviour
             
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(inventoryFilePath, json);
+            
+            // Also save to Firebase if available
+            if (FirebaseManager.Instance != null && FirebaseManager.Instance.IsAuthenticated)
+            {
+                SaveInventoryToFirebase(data);
+            }
         }
         catch (System.Exception ex)
         {
@@ -341,5 +348,186 @@ public class SaveSystem : MonoBehaviour
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Save inventory to Firebase asynchronously
+    /// </summary>
+    private static async void SaveInventoryToFirebase(InventoryData data)
+    {
+        string userId = FirebaseManager.Instance.UserId;
+        string collection = $"players";
+        string documentId = userId;
+        string json = JsonUtility.ToJson(data);
+        
+        await FirebaseManager.Instance.SaveDocument(collection, documentId, json);
+    }
+
+    /// <summary>
+    /// Load inventory from Firebase - Call this after authentication
+    /// Returns the loaded inventory data
+    /// </summary>
+    public static async Task<InventoryData> LoadInventoryFromFirebase()
+    {
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogWarning("[SaveSystem] Cannot load from Firebase - not authenticated");
+            return null;
+        }
+
+        string userId = FirebaseManager.Instance.UserId;
+        string collection = "players";
+        string documentId = userId;
+        
+        string json = await FirebaseManager.Instance.LoadDocument(collection, documentId);
+        
+        if (!string.IsNullOrEmpty(json))
+        {
+            InventoryData data = JsonUtility.FromJson<InventoryData>(json);
+            
+            // Save locally
+            string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+            if (!Directory.Exists(saveFolderPath))
+            {
+                Directory.CreateDirectory(saveFolderPath);
+            }
+            
+            var inventoryFilePath = Path.Combine(saveFolderPath, INVENTORY_FILE + FILE_EXTENSION);
+            File.WriteAllText(inventoryFilePath, json);
+            
+            Debug.Log($"[SaveSystem] Inventory loaded from Firebase and saved locally. Gold: {data.Gold}");
+            return data;
+        }
+        
+        Debug.Log("[SaveSystem] No inventory found in Firebase");
+        return null;
+    }
+
+    /// <summary>
+    /// Submit the current level to Firebase with a custom name
+    /// </summary>
+    public static async void SubmitLevelToFirebase(string levelName)
+    {
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogError("[SaveSystem] Cannot submit level - not authenticated");
+            return;
+        }
+
+        // Load the current build save
+        string saveId = "current_build";
+        
+        if (Load(saveId, out int[,] trapIdGrid, out int[,] rotationGrid, out int rows, out int cols))
+        {
+            // Create SaveData from the loaded grid
+            SaveData levelData = new SaveData
+            {
+                Rows = rows,
+                Cols = cols,
+                Data = FlattenGrid(trapIdGrid, rows, cols),
+                Rotations = FlattenGrid(rotationGrid, rows, cols)
+            };
+            
+            string json = JsonUtility.ToJson(levelData);
+            bool success = await FirebaseManager.Instance.SubmitLevel(levelName, json);
+            
+            if (success)
+            {
+                Debug.Log($"[SaveSystem] Level '{levelName}' submitted successfully!");
+            }
+        }
+        else
+        {
+            Debug.LogError("[SaveSystem] Failed to load current build for submission");
+        }
+    }
+
+    /// <summary>
+    /// Load a random level from Firebase and save it locally with a specific saveId
+    /// Returns the saveId if successful, null otherwise
+    /// </summary>
+    public static async Task<string> LoadRandomFirebaseLevel(string localSaveId)
+    {
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogError("[SaveSystem] Cannot load level from Firebase - not authenticated");
+            return null;
+        }
+
+        try
+        {
+            // Get a random level from Firebase
+            var levels = await FirebaseManager.Instance.GetAllLevels(10);
+            
+            if (levels.Count == 0)
+            {
+                Debug.Log("[SaveSystem] No levels found in Firebase");
+                return null;
+            }
+
+            // Pick a random level
+            int randomIndex = Random.Range(0, levels.Count);
+            var (levelId, saveJson) = levels[randomIndex];
+            
+            // Parse the SaveData
+            SaveData levelData = JsonUtility.FromJson<SaveData>(saveJson);
+            
+            if (levelData == null)
+            {
+                Debug.LogError("[SaveSystem] Failed to deserialize level data");
+                return null;
+            }
+
+            // Save it locally
+            string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+            if (!Directory.Exists(saveFolderPath))
+            {
+                Directory.CreateDirectory(saveFolderPath);
+            }
+
+            string filePath = Path.Combine(saveFolderPath, localSaveId + FILE_EXTENSION);
+            File.WriteAllText(filePath, saveJson);
+            
+            Debug.Log($"[SaveSystem] Firebase level '{levelId}' loaded and saved as '{localSaveId}'");
+            return localSaveId;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error loading Firebase level: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Delete all downloaded Firebase levels (cleanup)
+    /// </summary>
+    public static void DeleteDownloadedLevels()
+    {
+        try
+        {
+            string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+            
+            if (!Directory.Exists(saveFolderPath))
+                return;
+
+            // Delete all files that start with "firebase_"
+            string[] files = Directory.GetFiles(saveFolderPath, "firebase_*" + FILE_EXTENSION);
+            
+            int deletedCount = 0;
+            foreach (string file in files)
+            {
+                File.Delete(file);
+                deletedCount++;
+            }
+
+            if (deletedCount > 0)
+            {
+                Debug.Log($"[SaveSystem] Deleted {deletedCount} downloaded Firebase level(s)");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error deleting downloaded levels: {ex.Message}");
+        }
     }
 }

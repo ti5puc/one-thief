@@ -82,6 +82,27 @@ public class WinUI : MonoBehaviour
 
     private void OnSubmitButtonClicked()
     {
+        // TODO: Implement UI to get level name from player
+        // For now, using a placeholder name
+        string levelName = "Level_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        
+        SubmitLevel(levelName);
+    }
+    
+    /// <summary>
+    /// Call this method when you have the level name (from UI input)
+    /// </summary>
+    public void SubmitLevel(string levelName)
+    {
+        // Submit to Firebase through SaveSystem (it handles getting the current save data)
+        SaveSystem.SubmitLevelToFirebase(levelName);
+        
+        // Continue with the normal flow
+        FinishSubmission();
+    }
+    
+    private void FinishSubmission()
+    {
         PlayerInventory.Instance.SpendGoldToRemove();
         
         GameManager.Resume();
@@ -97,6 +118,7 @@ public class WinUI : MonoBehaviour
         
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }
+
 
     private void OnDenyButtonClicked()
     {

@@ -49,6 +49,9 @@ public class PlayerInventory : MonoBehaviour
         
         TreasureChest.OnAnyChestOpened += AddGoldToGain;
         WinUI.OnGetGold += ApplyGoldInCache;
+        
+        // Load from Firebase when authentication completes
+        FirebaseManager.OnAuthenticationComplete += LoadInventoryFromFirebase;
     }
 
     private void OnDestroy()
@@ -58,6 +61,29 @@ public class PlayerInventory : MonoBehaviour
         
         TreasureChest.OnAnyChestOpened -= AddGoldToGain;
         WinUI.OnGetGold -= ApplyGoldInCache;
+        
+        FirebaseManager.OnAuthenticationComplete -= LoadInventoryFromFirebase;
+    }
+
+    private async void LoadInventoryFromFirebase()
+    {
+        InventoryData firebaseData = await SaveSystem.LoadInventoryFromFirebase();
+        
+        if (firebaseData != null)
+        {
+            // Use the Firebase data
+            loadedData = firebaseData;
+            Debug.Log($"[PlayerInventory] Loaded from Firebase. Gold: {CurrentGold}");
+        }
+        else
+        {
+            // Reload local data if Firebase had nothing
+            loadedData = SaveSystem.LoadInventory();
+            Debug.Log($"[PlayerInventory] No Firebase data, using local. Gold: {CurrentGold}");
+        }
+        
+        // Notify UI
+        OnGoldChanged?.Invoke(CurrentGold);
     }
 
     public void ApplyGoldInCache()

@@ -5,6 +5,12 @@ public class PlayerSave : MonoBehaviour
 {
     public static event Action OnLevelLoaded;
     
+    private void OnDestroy()
+    {
+        // Clean up downloaded Firebase levels when leaving gameplay scene
+        SaveSystem.DeleteDownloadedLevels();
+    }
+    
     public bool Save(Player player, string saveId)
     {
         return SaveSystem.Save(saveId, player.GetTrapIdGrid(), player.GetTrapRotationGrid(), player.gridRows, player.gridCols);

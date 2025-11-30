@@ -12,13 +12,26 @@ public class ChallengeMenu : MonoBehaviour
         SceneManager.LoadSceneAsync(1);
     }
 
-    public void PlayStage1()
+    public async void PlayStage1()
     {
         GameManager.SetCanEnterBuildMode(false);
         GameManager.ChangeGameStateToExploring();
         
         GameManager.NextLayoutIndex = 0;
-        SaveSystem.NextSaveToLoad = firstSaveName;
+        
+        // Try to load a random Firebase level
+        string firebaseSaveId = await SaveSystem.LoadRandomFirebaseLevel("firebase_challenge1");
+        
+        if (firebaseSaveId != null)
+        {
+            // Successfully loaded from Firebase
+            SaveSystem.NextSaveToLoad = firebaseSaveId;
+        }
+        else
+        {
+            // Fallback to default challenge level
+            SaveSystem.NextSaveToLoad = firstSaveName;
+        }
         
         SceneManager.LoadSceneAsync(6);
     }

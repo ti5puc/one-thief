@@ -5,6 +5,6 @@ public class LeaderboardMenu : MonoBehaviour
 {
     public void Return()
     {
-        SceneManager.LoadSceneAsync(0);
+        SceneManager.LoadSceneAsync("Main_Menu");
     }
 }

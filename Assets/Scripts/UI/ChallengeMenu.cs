@@ -9,7 +9,7 @@ public class ChallengeMenu : MonoBehaviour
     
     public void Return()
     {
-        SceneManager.LoadSceneAsync(1);
+        SceneManager.LoadSceneAsync("Play_Menu");
     }
 
     public async void PlayStage1()
@@ -33,7 +33,7 @@ public class ChallengeMenu : MonoBehaviour
             SaveSystem.NextSaveToLoad = firstSaveName;
         }
         
-        SceneManager.LoadSceneAsync(6);
+        SceneManager.LoadSceneAsync("Gameplay");
     }
 
     public void PlayStage2()
@@ -44,7 +44,7 @@ public class ChallengeMenu : MonoBehaviour
         GameManager.NextLayoutIndex = 1;
         SaveSystem.NextSaveToLoad = secondSaveName;
         
-        SceneManager.LoadSceneAsync(6);
+        SceneManager.LoadSceneAsync("Gameplay");
     }
 
     public void PlayStage3()
@@ -55,6 +55,6 @@ public class ChallengeMenu : MonoBehaviour
         GameManager.NextLayoutIndex = 2;
         SaveSystem.NextSaveToLoad = thirdSaveName;
 
-        SceneManager.LoadSceneAsync(6);
+        SceneManager.LoadSceneAsync("Gameplay");
     }
 }

@@ -5,7 +5,7 @@ public class BuildMenu : MonoBehaviour
 {
     public void Return()
     {
-        SceneManager.LoadSceneAsync(1);
+        SceneManager.LoadSceneAsync("Play_Menu");
     }
 
     public void PlayStage1()
@@ -16,7 +16,7 @@ public class BuildMenu : MonoBehaviour
         GameManager.NextLayoutIndex = 0;
         SaveSystem.NextSaveToLoad = string.Empty;
         
-        SceneManager.LoadSceneAsync(6);
+        SceneManager.LoadSceneAsync("Gameplay");
     }
 
     public void PlayStage2()
@@ -27,7 +27,7 @@ public class BuildMenu : MonoBehaviour
         GameManager.NextLayoutIndex = 1;
         SaveSystem.NextSaveToLoad = string.Empty;
         
-        SceneManager.LoadSceneAsync(6);
+        SceneManager.LoadSceneAsync("Gameplay");
     }
 
     public void PlayStage3()
@@ -38,6 +38,6 @@ public class BuildMenu : MonoBehaviour
         GameManager.NextLayoutIndex = 2;
         SaveSystem.NextSaveToLoad = string.Empty;
         
-        SceneManager.LoadSceneAsync(6);
+        SceneManager.LoadSceneAsync("Gameplay");
     }
 }

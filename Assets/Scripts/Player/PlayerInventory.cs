@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class InventoryData
 {
     public int Gold;
+    public string PlayerName;
 }
 
 public class PlayerInventory : MonoBehaviour
@@ -92,7 +93,11 @@ public class PlayerInventory : MonoBehaviour
 
         currentGold += goldCache;
         
-        var newInventoryData = new InventoryData { Gold = currentGold };
+        var newInventoryData = new InventoryData 
+        { 
+            Gold = currentGold,
+            PlayerName = FirebaseManager.Instance.PlayerName
+        };
         SaveSystem.SaveInventory(newInventoryData);
         loadedData = newInventoryData;
         
@@ -106,7 +111,11 @@ public class PlayerInventory : MonoBehaviour
 
         currentGold -= goldCache;
         
-        var newInventoryData = new InventoryData { Gold = currentGold };
+        var newInventoryData = new InventoryData 
+        { 
+            Gold = currentGold,
+            PlayerName = FirebaseManager.Instance.PlayerName
+        };
         SaveSystem.SaveInventory(newInventoryData);
         loadedData = newInventoryData;
         

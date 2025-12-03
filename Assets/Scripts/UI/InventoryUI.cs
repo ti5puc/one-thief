@@ -1,11 +1,14 @@
 using TMPro;
 using UnityEngine;
 
-public class TreasureUI : MonoBehaviour
+public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text goldAmountText;
     [SerializeField] private TMP_Text goldToGainAmountText;
     [SerializeField] private TMP_Text interactionHintText;
+    
+    [Space(10)]
+    [SerializeField] private TMP_Text playerNameText;
 
     private void Awake()
     {
@@ -35,6 +38,10 @@ public class TreasureUI : MonoBehaviour
     {
         OnGoldChanged(PlayerInventory.Instance.CurrentGold);
         goldToGainAmountText.gameObject.SetActive(false);
+        
+        playerNameText.text = FirebaseManager.Instance.IsAuthenticated
+            ? FirebaseManager.Instance.PlayerName
+            : "Guest";
     }
 
     private void ShowInteractionHint()

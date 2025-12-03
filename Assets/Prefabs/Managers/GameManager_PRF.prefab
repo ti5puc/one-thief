@@ -53,12 +53,14 @@ MonoBehaviour:
     m_Bits: 64
   startOnBuildingForDebug: 0
   treasureChestReference: {fileID: 11400000, guid: 3ce63ce4d092b664c955bc7a5307f335, type: 2}
+  firebaseManager: {fileID: 9202723860242890255}
   currentGameState: 0
   canEnterBuildMode: 0
   nextLayoutIndex: 0
   isGamePaused: 0
   isTestingToSubmit: 0
   isPlayerDead: 0
+  isInitialized: 0
 --- !u!114 &6110033945106823461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,3 +101,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd7d3e3e98490c448ba6eaa892f8af54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isInitialized: 0
+  isAuthenticated: 0
+  userId: 

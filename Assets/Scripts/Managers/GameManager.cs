@@ -12,6 +12,7 @@ public enum GameState
 [DefaultExecutionOrder(-100)]
 public class GameManager : MonoBehaviour
 {
+    public static event Action OnInitialized;
     public static event Action<GameState> OnGameStateChanged;
     
     [SerializeField] private string playerTag = "Player";
@@ -23,6 +24,9 @@ public class GameManager : MonoBehaviour
     [Space(10)]
     [SerializeField] private PlaceableSettings treasureChestReference;
     
+    [Space(10)]
+    [SerializeField] private FirebaseManager firebaseManager;
+    
     [Header("Debug")]
     [SerializeField, ReadOnly] private GameState currentGameState;
     [SerializeField, ReadOnly] private bool canEnterBuildMode;
@@ -30,6 +34,7 @@ public class GameManager : MonoBehaviour
     [SerializeField, ReadOnly] private bool isGamePaused;
     [SerializeField, ReadOnly] private bool isTestingToSubmit;
     [SerializeField, ReadOnly] private bool isPlayerDead;
+    [SerializeField, ReadOnly] private bool isInitialized;
     
     public static GameManager Instance { get; private set; }
     public static GameState CurrentGameState => Instance.currentGameState;
@@ -53,6 +58,8 @@ public class GameManager : MonoBehaviour
         get => Instance.isPlayerDead;
         set => Instance.isPlayerDead = value;
     }
+    public static bool IsInitialized => Instance.isInitialized;
+    public static FirebaseManager FirebaseManager => Instance.firebaseManager;
 
     private void Awake()
     {
@@ -69,6 +76,9 @@ public class GameManager : MonoBehaviour
             currentGameState = GameState.TestingBuild;
             canEnterBuildMode = true;
         }
+        
+        isInitialized = true;
+        OnInitialized?.Invoke();
     }
 
     public static void SetCanEnterBuildMode(bool canEnter)

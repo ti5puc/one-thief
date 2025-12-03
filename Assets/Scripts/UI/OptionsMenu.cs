@@ -7,4 +7,13 @@ public class OptionsMenu : MonoBehaviour
     {
         SceneManager.LoadSceneAsync("Main_Menu");
     }
+
+    public async void ResetPlayerData()
+    {
+        await FirebaseManager.DeletePlayerData();
+        
+        SaveSystem.ClearAllSaves(alsoClearInventory: true);
+        
+        SceneManager.LoadSceneAsync("Startup");
+    }
 }

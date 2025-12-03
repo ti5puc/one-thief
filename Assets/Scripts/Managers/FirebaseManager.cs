@@ -22,10 +22,14 @@ public class FirebaseManager : MonoBehaviour
     [SerializeField] private bool isInitialized;
     [SerializeField] private bool isAuthenticated;
     [SerializeField] private string userId = "";
+    [SerializeField] private bool isFirstLogin = false;
+    [SerializeField] private string playerName = "";
     
     public bool IsInitialized => isInitialized;
     public bool IsAuthenticated => isAuthenticated;
     public string UserId => userId;
+    public bool IsFirstLogin => Instance != null ? Instance.isFirstLogin : false;
+    public string PlayerName => Instance != null ? Instance.playerName : "";
 
     private void Awake()
     {
@@ -93,8 +97,98 @@ public class FirebaseManager : MonoBehaviour
             
             Debug.Log($"[FirebaseManager] User signed in successfully: {userId}");
             
+            // Check if this is first login by checking if inventory exists
+            CheckFirstLogin();
+            
             OnAuthenticationComplete?.Invoke();
         });
+    }
+
+    private async void CheckFirstLogin()
+    {
+        // Load inventory from Firebase to check if user data exists
+        string json = await LoadDocument("players", userId);
+        
+        if (string.IsNullOrEmpty(json))
+        {
+            // No data found - this is first login
+            isFirstLogin = true;
+            playerName = "";
+            Debug.Log("[FirebaseManager] First login detected - no player data found");
+        }
+        else
+        {
+            // Data exists - returning user
+            isFirstLogin = false;
+            
+            // Parse the player name from the inventory data
+            try
+            {
+                var data = new Dictionary<string, object>();
+                var dict = JsonUtility.FromJson<Dictionary<string, string>>(json);
+                
+                // Try to get the json field which contains the actual inventory data
+                string inventoryJson = json;
+                if (json.Contains("\"json\""))
+                {
+                    // Extract the nested json field
+                    int startIndex = json.IndexOf("\"json\":\"") + 8;
+                    int endIndex = json.IndexOf("\",\"timestamp\"");
+                    if (endIndex > startIndex)
+                    {
+                        inventoryJson = json.Substring(startIndex, endIndex - startIndex);
+                        inventoryJson = inventoryJson.Replace("\\\"", "\"");
+                    }
+                }
+                
+                InventoryData inventoryData = JsonUtility.FromJson<InventoryData>(inventoryJson);
+                if (inventoryData != null)
+                {
+                    playerName = inventoryData.PlayerName ?? "";
+                }
+                
+                Debug.Log($"[FirebaseManager] Returning user - Player: {playerName}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[FirebaseManager] Error parsing player name: {ex.Message}");
+                playerName = "";
+            }
+        }
+    }
+
+    public static void SetPlayerName(string name)
+    {
+        if (Instance != null)
+        {
+            Instance.playerName = name;
+            Instance.isFirstLogin = false;
+            Debug.Log($"[FirebaseManager] Player name set to: {name}");
+        }
+    }
+
+    /// <summary>
+    /// Delete player data from Firebase
+    /// </summary>
+    public static async Task<bool> DeletePlayerData()
+    {
+        if (Instance != null && Instance.IsAuthenticated)
+        {
+            string userId = Instance.userId;
+            bool success = await Instance.DeleteDocument("players", userId);
+            
+            if (success)
+            {
+                // Reset local state
+                Instance.isFirstLogin = true;
+                Instance.playerName = "";
+                Debug.Log("[FirebaseManager] Player data deleted from Firebase");
+            }
+            
+            return success;
+        }
+        
+        return false;
     }
 
     #region Firestore Document Operations
@@ -164,6 +258,31 @@ public class FirebaseManager : MonoBehaviour
         {
             Debug.LogError($"[FirebaseManager] Error loading document: {ex.Message}");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Delete a document from Firestore
+    /// </summary>
+    public async Task<bool> DeleteDocument(string collection, string documentId)
+    {
+        if (!isAuthenticated || !isInitialized)
+        {
+            Debug.LogError("[FirebaseManager] Cannot delete document - not authenticated!");
+            return false;
+        }
+
+        try
+        {
+            var document = firestore.Collection(collection).Document(documentId);
+            await document.DeleteAsync();
+            Debug.Log($"[FirebaseManager] Document deleted from {collection}/{documentId}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FirebaseManager] Error deleting document: {ex.Message}");
+            return false;
         }
     }
     

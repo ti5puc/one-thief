@@ -1095,10 +1095,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7061805043748065789, guid: ca201a645b971bc48afdf3a946c7442a, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 9197795033139777801, guid: ca201a645b971bc48afdf3a946c7442a, type: 3}
       propertyPath: m_Name
       value: Inventory_Canvas_PRF
@@ -1789,8 +1785,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -473, y: -103.11197}
-  m_SizeDelta: {x: -1356.4819, y: -516.4587}
+  m_AnchoredPosition: {x: -138, y: -103.11194}
+  m_SizeDelta: {x: -995.5925, y: -516.4587}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1954696859
 MonoBehaviour:

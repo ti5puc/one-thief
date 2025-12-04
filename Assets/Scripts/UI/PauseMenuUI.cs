@@ -173,7 +173,7 @@ public class PauseMenuUI : MonoBehaviour
         GameManager.IsPlayerDead = false;
         
         GameManager.Resume();
-        SceneManager.LoadSceneAsync(0);
+        SceneManager.LoadSceneAsync("Main_Menu");
     }
 
     private void OnWinUIOpen()

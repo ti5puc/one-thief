@@ -145,6 +145,6 @@ public class WinUI : MonoBehaviour
         
         GameManager.ShowCursor();
         
-        SceneManager.LoadSceneAsync(2);
+        SceneManager.LoadSceneAsync("Challenge_Menu");
     }
 }

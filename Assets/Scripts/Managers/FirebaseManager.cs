@@ -381,10 +381,10 @@ public class FirebaseManager : MonoBehaviour
         try
         {
             // Query levels where playerId matches current user
+            // Note: Removed OrderByDescending to avoid composite index requirement
             var levelsCollection = firestore.Collection("levels");
             Query query = levelsCollection
                 .WhereEqualTo("playerId", userId)
-                .OrderByDescending("timestamp")
                 .Limit(maxResults);
 
             var snapshot = await query.GetSnapshotAsync();

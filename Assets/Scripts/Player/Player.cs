@@ -95,8 +95,8 @@ public class Player : MonoBehaviour
 
     //---------- >>> NOVO <<< ----------//
     [Header("Grid / Save")]
-    public int gridRows = 100;
-    public int gridCols = 100;
+    public int gridRows = 40;
+    public int gridCols = 40;
     private int[,] trapIdGrid;
     private int[,] trapRotationGrid; // Stores rotation (quarter turns) for each grid cell
     //---------- >>> NOVO <<< ----------//

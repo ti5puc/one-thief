@@ -195,6 +195,7 @@ public class FirebaseManager : MonoBehaviour
     
     /// <summary>
     /// Save a JSON document to Firestore
+    /// Deserializes the JSON and saves each field individually
     /// </summary>
     public async Task<bool> SaveDocument(string collection, string documentId, string jsonData)
     {
@@ -207,12 +208,28 @@ public class FirebaseManager : MonoBehaviour
         try
         {
             var document = firestore.Collection(collection).Document(documentId);
+            Dictionary<string, object> data = new Dictionary<string, object>();
             
-            var data = new Dictionary<string, object>
+            try
             {
-                { "json", jsonData },
-                { "timestamp", FieldValue.ServerTimestamp }
-            };
+                // Use a simple JSON parser for flexibility
+                var parsedData = MiniJSON.Json.Deserialize(jsonData) as Dictionary<string, object>;
+                if (parsedData != null)
+                {
+                    data = parsedData;
+                }
+            }
+            catch
+            {
+                // Fallback: store as single JSON field if parsing fails
+                data = new Dictionary<string, object>
+                {
+                    { "JSON", jsonData }
+                };
+            }
+            
+            // Add timestamp
+            data["Timestamp"] = FieldValue.ServerTimestamp;
 
             await document.SetAsync(data);
             
@@ -228,6 +245,7 @@ public class FirebaseManager : MonoBehaviour
 
     /// <summary>
     /// Load a JSON document from Firestore
+    /// Reconstructs JSON from individual fields
     /// </summary>
     public async Task<string> LoadDocument(string collection, string documentId)
     {
@@ -244,7 +262,14 @@ public class FirebaseManager : MonoBehaviour
 
             if (snapshot.Exists)
             {
-                string json = snapshot.GetValue<string>("json");
+                var data = snapshot.ToDictionary();
+                
+                // Remove timestamp field as it's not part of the original JSON
+                data.Remove("Timestamp");
+                
+                // Convert back to JSON string
+                string json = MiniJSON.Json.Serialize(data);
+                
                 Debug.Log($"[FirebaseManager] Document loaded from {collection}/{documentId}");
                 return json;
             }
@@ -287,48 +312,6 @@ public class FirebaseManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Submit a new level to Firestore
-    /// </summary>
-    public async Task<bool> SubmitLevel(string levelName, string saveJson)
-    {
-        if (!isAuthenticated || !isInitialized)
-        {
-            Debug.LogError("[FirebaseManager] Cannot submit level - not authenticated!");
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(levelName))
-        {
-            Debug.LogError("[FirebaseManager] Level name cannot be empty!");
-            return false;
-        }
-
-        try
-        {
-            var levelsCollection = firestore.Collection("levels");
-            var newLevelDoc = levelsCollection.Document(); // Auto-generate ID
-            
-            var data = new Dictionary<string, object>
-            {
-                { "levelName", levelName },
-                { "playerId", userId },
-                { "saveJson", saveJson },
-                { "timestamp", FieldValue.ServerTimestamp }
-            };
-
-            await newLevelDoc.SetAsync(data);
-            
-            Debug.Log($"[FirebaseManager] Level '{levelName}' submitted successfully with ID: {newLevelDoc.Id}");
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[FirebaseManager] Error submitting level: {ex.Message}");
-            return false;
-        }
-    }
-
-    /// <summary>
     /// Get a paginated list of all levels
     /// Returns list of (levelId, saveJson) pairs
     /// </summary>
@@ -342,9 +325,8 @@ public class FirebaseManager : MonoBehaviour
 
         try
         {
-            // Query the top-level levels collection
+            // Query the levels collection - no ordering to avoid index requirements
             var levelsQuery = firestore.Collection("levels")
-                .OrderByDescending("timestamp")
                 .Limit(maxResults);
 
             var snapshot = await levelsQuery.GetSnapshotAsync();
@@ -352,7 +334,8 @@ public class FirebaseManager : MonoBehaviour
 
             foreach (var document in snapshot.Documents)
             {
-                string saveJson = document.GetValue<string>("saveJson");
+                // Get the json field which contains the LevelSaveData
+                string saveJson = document.GetValue<string>("json");
                 levels.Add((document.Id, saveJson));
             }
 
@@ -369,6 +352,7 @@ public class FirebaseManager : MonoBehaviour
     /// <summary>
     /// Get levels created by the current player
     /// Returns list of (levelId, saveJson) pairs
+    /// Note: Filters client-side since PlayerId is now a direct field
     /// </summary>
     public async Task<List<(string levelId, string saveJson)>> GetMyLevels(int maxResults = 10)
     {
@@ -380,24 +364,33 @@ public class FirebaseManager : MonoBehaviour
 
         try
         {
-            // Query levels where playerId matches current user
-            // Note: Removed OrderByDescending to avoid composite index requirement
-            var levelsCollection = firestore.Collection("levels");
-            Query query = levelsCollection
-                .WhereEqualTo("playerId", userId)
-                .Limit(maxResults);
+            // Get more results than needed to account for filtering
+            var levelsQuery = firestore.Collection("levels")
+                .Limit(maxResults * 5); // Get more to ensure we have enough after filtering
 
-            var snapshot = await query.GetSnapshotAsync();
-            var levels = new List<(string, string)>();
+            var snapshot = await levelsQuery.GetSnapshotAsync();
+            var myLevels = new List<(string, string)>();
 
             foreach (var document in snapshot.Documents)
             {
-                string saveJson = document.GetValue<string>("saveJson");
-                levels.Add((document.Id, saveJson));
+                var data = document.ToDictionary();
+                
+                // Check if PlayerId field matches current user
+                if (data.ContainsKey("PlayerId") && data["PlayerId"].ToString() == userId)
+                {
+                    data.Remove("timestamp"); // Remove timestamp
+                    
+                    // Convert back to JSON string
+                    string saveJson = MiniJSON.Json.Serialize(data);
+                    myLevels.Add((document.Id, saveJson));
+                    
+                    if (myLevels.Count >= maxResults)
+                        break;
+                }
             }
 
-            Debug.Log($"[FirebaseManager] Retrieved {levels.Count} of my levels from Firestore");
-            return levels;
+            Debug.Log($"[FirebaseManager] Retrieved {myLevels.Count} of my levels from Firestore");
+            return myLevels;
         }
         catch (Exception ex)
         {

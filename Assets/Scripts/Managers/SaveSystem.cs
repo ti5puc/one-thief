@@ -4,12 +4,15 @@ using NaughtyAttributes;
 using UnityEngine;
 
 [System.Serializable]
-public class SaveData
+public class LevelSaveData
 {
     public int Rows;
     public int Cols;
     public int[] Data; // matriz achatada
     public int[] Rotations; // rotações (quarter turns) para cada célula
+    
+    public string LevelName;
+    public string PlayerId;
 }
 
 public class SaveSystem : MonoBehaviour
@@ -79,7 +82,7 @@ public class SaveSystem : MonoBehaviour
             Debug.Log($"[TrapGridSaveSystem] Salvando '{saveId}' com {nonZero} células != 0");
 
             // Create save data
-            SaveData data = new SaveData
+            LevelSaveData data = new LevelSaveData
             {
                 Rows = rows,
                 Cols = cols,
@@ -149,7 +152,7 @@ public class SaveSystem : MonoBehaviour
             }
 
             // Deserialize
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
+            LevelSaveData data = JsonUtility.FromJson<LevelSaveData>(json);
 
             if (data == null)
             {
@@ -419,17 +422,24 @@ public class SaveSystem : MonoBehaviour
         
         if (Load(saveId, out int[,] trapIdGrid, out int[,] rotationGrid, out int rows, out int cols))
         {
-            // Create SaveData from the loaded grid
-            SaveData levelData = new SaveData
+            // Create LevelSaveData from the loaded grid with level name and player ID
+            LevelSaveData levelData = new LevelSaveData
             {
                 Rows = rows,
                 Cols = cols,
                 Data = FlattenGrid(trapIdGrid, rows, cols),
-                Rotations = FlattenGrid(rotationGrid, rows, cols)
+                Rotations = FlattenGrid(rotationGrid, rows, cols),
+                
+                LevelName = levelName,
+                PlayerId = FirebaseManager.Instance.UserId
             };
             
             string json = JsonUtility.ToJson(levelData);
-            bool success = await FirebaseManager.Instance.SubmitLevel(levelName, json);
+            
+            // Use generic SaveDocument instead of SubmitLevel
+            // Auto-generate a document ID using timestamp
+            string documentId = $"{FirebaseManager.Instance.UserId}_{System.DateTime.UtcNow.Ticks}";
+            bool success = await FirebaseManager.Instance.SaveDocument("levels", documentId, json);
             
             if (success)
             {
@@ -469,8 +479,8 @@ public class SaveSystem : MonoBehaviour
             int randomIndex = Random.Range(0, levels.Count);
             var (levelId, saveJson) = levels[randomIndex];
             
-            // Parse the SaveData
-            SaveData levelData = JsonUtility.FromJson<SaveData>(saveJson);
+            // Parse the LevelSaveData
+            LevelSaveData levelData = JsonUtility.FromJson<LevelSaveData>(saveJson);
             
             if (levelData == null)
             {

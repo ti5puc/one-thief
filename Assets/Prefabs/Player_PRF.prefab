@@ -2088,8 +2088,8 @@ MonoBehaviour:
     m_Bits: 5120
   gridSize: 3
   gridOffset: {x: 1.5, y: 1.5}
-  gridRows: 100
-  gridCols: 100
+  gridRows: 40
+  gridCols: 40
   TrapsSettings:
   - {fileID: 11400000, guid: 9954616668777f24185d271a034f68a4, type: 2}
   - {fileID: 11400000, guid: beb3a9a286eaf3744b2384fabe31c8f3, type: 2}

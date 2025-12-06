@@ -124,27 +124,15 @@ public class FirebaseManager : MonoBehaviour
             // Parse the player name from the inventory data
             try
             {
-                var data = new Dictionary<string, object>();
-                var dict = JsonUtility.FromJson<Dictionary<string, string>>(json);
-                
-                // Try to get the json field which contains the actual inventory data
-                string inventoryJson = json;
-                if (json.Contains("\"json\""))
+                // LoadDocument returns the inventory data directly as JSON
+                var data = MiniJSON.Json.Deserialize(json) as Dictionary<string, object>;
+                if (data != null && data.ContainsKey("PlayerName"))
                 {
-                    // Extract the nested json field
-                    int startIndex = json.IndexOf("\"json\":\"") + 8;
-                    int endIndex = json.IndexOf("\",\"timestamp\"");
-                    if (endIndex > startIndex)
-                    {
-                        inventoryJson = json.Substring(startIndex, endIndex - startIndex);
-                        inventoryJson = inventoryJson.Replace("\\\"", "\"");
-                    }
+                    playerName = data["PlayerName"].ToString();
                 }
-                
-                InventoryData inventoryData = JsonUtility.FromJson<InventoryData>(inventoryJson);
-                if (inventoryData != null)
+                else
                 {
-                    playerName = inventoryData.PlayerName ?? "";
+                    playerName = "";
                 }
                 
                 Debug.Log($"[FirebaseManager] Returning user - Player: {playerName}");

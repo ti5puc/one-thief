@@ -81,6 +81,13 @@ public class PlayerInventory : MonoBehaviour
             // Reload local data if Firebase had nothing
             loadedData = SaveSystem.LoadInventory();
             Debug.Log($"[PlayerInventory] No Firebase data, using local. Gold: {CurrentGold}");
+            
+            if (loadedData != null && loadedData.Gold > 0)
+            {
+                // Save local data to Firebase
+                SaveSystem.SaveInventory(loadedData);
+                Debug.Log($"[PlayerInventory] Uploaded local data to Firebase. Gold: {CurrentGold}");
+            }
         }
         
         // Notify UI

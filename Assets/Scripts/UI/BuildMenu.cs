@@ -17,7 +17,7 @@ public class BuildMenu : MonoBehaviour
     [SerializeField] private GameObject createPanel;
     [SerializeField] private Button returnCreateButton;
 
-    private async void Awake()
+    private void Awake()
     {
         createLevelButton.onClick.AddListener(ShowCreatePanel);
         returnButton.onClick.AddListener(ReturnToMenu);
@@ -46,11 +46,16 @@ public class BuildMenu : MonoBehaviour
             return;
         }
         
-        var levels = await FirebaseManager.Instance.GetMyLevels(20); // Adjust maxResults as needed
+        // TODO: add pagination logic
+        var levels = await FirebaseManager.Instance.GetMyLevels(30);
         foreach (var (levelId, saveJson) in levels)
         {
             var card = Instantiate(levelCardPrefab, scrollViewContent);
-            // card.SetLevelData(levelId, saveJson);
+            var levelData = SaveSystem.ParseLevelDataFromJson(saveJson);
+            var playerName = await SaveSystem.GetPlayerName(levelData.PlayerId);
+            
+            card.SetLevelData(levelId, levelData.PlayerId, levelData.LevelName, playerName, levelData.TotalGold, 
+                levelData.TotalDeaths, levelData.LayoutIndex);
         }
     }
     
@@ -71,34 +76,9 @@ public class BuildMenu : MonoBehaviour
         createPanel.SetActive(true);
     }
 
+    // on unity event
     public void Return()
     {
         SceneManager.LoadSceneAsync("Play_Menu");
-    }
-
-    public void PlayStage1()
-    {
-    }
-
-    public void PlayStage2()
-    {
-        GameManager.SetCanEnterBuildMode(true);
-        GameManager.ChangeGameStateToTestingBuild();
-
-        GameManager.NextLayoutIndex = 1;
-        SaveSystem.NextSaveToLoad = string.Empty;
-        
-        SceneManager.LoadSceneAsync("Gameplay");
-    }
-
-    public void PlayStage3()
-    {
-        GameManager.SetCanEnterBuildMode(true);
-        GameManager.ChangeGameStateToTestingBuild();
-
-        GameManager.NextLayoutIndex = 2;
-        SaveSystem.NextSaveToLoad = string.Empty;
-        
-        SceneManager.LoadSceneAsync("Gameplay");
     }
 }

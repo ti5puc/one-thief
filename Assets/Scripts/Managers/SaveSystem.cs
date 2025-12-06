@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using NaughtyAttributes;
@@ -13,6 +14,9 @@ public class LevelSaveData
     
     public string LevelName;
     public string PlayerId;
+    public int LayoutIndex;
+    public int TotalGold;
+    public int TotalDeaths;
 }
 
 public class SaveSystem : MonoBehaviour
@@ -408,8 +412,9 @@ public class SaveSystem : MonoBehaviour
 
     /// <summary>
     /// Submit the current level to Firebase with a custom name
+    /// Each submission creates a new level with a unique ID
     /// </summary>
-    public static async void SubmitLevelToFirebase(string levelName)
+    public static async void SubmitLevelToFirebase(string levelName, int totalGold, int layoutIndex)
     {
         if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
         {
@@ -431,15 +436,64 @@ public class SaveSystem : MonoBehaviour
                 Rotations = FlattenGrid(rotationGrid, rows, cols),
                 
                 LevelName = levelName,
-                PlayerId = FirebaseManager.Instance.UserId
+                PlayerId = FirebaseManager.Instance.UserId,
+                LayoutIndex = layoutIndex,
+                TotalGold = totalGold,
+                TotalDeaths = 0
             };
             
             string json = JsonUtility.ToJson(levelData);
             
-            // Use generic SaveDocument instead of SubmitLevel
-            // Auto-generate a document ID using timestamp
+            // Generate unique document ID using userId and timestamp
             string documentId = $"{FirebaseManager.Instance.UserId}_{System.DateTime.UtcNow.Ticks}";
+            
             bool success = await FirebaseManager.Instance.SaveDocument("levels", documentId, json);
+            
+            if (success)
+            {
+                Debug.Log($"[SaveSystem] Level '{levelName}' submitted successfully!");
+            }
+        }
+        else
+        {
+            Debug.LogError("[SaveSystem] Failed to load current build for submission");
+        }
+    }
+    
+    /// <summary>
+    /// Edit an existing level on Firebase by updating the document
+    /// Similar to SubmitLevelToFirebase, but updates an existing document instead of creating a new one
+    /// </summary>
+    public static async void EditLevelOnFirebase(string levelId, string levelName, int totalGold, int layoutIndex)
+    {
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogError("[SaveSystem] Cannot submit level - not authenticated");
+            return;
+        }
+
+        // Load the current build save
+        string saveId = "firebase_" + levelId;
+        
+        if (Load(saveId, out int[,] trapIdGrid, out int[,] rotationGrid, out int rows, out int cols))
+        {
+            // Create LevelSaveData from the loaded grid with level name and player ID
+            LevelSaveData levelData = new LevelSaveData
+            {
+                Rows = rows,
+                Cols = cols,
+                Data = FlattenGrid(trapIdGrid, rows, cols),
+                Rotations = FlattenGrid(rotationGrid, rows, cols),
+                
+                LevelName = levelName,
+                PlayerId = FirebaseManager.Instance.UserId,
+                LayoutIndex = layoutIndex,
+                TotalGold = totalGold,
+                TotalDeaths = 0
+            };
+            
+            string json = JsonUtility.ToJson(levelData);
+            bool success = await FirebaseManager.Instance.SaveDocument("levels", levelId, json);
             
             if (success)
             {
@@ -453,10 +507,93 @@ public class SaveSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// Load a random level from Firebase and save it locally with a specific saveId
-    /// Returns the saveId if successful, null otherwise
+    /// Increase player deaths on the current loaded level by 1 and save to Firebase
+    /// Only works if the current level is a Firebase level (starts with "firebase_" prefix)
     /// </summary>
-    public static async Task<string> LoadRandomFirebaseLevel(string localSaveId)
+    public static async void IncreasePlayerDeathsOnLevel()
+    {
+        string saveId = NextSaveToLoad;
+        
+        // Check if the current level is from Firebase
+        if (!LocalSaveHasLevelId(saveId))
+        {
+            Debug.Log("[SaveSystem] Current level is not from Firebase, skipping death tracking");
+            return;
+        }
+
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogError("[SaveSystem] Cannot update deaths - not authenticated");
+            return;
+        }
+
+        try
+        {
+            // Get the Firebase level ID
+            string levelId = GetLocalSaveLevelId(saveId);
+            
+            if (string.IsNullOrEmpty(levelId))
+            {
+                Debug.LogError("[SaveSystem] Failed to get level ID from save");
+                return;
+            }
+
+            // Load the current local save data to get the current death count
+            string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+            string filePath = Path.Combine(saveFolderPath, saveId + FILE_EXTENSION);
+            
+            if (!File.Exists(filePath))
+            {
+                Debug.LogError($"[SaveSystem] Local save file not found: {filePath}");
+                return;
+            }
+
+            string json = File.ReadAllText(filePath);
+            LevelSaveData levelData = JsonUtility.FromJson<LevelSaveData>(json);
+            
+            if (levelData == null)
+            {
+                Debug.LogError("[SaveSystem] Failed to deserialize level data");
+                return;
+            }
+
+            // Increment deaths
+            levelData.TotalDeaths++;
+            
+            Debug.Log($"[SaveSystem] Increasing deaths for level '{levelId}' to {levelData.TotalDeaths}");
+
+            // Update Firebase with the new death count
+            var updates = new Dictionary<string, object>
+            {
+                { "TotalDeaths", levelData.TotalDeaths }
+            };
+            
+            bool success = await FirebaseManager.Instance.UpdateDocumentFields("levels", levelId, updates);
+            
+            if (success)
+            {
+                // Also update the local save file
+                string updatedJson = JsonUtility.ToJson(levelData, true);
+                File.WriteAllText(filePath, updatedJson);
+                
+                Debug.Log($"[SaveSystem] Successfully updated deaths for level '{levelId}'");
+            }
+            else
+            {
+                Debug.LogError("[SaveSystem] Failed to update deaths on Firebase");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error increasing player deaths: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Load a specific level from Firebase by its levelId and save it locally
+    /// Returns the localSaveId if successful, null otherwise
+    /// </summary>
+    public static async Task<string> LoadFirebaseLevel(string levelId)
     {
         if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
         {
@@ -466,19 +603,15 @@ public class SaveSystem : MonoBehaviour
 
         try
         {
-            // Get a random level from Firebase
-            var levels = await FirebaseManager.Instance.GetAllLevels(10);
+            // Load the level from Firebase
+            string saveJson = await FirebaseManager.Instance.LoadDocument("levels", levelId);
             
-            if (levels.Count == 0)
+            if (string.IsNullOrEmpty(saveJson))
             {
-                Debug.Log("[SaveSystem] No levels found in Firebase");
+                Debug.LogError($"[SaveSystem] Level '{levelId}' not found in Firebase");
                 return null;
             }
 
-            // Pick a random level
-            int randomIndex = Random.Range(0, levels.Count);
-            var (levelId, saveJson) = levels[randomIndex];
-            
             // Parse the LevelSaveData
             LevelSaveData levelData = JsonUtility.FromJson<LevelSaveData>(saveJson);
             
@@ -495,6 +628,7 @@ public class SaveSystem : MonoBehaviour
                 Directory.CreateDirectory(saveFolderPath);
             }
 
+            var localSaveId = "firebase_" + levelId;
             string filePath = Path.Combine(saveFolderPath, localSaveId + FILE_EXTENSION);
             File.WriteAllText(filePath, saveJson);
             
@@ -504,6 +638,43 @@ public class SaveSystem : MonoBehaviour
         catch (System.Exception ex)
         {
             Debug.LogError($"[SaveSystem] Error loading Firebase level: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Load a random level from Firebase and save it locally with a specific saveId
+    /// Returns the saveId if successful, null otherwise
+    /// </summary>
+    public static async Task<string> LoadRandomFirebaseLevel()
+    {
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogError("[SaveSystem] Cannot load random level from Firebase - not authenticated");
+            return null;
+        }
+
+        try
+        {
+            // Get a random level from Firebase
+            var levels = await FirebaseManager.Instance.GetAllLevels(10);
+            
+            if (levels.Count == 0)
+            {
+                Debug.Log("[SaveSystem] No levels found in Firebase");
+                return null;
+            }
+
+            // Pick a random level
+            int randomIndex = Random.Range(0, levels.Count);
+            var (levelId, _) = levels[randomIndex];
+            
+            // Use the generic method to load and save the level
+            return await LoadFirebaseLevel(levelId);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error loading random Firebase level: {ex.Message}");
             return null;
         }
     }
@@ -539,5 +710,107 @@ public class SaveSystem : MonoBehaviour
         {
             Debug.LogError($"[SaveSystem] Error deleting downloaded levels: {ex.Message}");
         }
+    }
+
+    public static LevelSaveData ParseLevelDataFromJson(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogError("[SaveSystem] Provided JSON is null or empty.");
+            return null;
+        }
+        LevelSaveData data = null;
+        try
+        {
+            data = JsonUtility.FromJson<LevelSaveData>(json);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Failed to parse level data from JSON: {ex.Message}");
+        }
+        if (data == null)
+        {
+            Debug.LogError("[SaveSystem] Failed to deserialize LevelSaveData from JSON.");
+        }
+        return data;
+    }
+
+    public static async Task<string> GetPlayerName(string playerId)
+    {
+        if (string.IsNullOrEmpty(playerId))
+        {
+            return "Unknown";
+        }
+
+        // Quick check: if it's the current user, use cached name
+        if (FirebaseManager.Instance != null && FirebaseManager.Instance.UserId == playerId)
+        {
+            string cachedName = FirebaseManager.Instance.PlayerName;
+            if (!string.IsNullOrEmpty(cachedName))
+            {
+                return cachedName;
+            }
+        }
+
+        // Load the player document from Firebase to get their name
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogWarning("[SaveSystem] Cannot get player name - not authenticated");
+            return playerId; // Return playerId as fallback
+        }
+
+        try
+        {
+            string json = await FirebaseManager.Instance.LoadDocument("players", playerId);
+            
+            if (!string.IsNullOrEmpty(json))
+            {
+                InventoryData playerData = JsonUtility.FromJson<InventoryData>(json);
+                if (playerData != null && !string.IsNullOrEmpty(playerData.PlayerName))
+                {
+                    return playerData.PlayerName;
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error loading player name for {playerId}: {ex.Message}");
+        }
+
+        // Fallback to playerId if we couldn't get the name
+        return playerId;
+    }
+
+    /// <summary>
+    /// Check if a local save was loaded from Firebase (has a level ID)
+    /// Returns true if the saveId starts with "firebase_" prefix
+    /// </summary>
+    public static bool LocalSaveHasLevelId(string saveId)
+    {
+        if (string.IsNullOrEmpty(saveId))
+            return false;
+        
+        // Firebase levels are saved locally with the "firebase_" prefix
+        return saveId.StartsWith("firebase_");
+    }
+
+    /// <summary>
+    /// Get the Firebase level ID from a local save
+    /// Extracts the levelId by removing the "firebase_" prefix
+    /// </summary>
+    public static string GetLocalSaveLevelId(string saveId)
+    {
+        if (string.IsNullOrEmpty(saveId))
+            return null;
+        
+        // Remove the "firebase_" prefix to get the actual Firebase document ID
+        if (saveId.StartsWith("firebase_"))
+        {
+            return saveId.Substring(9); // "firebase_" has 9 characters
+        }
+        
+        // If it doesn't have the prefix, return null
+        Debug.LogWarning($"[SaveSystem] SaveId '{saveId}' does not have 'firebase_' prefix");
+        return null;
     }
 }

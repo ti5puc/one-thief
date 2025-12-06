@@ -173,7 +173,7 @@ GameObject:
   - component: {fileID: 2435935527880217083}
   - component: {fileID: 8511949648899937489}
   m_Layer: 5
-  m_Name: Criado
+  m_Name: Criado por player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -253,7 +253,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
+  m_fontSize: 28.85
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -514,6 +514,7 @@ GameObject:
   - component: {fileID: 425049827561171093}
   - component: {fileID: 7120010414950327834}
   - component: {fileID: 4191986169793216226}
+  - component: {fileID: 5216315592982617539}
   m_Layer: 5
   m_Name: Build Level Card_PRF
   m_TagString: Untagged
@@ -561,6 +562,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f4cdf43da66dd44e99aa8be4c3b49ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelNameText: {fileID: 4740114357079576809}
+  playerNameText: {fileID: 2435935527880217083}
+  totalGoldText: {fileID: 1201343066352337032}
+  totalDeathsText: {fileID: 4841990393989306163}
+  layoutImage: {fileID: 1975069059332985479}
+  layoutSprites:
+  - {fileID: 383748200, guid: 68186aa35a4a29b4a8f4774885cb223b, type: 3}
+  - {fileID: -1084707418, guid: 163b7a5a2098f9946a85efd965f18b67, type: 3}
+  - {fileID: -1587856063, guid: f6a70a228c8b581429d3719b3e29db74, type: 3}
+  editButton: {fileID: 1111840806541115552}
+  deleteButton: {fileID: 489141305687542304}
+--- !u!114 &5216315592982617539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918773538900812462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: 215
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &1518114169346071801
 GameObject:
   m_ObjectHideFlags: 0
@@ -744,7 +776,7 @@ GameObject:
   - component: {fileID: 755120160729923845}
   - component: {fileID: 1201343066352337032}
   m_Layer: 5
-  m_Name: Wins
+  m_Name: Gold to gain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -797,7 +829,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Sobreviventes: 0'
+  m_text: 'Para saquear: $0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -824,7 +856,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
+  m_fontSize: 28.85
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1001,7 +1033,7 @@ GameObject:
   - component: {fileID: 2175626461816818870}
   - component: {fileID: 4841990393989306163}
   m_Layer: 5
-  m_Name: Loses
+  m_Name: Deaths
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1081,7 +1113,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
+  m_fontSize: 28.85
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1265,7 +1297,7 @@ GameObject:
   - component: {fileID: 4740114357079576809}
   - component: {fileID: 9146122953062872817}
   m_Layer: 5
-  m_Name: Name
+  m_Name: Level Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1345,7 +1377,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
+  m_fontSize: 40.7
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1421,7 +1453,7 @@ GameObject:
   - component: {fileID: 3340210237725442442}
   - component: {fileID: 1067209030073135450}
   m_Layer: 5
-  m_Name: WinsLoses
+  m_Name: More info horizontal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

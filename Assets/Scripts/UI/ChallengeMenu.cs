@@ -1,60 +1,59 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class ChallengeMenu : MonoBehaviour
 {
-    [SerializeField] private string firstSaveName = "challenge1";
-    [SerializeField] private string secondSaveName = "challenge2";
-    [SerializeField] private string thirdSaveName = "challenge3";
+    [Header("Levels Panel")]
+    [SerializeField] private ChallengeLevelCardUI levelCardPrefab;
+    [SerializeField] private RectTransform scrollViewContent;
+    [SerializeField] private Button returnButton;
+
+    private async void Awake()
+    {
+        returnButton.onClick.AddListener(ReturnToMenu);
+        
+        foreach (Transform child in scrollViewContent)
+            Destroy(child.gameObject);
+        
+        await LoadPlayerLevels();
+    }
     
-    public void Return()
+    private void OnDestroy()
+    {
+        returnButton.onClick.RemoveListener(ReturnToMenu);
+    }
+
+    private void ReturnToMenu()
     {
         SceneManager.LoadSceneAsync("Play_Menu");
     }
 
-    public async void PlayStage1()
+    private async Task LoadPlayerLevels()
     {
-        GameManager.SetCanEnterBuildMode(false);
-        GameManager.ChangeGameStateToExploring();
-        
-        GameManager.NextLayoutIndex = 0;
-        
-        // Try to load a random Firebase level
-        string firebaseSaveId = await SaveSystem.LoadRandomFirebaseLevel("firebase_challenge1");
-        
-        if (firebaseSaveId != null)
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
         {
-            // Successfully loaded from Firebase
-            SaveSystem.NextSaveToLoad = firebaseSaveId;
-        }
-        else
-        {
-            // Fallback to default challenge level
-            SaveSystem.NextSaveToLoad = firstSaveName;
+            Debug.LogError("Cannot load player levels: Not authenticated with Firebase.");
+            return;
         }
         
-        SceneManager.LoadSceneAsync("Gameplay");
+        // TODO: add pagination logic
+        var levels = await FirebaseManager.Instance.GetAllLevels(50);
+        foreach (var (levelId, saveJson) in levels)
+        {
+            var card = Instantiate(levelCardPrefab, scrollViewContent);
+            var levelData = SaveSystem.ParseLevelDataFromJson(saveJson);
+            var playerName = await SaveSystem.GetPlayerName(levelData.PlayerId);
+            
+            card.SetLevelData(levelId, levelData.PlayerId, levelData.LevelName, playerName, levelData.TotalGold, 
+                levelData.TotalDeaths, levelData.LayoutIndex);
+        }
     }
 
-    public void PlayStage2()
+    // on unity event
+    public void Return()
     {
-        GameManager.SetCanEnterBuildMode(false);
-        GameManager.ChangeGameStateToExploring();
-
-        GameManager.NextLayoutIndex = 1;
-        SaveSystem.NextSaveToLoad = secondSaveName;
-        
-        SceneManager.LoadSceneAsync("Gameplay");
-    }
-
-    public void PlayStage3()
-    {
-        GameManager.SetCanEnterBuildMode(false);
-        GameManager.ChangeGameStateToExploring();
-        
-        GameManager.NextLayoutIndex = 2;
-        SaveSystem.NextSaveToLoad = thirdSaveName;
-
-        SceneManager.LoadSceneAsync("Gameplay");
+        SceneManager.LoadSceneAsync("Play_Menu");
     }
 }

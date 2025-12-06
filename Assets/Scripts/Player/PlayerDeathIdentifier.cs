@@ -146,6 +146,9 @@ public class PlayerDeathIdentifier : MonoBehaviour
         }
 
         VfxOffset = 0f;
+        
+        if (GameManager.CurrentGameState == GameState.Exploring && GameManager.IsTestingToSubmit == false)
+            SaveSystem.IncreasePlayerDeathsOnLevel();
     }
 
     // TODO: placeholder here, change to movement script

@@ -98,7 +98,14 @@ public class WinUI : MonoBehaviour
             return;
         }
         
-        SaveSystem.SubmitLevelToFirebase(levelName.text);
+        bool hasLevelId = SaveSystem.LocalSaveHasLevelId(SaveSystem.NextSaveToLoad);
+        if (hasLevelId)
+        {
+            var levelId = SaveSystem.GetLocalSaveLevelId(SaveSystem.NextSaveToLoad);
+            SaveSystem.EditLevelOnFirebase(levelId, levelName.text, PlayerInventory.Instance.GoldCache, GameManager.NextLayoutIndex);
+        }
+        else
+            SaveSystem.SubmitLevelToFirebase(levelName.text, PlayerInventory.Instance.GoldCache, GameManager.NextLayoutIndex);
         
         PlayerInventory.Instance.SpendGoldToRemove();
         

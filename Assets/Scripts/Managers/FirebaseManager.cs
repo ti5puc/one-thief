@@ -310,6 +310,31 @@ public class FirebaseManager : MonoBehaviour
             return false;
         }
     }
+
+    /// <summary>
+    /// Update specific fields in a Firestore document
+    /// </summary>
+    public async Task<bool> UpdateDocumentFields(string collection, string documentId, Dictionary<string, object> updates)
+    {
+        if (!isAuthenticated || !isInitialized)
+        {
+            Debug.LogError("[FirebaseManager] Cannot update document - not authenticated!");
+            return false;
+        }
+
+        try
+        {
+            var document = firestore.Collection(collection).Document(documentId);
+            await document.UpdateAsync(updates);
+            Debug.Log($"[FirebaseManager] Document fields updated in {collection}/{documentId}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FirebaseManager] Error updating document fields: {ex.Message}");
+            return false;
+        }
+    }
     
     /// <summary>
     /// Get a paginated list of all levels
@@ -334,8 +359,13 @@ public class FirebaseManager : MonoBehaviour
 
             foreach (var document in snapshot.Documents)
             {
-                // Get the json field which contains the LevelSaveData
-                string saveJson = document.GetValue<string>("json");
+                var data = document.ToDictionary();
+                
+                // Remove timestamp field as it's not part of the original JSON
+                data.Remove("Timestamp");
+                
+                // Convert back to JSON string using MiniJSON
+                string saveJson = MiniJSON.Json.Serialize(data);
                 levels.Add((document.Id, saveJson));
             }
 

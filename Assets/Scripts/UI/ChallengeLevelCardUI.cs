@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class BuildLevelCardUI : MonoBehaviour
+public class ChallengeLevelCardUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text levelNameText;
     [SerializeField] private TMP_Text playerNameText;
@@ -17,8 +17,7 @@ public class BuildLevelCardUI : MonoBehaviour
     [SerializeField] private List<Sprite> layoutSprites;
 
     [Space(10)]
-    [SerializeField] private Button editButton;
-    [SerializeField] private Button deleteButton;
+    [SerializeField] private Button playButton;
 
     private string levelId;
     private string playerId;
@@ -26,14 +25,12 @@ public class BuildLevelCardUI : MonoBehaviour
 
     private void Awake()
     {
-        editButton.onClick.AddListener(OnEditButtonClicked);
-        deleteButton.onClick.AddListener(OnDeleteButtonClicked);
+        playButton.onClick.AddListener(OnPlayButtonClicked);
     }
     
     private void OnDestroy()
     {
-        editButton.onClick.RemoveListener(OnEditButtonClicked);
-        deleteButton.onClick.RemoveListener(OnDeleteButtonClicked);
+        playButton.onClick.RemoveListener(OnPlayButtonClicked);
     }
 
     public void SetLevelData(string levelId, string playerId, string levelName, string playerName, int totalGold, int totalDeaths, int layoutIndex)
@@ -50,10 +47,10 @@ public class BuildLevelCardUI : MonoBehaviour
         layoutImage.sprite = layoutSprites[Mathf.Clamp(layoutIndex, 0, layoutSprites.Count - 1)];
     }
     
-    private async void OnEditButtonClicked()
+    private async void OnPlayButtonClicked()
     {
-        GameManager.SetCanEnterBuildMode(true);
-        GameManager.ChangeGameStateToTestingBuild();
+        GameManager.SetCanEnterBuildMode(false);
+        GameManager.ChangeGameStateToExploring();
         
         string firebaseSaveId = await SaveSystem.LoadFirebaseLevel(levelId);
         if (firebaseSaveId == null)
@@ -66,37 +63,5 @@ public class BuildLevelCardUI : MonoBehaviour
         SaveSystem.NextSaveToLoad = firebaseSaveId;
         
         SceneManager.LoadSceneAsync("Gameplay");
-    }
-    
-    private async void OnDeleteButtonClicked()
-    {
-        // Check if user is authenticated
-        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
-        {
-            Debug.LogError("[BuildLevelCardUI] Cannot delete level - not authenticated");
-            return;
-        }
-
-        // Check if the logged user is the owner of the level
-        if (FirebaseManager.Instance.UserId != playerId)
-        {
-            Debug.LogWarning("[BuildLevelCardUI] Cannot delete level - you are not the owner");
-            return;
-        }
-
-        // Delete the level from Firebase
-        bool success = await FirebaseManager.Instance.DeleteDocument("levels", levelId);
-        
-        if (success)
-        {
-            Debug.Log($"[BuildLevelCardUI] Level '{levelId}' deleted successfully");
-            
-            // Destroy the card UI
-            Destroy(gameObject);
-        }
-        else
-        {
-            Debug.LogError($"[BuildLevelCardUI] Failed to delete level '{levelId}'");
-        }
     }
 }

@@ -24,6 +24,9 @@ public class SaveSystem : MonoBehaviour
     private const string SAVE_FOLDER = "Saves";
     private const string INVENTORY_FILE = "inventory";
     private const string FILE_EXTENSION = ".json";
+    private const string USER_CREDENTIALS_FILE = "user_credentials";
+    private const string CREDENTIALS_EXTENSION = ".txt";
+    private const string DEFAULT_PASSWORD = "OnePasswordToRuleThemAll@12345";
     
     [Header("Debug")]
     [SerializeField, ReadOnly] private string nextSaveToLoad;
@@ -283,9 +286,124 @@ public class SaveSystem : MonoBehaviour
                 Debug.LogError($"Failed to delete {file}: {ex.Message}");
             }
         }
+        
+        // Delete user credentials file
+        string credentialsPath = Path.Combine(saveFolderPath, USER_CREDENTIALS_FILE + CREDENTIALS_EXTENSION);
+        if (File.Exists(credentialsPath))
+        {
+            try
+            {
+                File.Delete(credentialsPath);
+                Debug.Log("Deleted user credentials file");
+                
+                // Sign out from Firebase and re-authenticate with new credentials
+                FirebaseManager.SignOut();
+                
+                // Wait a frame then re-authenticate with new account
+                if (Instance != null)
+                {
+                    Instance.StartCoroutine(ReAuthenticateAfterDelay());
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to delete credentials file: {ex.Message}");
+            }
+        }
 
         Debug.Log($"Deleted {deletedCount} save file(s) in:\n{saveFolderPath}");
     }
+
+    private static System.Collections.IEnumerator ReAuthenticateAfterDelay()
+    {
+        // Wait a short moment for sign out to complete
+        yield return new UnityEngine.WaitForSeconds(0.5f);
+        
+        Debug.Log("[SaveSystem] Triggering re-authentication with new account...");
+        FirebaseManager.ReAuthenticate();
+    }
+
+    #region User Credentials Management
+    
+    /// <summary>
+    /// Get the stored user email or create a new one if it doesn't exist
+    /// </summary>
+    public static string GetOrCreateUserEmail()
+    {
+        string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+        string credentialsPath = Path.Combine(saveFolderPath, USER_CREDENTIALS_FILE + CREDENTIALS_EXTENSION);
+        
+        // Create folder if it doesn't exist
+        if (!Directory.Exists(saveFolderPath))
+        {
+            Directory.CreateDirectory(saveFolderPath);
+        }
+        
+        // Check if credentials file exists
+        if (File.Exists(credentialsPath))
+        {
+            try
+            {
+                string storedEmail = File.ReadAllText(credentialsPath).Trim();
+                
+                if (!string.IsNullOrEmpty(storedEmail))
+                {
+                    Debug.Log("[SaveSystem] Loaded existing user email from local storage");
+                    return storedEmail;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[SaveSystem] Error reading credentials file: {ex.Message}");
+            }
+        }
+        
+        // Generate new email
+        string newEmail = GenerateRandomEmail();
+        
+        try
+        {
+            // Save to file
+            File.WriteAllText(credentialsPath, newEmail);
+            Debug.Log($"[SaveSystem] Generated and saved new user email: {newEmail}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error saving credentials file: {ex.Message}");
+        }
+        
+        return newEmail;
+    }
+
+    /// <summary>
+    /// Generate a random email with 15 character username
+    /// </summary>
+    private static string GenerateRandomEmail()
+    {
+        const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        System.Text.StringBuilder sb = new System.Text.StringBuilder(15);
+        
+        // Use a combination of Guid timestamp and UnityEngine.Random for better entropy
+        System.Random random = new System.Random(System.Guid.NewGuid().GetHashCode());
+        
+        for (int i = 0; i < 15; i++)
+        {
+            int index = random.Next(chars.Length);
+            sb.Append(chars[index]);
+        }
+        
+        return sb.ToString() + "@onethief.local";
+    }
+
+    /// <summary>
+    /// Get the default password for authentication
+    /// </summary>
+    public static string GetDefaultPassword()
+    {
+        return DEFAULT_PASSWORD;
+    }
+    
+    #endregion
 
     private static int[] FlattenGrid(int[,] grid, int rows, int cols)
     {

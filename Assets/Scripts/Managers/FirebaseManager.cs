@@ -72,8 +72,8 @@ public class FirebaseManager : MonoBehaviour
                 
                 Debug.Log("[FirebaseManager] Firebase initialized successfully!");
                 
-                // Auto-login anonymously
-                await SignInAnonymouslyAsync();
+                // Auto-login with email/password
+                await SignInWithEmailPasswordAsync();
             }
             else
             {
@@ -88,7 +88,7 @@ public class FirebaseManager : MonoBehaviour
         }
     }
 
-    private async Task SignInAnonymouslyAsync()
+    private async Task SignInWithEmailPasswordAsync()
     {
         if (!isInitialized)
         {
@@ -98,33 +98,40 @@ public class FirebaseManager : MonoBehaviour
 
         try
         {
-            Debug.Log("[FirebaseManager] Starting anonymous sign in...");
+            Debug.Log("[FirebaseManager] Starting email/password sign in...");
             
-            var authTask = auth.SignInAnonymouslyAsync();
-            await authTask;
+            // Get credentials from SaveSystem
+            string userEmail = SaveSystem.GetOrCreateUserEmail();
+            string password = SaveSystem.GetDefaultPassword();
             
-            if (authTask.IsCanceled)
+            Debug.Log($"[FirebaseManager] Using email: {userEmail}");
+            
+            // Try to sign in first
+            bool signedIn = await TrySignIn(userEmail, password);
+            
+            // If sign in failed, try to create new account
+            if (!signedIn)
             {
-                Debug.LogError("[FirebaseManager] SignInAnonymouslyAsync was canceled.");
-                OnAuthenticationFailed?.Invoke("Authentication was canceled");
-                return;
+                Debug.Log("[FirebaseManager] Sign in failed, attempting to create new account...");
+                signedIn = await TryCreateAccount(userEmail, password);
             }
             
-            if (authTask.IsFaulted)
+            if (signedIn)
             {
-                Debug.LogError($"[FirebaseManager] SignInAnonymouslyAsync encountered an error: {authTask.Exception}");
-                OnAuthenticationFailed?.Invoke(authTask.Exception?.Message ?? "Unknown error");
-                return;
+                currentUser = auth.CurrentUser;
+                userId = currentUser.UserId;
+                isAuthenticated = true;
+                
+                Debug.Log($"[FirebaseManager] User signed in successfully: {userId}");
+                
+                // Check if this is first login by checking if inventory exists
+                await CheckFirstLoginAndNotify();
             }
-
-            currentUser = authTask.Result.User;
-            userId = currentUser.UserId;
-            isAuthenticated = true;
-            
-            Debug.Log($"[FirebaseManager] User signed in successfully: {userId}");
-            
-            // Check if this is first login by checking if inventory exists
-            await CheckFirstLoginAndNotify();
+            else
+            {
+                Debug.LogError("[FirebaseManager] Failed to sign in or create account");
+                OnAuthenticationFailed?.Invoke("Failed to authenticate");
+            }
         }
         catch (Exception ex)
         {
@@ -132,6 +139,65 @@ public class FirebaseManager : MonoBehaviour
             OnAuthenticationFailed?.Invoke(ex.Message);
         }
     }
+
+    private async Task<bool> TrySignIn(string email, string password)
+    {
+        try
+        {
+            var authTask = auth.SignInWithEmailAndPasswordAsync(email, password);
+            await authTask;
+            
+            if (authTask.IsCanceled)
+            {
+                Debug.LogWarning("[FirebaseManager] Sign in was canceled.");
+                return false;
+            }
+            
+            if (authTask.IsFaulted)
+            {
+                Debug.LogWarning($"[FirebaseManager] Sign in failed: {authTask.Exception?.InnerException?.Message ?? authTask.Exception?.Message}");
+                return false;
+            }
+
+            Debug.Log("[FirebaseManager] Sign in successful!");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[FirebaseManager] Sign in exception: {ex.Message}");
+            return false;
+        }
+    }
+
+    private async Task<bool> TryCreateAccount(string email, string password)
+    {
+        try
+        {
+            var authTask = auth.CreateUserWithEmailAndPasswordAsync(email, password);
+            await authTask;
+            
+            if (authTask.IsCanceled)
+            {
+                Debug.LogError("[FirebaseManager] Create account was canceled.");
+                return false;
+            }
+            
+            if (authTask.IsFaulted)
+            {
+                Debug.LogError($"[FirebaseManager] Create account failed: {authTask.Exception?.InnerException?.Message ?? authTask.Exception?.Message}");
+                return false;
+            }
+
+            Debug.Log("[FirebaseManager] Account created successfully!");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FirebaseManager] Create account exception: {ex.Message}");
+            return false;
+        }
+    }
+
 
     private async Task CheckFirstLoginAndNotify()
     {
@@ -200,6 +266,42 @@ public class FirebaseManager : MonoBehaviour
             playerNameCache[Instance.userId] = name;
             
             Debug.Log($"[FirebaseManager] Player name set to: {name}");
+        }
+    }
+
+    /// <summary>
+    /// Sign out the current user and clear authentication state
+    /// Call this when clearing saves to force a new account creation
+    /// </summary>
+    public static void SignOut()
+    {
+        if (Instance != null && Instance.auth != null)
+        {
+            Instance.auth.SignOut();
+            Instance.currentUser = null;
+            Instance.userId = "";
+            Instance.isAuthenticated = false;
+            Instance.isFirstLogin = false;
+            Instance.playerName = "";
+            playerNameCache.Clear();
+            
+            Debug.Log("[FirebaseManager] User signed out");
+        }
+    }
+
+    /// <summary>
+    /// Re-authenticate with new credentials after signing out
+    /// </summary>
+    public static async void ReAuthenticate()
+    {
+        if (Instance != null && Instance.isInitialized)
+        {
+            Debug.Log("[FirebaseManager] Re-authenticating with new credentials...");
+            await Instance.SignInWithEmailPasswordAsync();
+        }
+        else
+        {
+            Debug.LogWarning("[FirebaseManager] Cannot re-authenticate - Firebase not initialized");
         }
     }
 

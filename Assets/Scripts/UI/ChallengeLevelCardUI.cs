@@ -49,19 +49,29 @@ public class ChallengeLevelCardUI : MonoBehaviour
     
     private async void OnPlayButtonClicked()
     {
-        GameManager.SetCanEnterBuildMode(false);
-        GameManager.ChangeGameStateToExploring();
-        
-        string firebaseSaveId = await SaveSystem.LoadFirebaseLevel(levelId);
-        if (firebaseSaveId == null)
+        try
         {
-            Debug.LogError($"[BuildLevelCardUI] Failed to load level '{levelId}' for editing");
-            return;
+            Debug.Log($"[ChallengeLevelCardUI] Loading level {levelId} for play...");
+            
+            GameManager.SetCanEnterBuildMode(false);
+            GameManager.ChangeGameStateToExploring();
+            
+            string firebaseSaveId = await SaveSystem.LoadFirebaseLevel(levelId);
+            if (firebaseSaveId == null)
+            {
+                Debug.LogError($"[ChallengeLevelCardUI] Failed to load level '{levelId}' for playing");
+                return;
+            }
+            
+            GameManager.NextLayoutIndex = layoutIndex;
+            SaveSystem.NextSaveToLoad = firebaseSaveId;
+            
+            Debug.Log($"[ChallengeLevelCardUI] Starting level {levelId} with layout {layoutIndex}");
+            SceneManager.LoadSceneAsync("Gameplay");
         }
-        
-        GameManager.NextLayoutIndex = layoutIndex;
-        SaveSystem.NextSaveToLoad = firebaseSaveId;
-        
-        SceneManager.LoadSceneAsync("Gameplay");
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[ChallengeLevelCardUI] Error loading level for play: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 }

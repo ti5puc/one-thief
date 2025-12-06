@@ -742,42 +742,13 @@ public class SaveSystem : MonoBehaviour
             return "Unknown";
         }
 
-        // Quick check: if it's the current user, use cached name
-        if (FirebaseManager.Instance != null && FirebaseManager.Instance.UserId == playerId)
+        // Use FirebaseManager's cached method
+        if (FirebaseManager.Instance != null && FirebaseManager.Instance.IsAuthenticated)
         {
-            string cachedName = FirebaseManager.Instance.PlayerName;
-            if (!string.IsNullOrEmpty(cachedName))
-            {
-                return cachedName;
-            }
+            return await FirebaseManager.Instance.GetPlayerName(playerId);
         }
 
-        // Load the player document from Firebase to get their name
-        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
-        {
-            Debug.LogWarning("[SaveSystem] Cannot get player name - not authenticated");
-            return playerId; // Return playerId as fallback
-        }
-
-        try
-        {
-            string json = await FirebaseManager.Instance.LoadDocument("players", playerId);
-            
-            if (!string.IsNullOrEmpty(json))
-            {
-                InventoryData playerData = JsonUtility.FromJson<InventoryData>(json);
-                if (playerData != null && !string.IsNullOrEmpty(playerData.PlayerName))
-                {
-                    return playerData.PlayerName;
-                }
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"[SaveSystem] Error loading player name for {playerId}: {ex.Message}");
-        }
-
-        // Fallback to playerId if we couldn't get the name
+        Debug.LogWarning("[SaveSystem] Cannot get player name - not authenticated");
         return playerId;
     }
 

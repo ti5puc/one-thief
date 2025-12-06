@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Firestore;
-using Firebase.Extensions;
+using UnityEngine;
 
 public class FirebaseManager : MonoBehaviour
 {
@@ -17,6 +16,9 @@ public class FirebaseManager : MonoBehaviour
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
     private FirebaseUser currentUser;
+    
+    // Cache for player names to avoid repeated Firebase queries
+    private static Dictionary<string, string> playerNameCache = new Dictionary<string, string>();
     
     [Header("Status")]
     [SerializeField] private bool isInitialized;
@@ -47,9 +49,22 @@ public class FirebaseManager : MonoBehaviour
 
     private void InitializeFirebase()
     {
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        // Use async method instead of ContinueWithOnMainThread
+        _ = InitializeFirebaseAsync();
+    }
+
+    private async Task InitializeFirebaseAsync()
+    {
+        try
         {
-            if (task.Result == DependencyStatus.Available)
+            Debug.Log("[FirebaseManager] Checking Firebase dependencies...");
+            
+            var dependencyTask = FirebaseApp.CheckAndFixDependenciesAsync();
+            await dependencyTask;
+            
+            var dependencyStatus = dependencyTask.Result;
+            
+            if (dependencyStatus == DependencyStatus.Available)
             {
                 auth = FirebaseAuth.DefaultInstance;
                 firestore = FirebaseFirestore.DefaultInstance;
@@ -58,17 +73,22 @@ public class FirebaseManager : MonoBehaviour
                 Debug.Log("[FirebaseManager] Firebase initialized successfully!");
                 
                 // Auto-login anonymously
-                SignInAnonymously();
+                await SignInAnonymouslyAsync();
             }
             else
             {
-                Debug.LogError($"[FirebaseManager] Could not resolve Firebase dependencies: {task.Result}");
+                Debug.LogError($"[FirebaseManager] Could not resolve Firebase dependencies: {dependencyStatus}");
                 isInitialized = false;
             }
-        });
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FirebaseManager] Error initializing Firebase: {ex.Message}\n{ex.StackTrace}");
+            isInitialized = false;
+        }
     }
 
-    public void SignInAnonymously()
+    private async Task SignInAnonymouslyAsync()
     {
         if (!isInitialized)
         {
@@ -76,72 +96,96 @@ public class FirebaseManager : MonoBehaviour
             return;
         }
 
-        auth.SignInAnonymouslyAsync().ContinueWithOnMainThread(task =>
+        try
         {
-            if (task.IsCanceled)
+            Debug.Log("[FirebaseManager] Starting anonymous sign in...");
+            
+            var authTask = auth.SignInAnonymouslyAsync();
+            await authTask;
+            
+            if (authTask.IsCanceled)
             {
                 Debug.LogError("[FirebaseManager] SignInAnonymouslyAsync was canceled.");
                 OnAuthenticationFailed?.Invoke("Authentication was canceled");
                 return;
             }
-            if (task.IsFaulted)
+            
+            if (authTask.IsFaulted)
             {
-                Debug.LogError($"[FirebaseManager] SignInAnonymouslyAsync encountered an error: {task.Exception}");
-                OnAuthenticationFailed?.Invoke(task.Exception?.Message ?? "Unknown error");
+                Debug.LogError($"[FirebaseManager] SignInAnonymouslyAsync encountered an error: {authTask.Exception}");
+                OnAuthenticationFailed?.Invoke(authTask.Exception?.Message ?? "Unknown error");
                 return;
             }
 
-            currentUser = task.Result.User;
+            currentUser = authTask.Result.User;
             userId = currentUser.UserId;
             isAuthenticated = true;
             
             Debug.Log($"[FirebaseManager] User signed in successfully: {userId}");
             
             // Check if this is first login by checking if inventory exists
-            CheckFirstLogin();
-            
-            OnAuthenticationComplete?.Invoke();
-        });
+            await CheckFirstLoginAndNotify();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FirebaseManager] Exception during sign in: {ex.Message}\n{ex.StackTrace}");
+            OnAuthenticationFailed?.Invoke(ex.Message);
+        }
     }
 
-    private async void CheckFirstLogin()
+    private async Task CheckFirstLoginAndNotify()
     {
-        // Load inventory from Firebase to check if user data exists
-        string json = await LoadDocument("players", userId);
-        
-        if (string.IsNullOrEmpty(json))
+        try
         {
-            // No data found - this is first login
-            isFirstLogin = true;
-            playerName = "";
-            Debug.Log("[FirebaseManager] First login detected - no player data found");
-        }
-        else
-        {
-            // Data exists - returning user
-            isFirstLogin = false;
+            // Load inventory from Firebase to check if user data exists
+            string json = await LoadDocument("players", userId);
             
-            // Parse the player name from the inventory data
-            try
+            if (string.IsNullOrEmpty(json))
             {
-                // LoadDocument returns the inventory data directly as JSON
-                var data = MiniJSON.Json.Deserialize(json) as Dictionary<string, object>;
-                if (data != null && data.ContainsKey("PlayerName"))
+                // No data found - this is first login
+                isFirstLogin = true;
+                playerName = "";
+                Debug.Log("[FirebaseManager] First login detected - no player data found");
+            }
+            else
+            {
+                // Data exists - returning user
+                isFirstLogin = false;
+                
+                // Parse the player name from the inventory data
+                try
                 {
-                    playerName = data["PlayerName"].ToString();
+                    // LoadDocument returns the inventory data directly as JSON
+                    var data = MiniJSON.Json.Deserialize(json) as Dictionary<string, object>;
+                    if (data != null && data.ContainsKey("PlayerName"))
+                    {
+                        playerName = data["PlayerName"].ToString();
+                    }
+                    else
+                    {
+                        playerName = "";
+                    }
+                    
+                    Debug.Log($"[FirebaseManager] Returning user - Player: {playerName}");
                 }
-                else
+                catch (Exception ex)
                 {
+                    Debug.LogError($"[FirebaseManager] Error parsing player name: {ex.Message}");
                     playerName = "";
                 }
-                
-                Debug.Log($"[FirebaseManager] Returning user - Player: {playerName}");
             }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[FirebaseManager] Error parsing player name: {ex.Message}");
-                playerName = "";
-            }
+            
+            // Trigger authentication complete event after checking first login
+            OnAuthenticationComplete?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FirebaseManager] Error in CheckFirstLoginAndNotify: {ex.Message}\n{ex.StackTrace}");
+            
+            // Even if there's an error, set default values and notify
+            isFirstLogin = true;
+            playerName = "";
+            OnAuthenticationComplete?.Invoke();
         }
     }
 
@@ -151,8 +195,69 @@ public class FirebaseManager : MonoBehaviour
         {
             Instance.playerName = name;
             Instance.isFirstLogin = false;
+            
+            // Add to cache
+            playerNameCache[Instance.userId] = name;
+            
             Debug.Log($"[FirebaseManager] Player name set to: {name}");
         }
+    }
+
+    /// <summary>
+    /// Get a player's name from their userId with caching
+    /// </summary>
+    public async Task<string> GetPlayerName(string playerId)
+    {
+        if (string.IsNullOrEmpty(playerId))
+        {
+            return "Unknown";
+        }
+
+        // Check cache first
+        if (playerNameCache.ContainsKey(playerId))
+        {
+            return playerNameCache[playerId];
+        }
+
+        // If it's the current user, use cached name
+        if (playerId == userId && !string.IsNullOrEmpty(playerName))
+        {
+            playerNameCache[playerId] = playerName;
+            return playerName;
+        }
+
+        // Load from Firebase
+        if (!isAuthenticated || !isInitialized)
+        {
+            Debug.LogWarning($"[FirebaseManager] Cannot get player name - not authenticated");
+            return playerId; // Return playerId as fallback
+        }
+
+        try
+        {
+            string json = await LoadDocument("players", playerId);
+            
+            if (!string.IsNullOrEmpty(json))
+            {
+                var data = MiniJSON.Json.Deserialize(json) as Dictionary<string, object>;
+                if (data != null && data.ContainsKey("PlayerName"))
+                {
+                    string name = data["PlayerName"].ToString();
+                    
+                    // Cache the result
+                    playerNameCache[playerId] = name;
+                    
+                    return name;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FirebaseManager] Error loading player name for {playerId}: {ex.Message}");
+        }
+
+        // Fallback to playerId if we couldn't get the name
+        return playerId;
     }
 
     /// <summary>
@@ -245,6 +350,8 @@ public class FirebaseManager : MonoBehaviour
 
         try
         {
+            Debug.Log($"[FirebaseManager] Attempting to load document from {collection}/{documentId}");
+            
             var document = firestore.Collection(collection).Document(documentId);
             var snapshot = await document.GetSnapshotAsync();
 
@@ -258,7 +365,7 @@ public class FirebaseManager : MonoBehaviour
                 // Convert back to JSON string
                 string json = MiniJSON.Json.Serialize(data);
                 
-                Debug.Log($"[FirebaseManager] Document loaded from {collection}/{documentId}");
+                Debug.Log($"[FirebaseManager] Document loaded from {collection}/{documentId} - Size: {json.Length} chars");
                 return json;
             }
             else
@@ -267,9 +374,19 @@ public class FirebaseManager : MonoBehaviour
                 return null;
             }
         }
+        catch (Firebase.FirebaseException firebaseEx)
+        {
+            Debug.LogError($"[FirebaseManager] Firebase error loading document: {firebaseEx.Message}\nError Code: {firebaseEx.ErrorCode}\n{firebaseEx.StackTrace}");
+            return null;
+        }
+        catch (System.Threading.Tasks.TaskCanceledException)
+        {
+            Debug.LogWarning($"[FirebaseManager] Load document task was canceled for {collection}/{documentId}");
+            return null;
+        }
         catch (Exception ex)
         {
-            Debug.LogError($"[FirebaseManager] Error loading document: {ex.Message}");
+            Debug.LogError($"[FirebaseManager] Unexpected error loading document: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
             return null;
         }
     }

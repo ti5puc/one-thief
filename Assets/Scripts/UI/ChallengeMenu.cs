@@ -38,16 +38,45 @@ public class ChallengeMenu : MonoBehaviour
             return;
         }
         
-        // TODO: add pagination logic
-        var levels = await FirebaseManager.Instance.GetAllLevels(50);
-        foreach (var (levelId, saveJson) in levels)
+        try
         {
-            var card = Instantiate(levelCardPrefab, scrollViewContent);
-            var levelData = SaveSystem.ParseLevelDataFromJson(saveJson);
-            var playerName = await SaveSystem.GetPlayerName(levelData.PlayerId);
+            Debug.Log("[ChallengeMenu] Loading levels from Firebase...");
             
-            card.SetLevelData(levelId, levelData.PlayerId, levelData.LevelName, playerName, levelData.TotalGold, 
-                levelData.TotalDeaths, levelData.LayoutIndex);
+            // TODO: add pagination logic
+            var levels = await FirebaseManager.Instance.GetAllLevels(50);
+            
+            Debug.Log($"[ChallengeMenu] Loaded {levels.Count} levels from Firebase");
+            
+            foreach (var (levelId, saveJson) in levels)
+            {
+                try
+                {
+                    var card = Instantiate(levelCardPrefab, scrollViewContent);
+                    var levelData = SaveSystem.ParseLevelDataFromJson(saveJson);
+                    
+                    if (levelData == null)
+                    {
+                        Debug.LogError($"[ChallengeMenu] Failed to parse level data for {levelId}");
+                        Destroy(card.gameObject);
+                        continue;
+                    }
+                    
+                    var playerName = await SaveSystem.GetPlayerName(levelData.PlayerId);
+                    
+                    card.SetLevelData(levelId, levelData.PlayerId, levelData.LevelName, playerName, levelData.TotalGold, 
+                        levelData.TotalDeaths, levelData.LayoutIndex);
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"[ChallengeMenu] Error loading level card {levelId}: {ex.Message}");
+                }
+            }
+            
+            Debug.Log("[ChallengeMenu] Finished loading all level cards");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[ChallengeMenu] Error loading player levels: {ex.Message}\n{ex.StackTrace}");
         }
     }
 

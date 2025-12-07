@@ -37,7 +37,8 @@ public class TrapSelectionCardUI : MonoBehaviour, IPointerEnterHandler, IPointer
         trapNameText.text = trapIndex.ToString();
 
         bool hasIcon = trapSettings.Icon != null;
-        // iconImage.gameObject.SetActive(hasIcon);
+        
+        trapNameText.gameObject.SetActive(!hasIcon);
         if (hasIcon)
             iconImage.sprite = trapSettings.Icon;
 

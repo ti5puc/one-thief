@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Block
   id: 1
-  icon: {fileID: 0}
+  icon: {fileID: 1100492417, guid: bd028c81add8c7742938a0030a188287, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

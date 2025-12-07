@@ -7,7 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1076752640802:web:73a33559ba902fbf20d37b",
+        "mobilesdk_app_id": "1:1076752640802:android:bc6c4987aadefff620d37b",
         "android_client_info": {
           "package_name": "com.OneStudio.onethief"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC4gxSLOwxDY0TRILvGF-22qGwTndg9fBw"
+          "current_key": "AIzaSyC3Ft9j9rPupphMwKOAwvQ5kdmFO9PYmzk"
         }
       ],
       "services": {

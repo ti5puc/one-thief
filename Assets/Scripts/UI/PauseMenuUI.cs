@@ -151,7 +151,7 @@ public class PauseMenuUI : MonoBehaviour
             GameManager.ChangeGameStateToTestingBuild();
                 
             SaveSystem.NextSaveToLoad = string.Empty;
-            SaveSystem.ClearAllSaves();
+            SaveSystem.ClearAllSaves(false, false);
         }
         
         GameManager.IsPlayerDead = false;
@@ -160,7 +160,7 @@ public class PauseMenuUI : MonoBehaviour
         if (GameManager.CurrentGameState != GameState.Exploring && !GameManager.IsTestingToSubmit)
         {
             SaveSystem.NextSaveToLoad = string.Empty;
-            SaveSystem.ClearAllSaves();
+            SaveSystem.ClearAllSaves(false, false);
         }
         
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
@@ -173,7 +173,7 @@ public class PauseMenuUI : MonoBehaviour
         GameManager.IsPlayerDead = false;
         
         GameManager.Resume();
-        SceneManager.LoadSceneAsync(0);
+        SceneManager.LoadSceneAsync("Main_Menu");
     }
 
     private void OnWinUIOpen()

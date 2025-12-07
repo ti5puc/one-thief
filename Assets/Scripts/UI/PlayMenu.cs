@@ -5,16 +5,16 @@ public class PlayMenu : MonoBehaviour
 {
     public void Return()
     {
-        SceneManager.LoadSceneAsync(0);
+        SceneManager.LoadSceneAsync("Main_Menu");
     }
 
     public void Challenge()
     {
-        SceneManager.LoadSceneAsync(2);
+        SceneManager.LoadSceneAsync("Challenge_Menu");
     }
 
     public void Build()
     {
-        SceneManager.LoadSceneAsync(3);
+        SceneManager.LoadSceneAsync("Build_Menu");
     }
 }

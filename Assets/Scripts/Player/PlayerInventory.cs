@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class InventoryData
 {
     public int Gold;
+    public string PlayerName;
 }
 
 public class PlayerInventory : MonoBehaviour
@@ -49,6 +50,9 @@ public class PlayerInventory : MonoBehaviour
         
         TreasureChest.OnAnyChestOpened += AddGoldToGain;
         WinUI.OnGetGold += ApplyGoldInCache;
+        
+        // Load from Firebase when authentication completes
+        FirebaseManager.OnAuthenticationComplete += LoadInventoryFromFirebase;
     }
 
     private void OnDestroy()
@@ -58,6 +62,59 @@ public class PlayerInventory : MonoBehaviour
         
         TreasureChest.OnAnyChestOpened -= AddGoldToGain;
         WinUI.OnGetGold -= ApplyGoldInCache;
+        
+        FirebaseManager.OnAuthenticationComplete -= LoadInventoryFromFirebase;
+    }
+
+    private async void LoadInventoryFromFirebase()
+    {
+        try
+        {
+            Debug.Log("[PlayerInventory] Starting to load inventory from Firebase...");
+            
+            InventoryData firebaseData = await SaveSystem.LoadInventoryFromFirebase();
+            
+            if (firebaseData != null)
+            {
+                // Use the Firebase data
+                loadedData = firebaseData;
+                Debug.Log($"[PlayerInventory] Loaded from Firebase. Gold: {CurrentGold}");
+            }
+            else
+            {
+                // Reload local data if Firebase had nothing
+                loadedData = SaveSystem.LoadInventory();
+                Debug.Log($"[PlayerInventory] No Firebase data, using local. Gold: {CurrentGold}");
+                
+                if (loadedData != null && loadedData.Gold > 0)
+                {
+                    // Save local data to Firebase
+                    SaveSystem.SaveInventory(loadedData);
+                    Debug.Log($"[PlayerInventory] Uploaded local data to Firebase. Gold: {CurrentGold}");
+                }
+            }
+            
+            // Notify UI
+            OnGoldChanged?.Invoke(CurrentGold);
+            
+            Debug.Log("[PlayerInventory] Successfully completed Firebase inventory load");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[PlayerInventory] Error loading inventory from Firebase: {ex.Message}\n{ex.StackTrace}");
+            
+            // Fallback to local data on error
+            try
+            {
+                loadedData = SaveSystem.LoadInventory();
+                Debug.Log($"[PlayerInventory] Fallback to local data. Gold: {CurrentGold}");
+                OnGoldChanged?.Invoke(CurrentGold);
+            }
+            catch (Exception fallbackEx)
+            {
+                Debug.LogError($"[PlayerInventory] Error loading local inventory: {fallbackEx.Message}");
+            }
+        }
     }
 
     public void ApplyGoldInCache()
@@ -66,7 +123,11 @@ public class PlayerInventory : MonoBehaviour
 
         currentGold += goldCache;
         
-        var newInventoryData = new InventoryData { Gold = currentGold };
+        var newInventoryData = new InventoryData 
+        { 
+            Gold = currentGold,
+            PlayerName = FirebaseManager.Instance.PlayerName
+        };
         SaveSystem.SaveInventory(newInventoryData);
         loadedData = newInventoryData;
         
@@ -80,7 +141,11 @@ public class PlayerInventory : MonoBehaviour
 
         currentGold -= goldCache;
         
-        var newInventoryData = new InventoryData { Gold = currentGold };
+        var newInventoryData = new InventoryData 
+        { 
+            Gold = currentGold,
+            PlayerName = FirebaseManager.Instance.PlayerName
+        };
         SaveSystem.SaveInventory(newInventoryData);
         loadedData = newInventoryData;
         

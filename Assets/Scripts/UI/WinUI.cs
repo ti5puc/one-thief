@@ -20,12 +20,14 @@ public class WinUI : MonoBehaviour
     [SerializeField] private Transform submitGroup;
     [SerializeField] private Button submitButton;
     [SerializeField] private Button denyButton;
+    [SerializeField] private TMP_InputField levelName;
 
     private void Awake()
     {
         submitButton.onClick.AddListener(OnSubmitButtonClicked);
         denyButton.onClick.AddListener(OnDenyButtonClicked);
         okButton.onClick.AddListener(OnWinExploring);
+        levelName.onValueChanged.AddListener(EnableButton);
 
         TreasureCollectCounter.OnAllTreasuresCollected += TryShow;
         
@@ -37,6 +39,7 @@ public class WinUI : MonoBehaviour
         submitButton.onClick.RemoveListener(OnSubmitButtonClicked);
         denyButton.onClick.RemoveListener(OnDenyButtonClicked);
         okButton.onClick.RemoveListener(OnWinExploring);
+        levelName.onValueChanged.RemoveListener(EnableButton);
             
         TreasureCollectCounter.OnAllTreasuresCollected -= TryShow;
     }
@@ -60,6 +63,8 @@ public class WinUI : MonoBehaviour
         submitGroup.gameObject.SetActive(true);
         okGroup.gameObject.SetActive(false);
         
+        EnableButton(levelName.text);
+        
         gameObject.SetActive(true);
     }
 
@@ -80,8 +85,28 @@ public class WinUI : MonoBehaviour
         OnHide?.Invoke();
     }
 
+    private void EnableButton(string lvlName)
+    {
+        submitButton.interactable = !string.IsNullOrWhiteSpace(lvlName);
+    }
+
     private void OnSubmitButtonClicked()
     {
+        if (string.IsNullOrWhiteSpace(levelName.text))
+        {
+            Debug.LogError("Level needs a name.");
+            return;
+        }
+        
+        bool hasLevelId = SaveSystem.LocalSaveHasLevelId(SaveSystem.NextSaveToLoad);
+        if (hasLevelId)
+        {
+            var levelId = SaveSystem.GetLocalSaveLevelId(SaveSystem.NextSaveToLoad);
+            SaveSystem.EditLevelOnFirebase(levelId, levelName.text, PlayerInventory.Instance.GoldCache, GameManager.NextLayoutIndex);
+        }
+        else
+            SaveSystem.SubmitLevelToFirebase(levelName.text, PlayerInventory.Instance.GoldCache, GameManager.NextLayoutIndex);
+        
         PlayerInventory.Instance.SpendGoldToRemove();
         
         GameManager.Resume();
@@ -123,6 +148,6 @@ public class WinUI : MonoBehaviour
         
         GameManager.ShowCursor();
         
-        SceneManager.LoadSceneAsync(2);
+        SceneManager.LoadSceneAsync("Challenge_Menu");
     }
 }

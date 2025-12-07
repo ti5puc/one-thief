@@ -10,17 +10,17 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
-        SceneManager.LoadSceneAsync(1);
+        SceneManager.LoadSceneAsync("Play_Menu");
     }
 
     public void Options()
     {
-        SceneManager.LoadSceneAsync(5);
+        SceneManager.LoadSceneAsync("Options_Menu");
     }
 
     public void Leaderboard()
     {
-        SceneManager.LoadSceneAsync(4);
+        SceneManager.LoadSceneAsync("Leaderboard_Screen");
     }
     
     public void QuitGame()

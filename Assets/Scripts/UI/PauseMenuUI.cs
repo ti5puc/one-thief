@@ -119,8 +119,6 @@ public class PauseMenuUI : MonoBehaviour
             return;
         }
         
-        OnTest?.Invoke();
-        
         if (GameManager.IsTestingToSubmit)
         {
             GameManager.IsTestingToSubmit = false;
@@ -135,6 +133,8 @@ public class PauseMenuUI : MonoBehaviour
             
             GameManager.ChangeGameStateToExploring();
         }
+        
+        OnTest?.Invoke();
         
         Hide();
     }

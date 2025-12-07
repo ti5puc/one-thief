@@ -28,29 +28,16 @@ public class FakeFloorTrap_v2 : TrapBase
     protected override void Awake()
     {
         base.Awake();
+        
+        PlayerSave.OnLevelLoaded += ResetNearestGround;
+        
         deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ, deathVfxOffset);
-
-        if (!foundNearestGround)
-        {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 5f, LayerMask.GetMask("Ground"));
-            if (colliders.Length > 0)
-            {
-                nearestGround = colliders[0];
-                float minDistance = Vector3.Distance(transform.position, nearestGround.transform.position);
-                foreach (var collider in colliders)
-                {
-                    float distance = Vector3.Distance(transform.position, collider.transform.position);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        nearestGround = collider;
-                    }
-                }
-
-                foundNearestGround = true;
-                Debug.Log("Nearest ground object found: " + nearestGround.name);
-            }
-        }
+        TryFindNearestGround();
+    }
+    
+    protected override void OnDestroy()
+    {
+        PlayerSave.OnLevelLoaded -= ResetNearestGround;
     }
 
     protected override void OnAction(Collider player, float totalDuration)
@@ -99,4 +86,38 @@ public class FakeFloorTrap_v2 : TrapBase
     }
 
     protected override void OnAlwaysActive() => throw new NotImplementedException();
+    
+    private void ResetNearestGround()
+    {
+        foundNearestGround = false;
+        nearestGround = null;
+        
+        // delay the search to allow scene objects to initialize
+        Invoke(nameof(TryFindNearestGround), 0.1f);
+    }
+
+    private void TryFindNearestGround()
+    {
+        if (foundNearestGround)
+            return;
+        
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 5f, LayerMask.GetMask("Ground"));
+        if (colliders.Length > 0)
+        {
+            nearestGround = colliders[0];
+            float minDistance = Vector3.Distance(transform.position, nearestGround.transform.position);
+            foreach (var collider in colliders)
+            {
+                float distance = Vector3.Distance(transform.position, collider.transform.position);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestGround = collider;
+                }
+            }
+
+            foundNearestGround = true;
+            Debug.Log("Nearest ground object found: " + nearestGround.name);
+        }
+    }
 }

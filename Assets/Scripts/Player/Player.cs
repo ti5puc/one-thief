@@ -1003,10 +1003,17 @@ public class Player : MonoBehaviour
 
         if (groupToRemove != null)
         {
+            // Clear grid cells for all actual traps
             foreach (var actualTrap in groupToRemove.ActualTraps)
             {
                 if (actualTrap != null)
                 {
+                    if (TryWorldToGrid(actualTrap.transform.position, out int gridRow, out int gridCol))
+                    {
+                        trapIdGrid[gridRow, gridCol] = 0;
+                        trapRotationGrid[gridRow, gridCol] = 0;
+                        Debug.Log($"[GRID CLEAR] Cleared trap at ({gridRow},{gridCol})");
+                    }
                     Debug.Log($"[RemoveTrap] Removed trap: {actualTrap.name}");
                     Destroy(actualTrap);
                 }

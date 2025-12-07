@@ -173,6 +173,22 @@ public class PlayerInventory : MonoBehaviour
         
         OnGoldToRemoveChanged?.Invoke(goldCache);
     }
+    
+    public void RemoveGoldToRemove(int amount)
+    {
+        if (amount <= 0) return;
+        if (GameManager.CurrentGameState == GameState.Exploring) return;
+
+        goldCache -= amount;
+        
+        // Ensure cache never goes below 0
+        if (goldCache < 0)
+        {
+            goldCache = 0;
+        }
+        
+        OnGoldToRemoveChanged?.Invoke(goldCache);
+    }
 
     public void ClearGoldCache()
     {

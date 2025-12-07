@@ -21,12 +21,14 @@ public class TreasureCollectCounter : MonoBehaviour
     {
         Player.OnTrapPlaced += CacheTreasuresOnScene;
         PlayerSave.OnLevelLoaded += CacheTreasuresOnScene;
+        Player.OnTrapRemoved += CacheTreasuresOnScene;
     }
-    
+
     private void OnDestroy()
     {
         Player.OnTrapPlaced -= CacheTreasuresOnScene;
         PlayerSave.OnLevelLoaded -= CacheTreasuresOnScene;
+        Player.OnTrapRemoved -= CacheTreasuresOnScene;
         
         if (treasuresOnScene != null)
         {

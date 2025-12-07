@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class TreasureChest : MonoBehaviour
+public class TreasureChest : MonoBehaviour, IPlaceable
 {
     public static event Action OnPlayerEnteredChestArea;
     public static event Action OnPlayerExitedChestArea;
@@ -18,6 +18,8 @@ public class TreasureChest : MonoBehaviour
 
     private bool isPlayerInRange = false;
     private bool isChestOpened = false;
+    
+    public PlaceableSettings PlaceableSettings => placeableSettings;
 
     private void Awake()
     {

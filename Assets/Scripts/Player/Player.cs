@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     public static event Action<PlaceableSettings> OnSelectedTrapChanged;
     public static event Action<bool, List<PlaceableSettings>, int> OnToggleTrapSelect; // bool isTrapSelectionActive, int selectedTrapIndex
     public static event Action<PlaceableSettings> OnTrapPlaced;
+    public static event Action<PlaceableSettings> OnTrapRemoved;
     public event Action<bool, bool> OnMoveChanged; // bool isMoving, bool isSprinting
 
     //---------------------------------- Inicio Movimentacao e Camera ----------------------------------
@@ -964,8 +965,8 @@ public class Player : MonoBehaviour
         }
 
         placedTrapGroups.Add(trapGroup);
+        
         PlayerInventory.Instance.AddGoldToRemove(trapSettings.PlacementCost);
-
         OnTrapPlaced?.Invoke(trapSettings);
         
         Debug.Log($"[PlaceTrap] Placement completed for {trapSettings.TrapObject.name}");
@@ -1003,6 +1004,15 @@ public class Player : MonoBehaviour
 
         if (groupToRemove != null)
         {
+            // Get the PlaceableSettings from the first actual trap
+            PlaceableSettings trapSettings = null;
+            if (groupToRemove.ActualTraps.Count > 0 && groupToRemove.ActualTraps[0] != null)
+            {
+                var palceable = groupToRemove.ActualTraps[0].GetComponent<IPlaceable>();
+                if (palceable != null)
+                    trapSettings = palceable.PlaceableSettings;
+            }
+            
             // Clear grid cells for all actual traps
             foreach (var actualTrap in groupToRemove.ActualTraps)
             {
@@ -1014,6 +1024,7 @@ public class Player : MonoBehaviour
                         trapRotationGrid[gridRow, gridCol] = 0;
                         Debug.Log($"[GRID CLEAR] Cleared trap at ({gridRow},{gridCol})");
                     }
+                    
                     Debug.Log($"[RemoveTrap] Removed trap: {actualTrap.name}");
                     Destroy(actualTrap);
                 }
@@ -1029,6 +1040,13 @@ public class Player : MonoBehaviour
             }
 
             placedTrapGroups.Remove(groupToRemove);
+            
+            // Remove gold from cache and invoke event with the trap settings
+            if (trapSettings != null)
+            {
+                PlayerInventory.Instance.RemoveGoldToRemove(trapSettings.PlacementCost);
+                OnTrapRemoved?.Invoke(trapSettings);
+            }
             
             Debug.Log($"[RemoveTrap] Removed trap group with {groupToRemove.ActualTraps.Count} traps and {groupToRemove.Previews.Count} previews at position {targetGridPosition}");
         }

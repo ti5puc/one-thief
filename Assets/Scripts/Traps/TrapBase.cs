@@ -4,7 +4,7 @@ using DG.Tweening.Plugins.Options;
 using NaughtyAttributes;
 using UnityEngine;
 
-public abstract class TrapBase : MonoBehaviour
+public abstract class TrapBase : MonoBehaviour, IPlaceable
 {
     [SerializeField] protected TrapSettings trapSettings;
 
@@ -15,7 +15,7 @@ public abstract class TrapBase : MonoBehaviour
     protected bool hasActionTriggerStayed = false;
     protected bool hasHitTriggerStayed = false;
 
-    public TrapSettings TrapSettings => trapSettings;
+    public PlaceableSettings PlaceableSettings => trapSettings;
 
     protected virtual void Awake()
     {

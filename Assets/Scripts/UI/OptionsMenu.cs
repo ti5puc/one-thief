@@ -12,7 +12,7 @@ public class OptionsMenu : MonoBehaviour
     {
         await FirebaseManager.DeletePlayerData();
         
-        SaveSystem.ClearAllSaves(alsoClearInventory: true);
+        SaveSystem.ClearAllSaves(true, true);
         
         SceneManager.LoadSceneAsync("Startup");
     }

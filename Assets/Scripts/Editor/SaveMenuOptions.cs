@@ -18,7 +18,7 @@ public class SaveMenuOptions
 	[MenuItem("One Thief/Saves/Clear all saves")]
 	public static void ClearAllSaves()
 	{
-		SaveSystem.ClearAllSaves();
+		SaveSystem.ClearAllSaves(true, true);
 	}
 	
 	[MenuItem("One Thief/Saves/Export current build save")]

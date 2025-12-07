@@ -257,7 +257,7 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
-    public static void ClearAllSaves(bool alsoClearInventory = false)
+    public static void ClearAllSaves(bool alsoClearInventory, bool alsoClearCredentials)
     {
         string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
 
@@ -288,26 +288,29 @@ public class SaveSystem : MonoBehaviour
         }
         
         // Delete user credentials file
-        string credentialsPath = Path.Combine(saveFolderPath, USER_CREDENTIALS_FILE + CREDENTIALS_EXTENSION);
-        if (File.Exists(credentialsPath))
+        if (alsoClearCredentials)
         {
-            try
+            string credentialsPath = Path.Combine(saveFolderPath, USER_CREDENTIALS_FILE + CREDENTIALS_EXTENSION);
+            if (File.Exists(credentialsPath))
             {
-                File.Delete(credentialsPath);
-                Debug.Log("Deleted user credentials file");
-                
-                // Sign out from Firebase and re-authenticate with new credentials
-                FirebaseManager.SignOut();
-                
-                // Wait a frame then re-authenticate with new account
-                if (Instance != null)
+                try
                 {
-                    Instance.StartCoroutine(ReAuthenticateAfterDelay());
+                    File.Delete(credentialsPath);
+                    Debug.Log("Deleted user credentials file");
+                    
+                    // Sign out from Firebase and re-authenticate with new credentials
+                    FirebaseManager.SignOut();
+                    
+                    // Wait a frame then re-authenticate with new account
+                    if (Instance != null)
+                    {
+                        Instance.StartCoroutine(ReAuthenticateAfterDelay());
+                    }
                 }
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"Failed to delete credentials file: {ex.Message}");
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"Failed to delete credentials file: {ex.Message}");
+                }
             }
         }
 

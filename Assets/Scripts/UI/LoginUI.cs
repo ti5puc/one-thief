@@ -108,7 +108,7 @@ public class LoginUI : MonoBehaviour
         }
         
         // Clear all local saves including inventory
-        SaveSystem.ClearAllSaves(alsoClearInventory: true);
+        SaveSystem.ClearAllSaves(true, true);
         
         Debug.Log("[LoginUI] All player saves have been reset!");
         

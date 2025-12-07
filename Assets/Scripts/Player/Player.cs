@@ -332,7 +332,8 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (deathIdentifier != null && deathIdentifier.IsDead)
+        if (deathIdentifier != null && deathIdentifier.IsDead && 
+            (GameManager.CurrentGameState != GameState.Building || GameManager.CanEnterBuildMode == false))
         {
             if (isTrapModeActive)
             {

@@ -1200,7 +1200,7 @@ MonoBehaviour:
   instructionText: {fileID: 356048516727844831}
   instructionsPerState:
   - GameState: 0
-    InstructionText: "\n<b>WASD</b> - move\n<b>Space</b> - pulo, duplo, triplo\n<b>Shift</b>
+    InstructionText: "\n<b>WASD</b> - move\n<b>Space</b> - pulo triplo\n<b>Shift</b>
       - reduzir velocidade\n<b>Q</b> - dash\n<b>E</b> - intera\xE7\xF5es\n\n<b>ESC</b>
       - menu de pausa\n\n--------\n\n<b>F1</b> - hack ganhar gold \n<b>F2</b> - invincible
       on/off"
@@ -1211,7 +1211,7 @@ MonoBehaviour:
       testar fase\n\n--------\n\n<b>F1</b> - hack ganhar gold \n<b>F2</b> - invincible
       on/off"
   - GameState: 2
-    InstructionText: "\n<b>WASD</b> - move\n<b>Space</b> - pulo, duplo, triplo\n<b>Shift</b>
+    InstructionText: "\n<b>WASD</b> - move\n<b>Space</b> - pulo triplo\n<b>Shift</b>
       - reduzir velocidade\n<b>Q</b> - dash\n<b>E</b> - intera\xE7\xF5es\n\n<b>T</b>
       - modo constru\xE7\xE3o\n\n<b>ESC</b> - testar fase\n\n--------\n\n<b>F1</b>
       - hack ganhar gold \n<b>F2</b> - invincible on/off"

@@ -333,16 +333,38 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (deathIdentifier != null && deathIdentifier.IsDead && 
-            (GameManager.CurrentGameState != GameState.Building || GameManager.CanEnterBuildMode == false))
+        if (deathIdentifier != null && deathIdentifier.IsDead)
         {
             if (isTrapModeActive)
             {
                 isTrapModeActive = false;
                 DestroyGhostTraps();
+                
+                // Hide positioned previews as well
+                foreach (var preview in trapPreviews)
+                {
+                    if (preview != null)
+                        preview.SetActive(false);
+                }
             }
 
             return;
+        }
+
+        if (GameManager.CurrentGameState != GameState.Building || GameManager.CanEnterBuildMode == false)
+        {
+            if (isTrapModeActive)
+            {
+                isTrapModeActive = false;
+                DestroyGhostTraps();
+                
+                // Hide positioned previews as well
+                foreach (var preview in trapPreviews)
+                {
+                    if (preview != null)
+                        preview.SetActive(false);
+                }
+            }
         }
 
         if (isTrapModeActive && ghostTrapObjects != null && ghostTrapObjects.Count > 0)

@@ -37,7 +37,7 @@ public class InventoryUI : MonoBehaviour
     private void Start()
     {
         OnGoldChanged(PlayerInventory.Instance.CurrentGold);
-        goldToGainAmountText.gameObject.SetActive(false);
+        goldToGainAmountText.gameObject.SetActive(PlayerInventory.Instance.GoldCache > 0);
         
         playerNameText.text = FirebaseManager.Instance.IsAuthenticated
             ? FirebaseManager.Instance.PlayerName

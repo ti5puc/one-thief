@@ -74,6 +74,8 @@ public class PauseMenuUI : MonoBehaviour
         {
             testButton.interactable = true;
             testButtonText.text = "Voltar à construção";
+            
+            resetButton.interactable = false;
         }
         else
         {
@@ -85,6 +87,7 @@ public class PauseMenuUI : MonoBehaviour
             treasureHintText.gameObject.SetActive(hasNoTreasureOnScene);
 
             testButton.interactable = !isExploring && !hasNoTreasureOnScene;
+            resetButton.interactable = true;
         }
         
         GameManager.ShowCursor();

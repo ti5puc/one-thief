@@ -54,6 +54,7 @@ public class ChallengeLevelCardUI : MonoBehaviour
             Debug.Log($"[ChallengeLevelCardUI] Loading level {levelId} for play...");
             
             GameManager.SetCanEnterBuildMode(false);
+            GameManager.IsTestingToSubmit = false;
             GameManager.ChangeGameStateToExploring();
             
             string firebaseSaveId = await SaveSystem.LoadFirebaseLevel(levelId);

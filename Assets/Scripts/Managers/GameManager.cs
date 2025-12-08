@@ -81,6 +81,11 @@ public class GameManager : MonoBehaviour
         OnInitialized?.Invoke();
     }
 
+    private void OnApplicationQuit()
+    {
+        SaveSystem.DeleteDownloadedLevels();
+    }
+
     public static void SetCanEnterBuildMode(bool canEnter)
     {
         Instance.canEnterBuildMode = canEnter;

@@ -25,8 +25,6 @@ public class Player : MonoBehaviour
     public float senseX;
     public float senseY;
     public Transform cameraTransform;
-    private float pendingDeltaX;
-    private float pendingDeltaY;
 
     [Header("Movimento")]
     public float moveSpeed = 3f;
@@ -312,7 +310,8 @@ public class Player : MonoBehaviour
         if (isTrapSelectionActive) return;
         if (GameManager.IsGamePaused) return;
 
-        pendingDeltaX = context.ReadValue<float>() * senseX;
+        float deltaX = context.ReadValue<float>() * senseX;
+        transform.Rotate(0f, deltaX, 0f);
     }
 
     public void OnMouseY(InputAction.CallbackContext context)
@@ -321,16 +320,8 @@ public class Player : MonoBehaviour
         if (isTrapSelectionActive) return;
         if (GameManager.IsGamePaused) return;
 
-        pendingDeltaY = context.ReadValue<float>() * senseY;
-    }
-    
-    private void ApplyCameraRotation()
-    {
-        // Apply horizontal rotation to player body
-        transform.Rotate(0f, pendingDeltaX, 0f);
-        
-        // Apply vertical rotation to camera
-        float newXRotation = cameraTransform.localEulerAngles.x - pendingDeltaY;
+        float deltaY = context.ReadValue<float>() * senseY;
+        float newXRotation = cameraTransform.localEulerAngles.x - deltaY;
         if (newXRotation > 180)
         {
             newXRotation -= 360;
@@ -338,10 +329,6 @@ public class Player : MonoBehaviour
         newXRotation = Mathf.Clamp(newXRotation, -90f, 90f);
 
         cameraTransform.localRotation = Quaternion.Euler(newXRotation, 0f, 0f);
-        
-        // Reset after applying
-        pendingDeltaX = 0f;
-        pendingDeltaY = 0f;
     }
 
     void Update()
@@ -441,11 +428,6 @@ public class Player : MonoBehaviour
             playerSave.LoadAndRebuild(this,"debug_save");
         }
 
-    }
-
-    void LateUpdate()
-    {
-        ApplyCameraRotation();
     }
 
     void FixedUpdate()

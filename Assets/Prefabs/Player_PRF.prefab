@@ -2107,6 +2107,7 @@ MonoBehaviour:
   removeTrapInput: {fileID: 7208104644596361715, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   rotateTrapInput: {fileID: 6095268211286430691, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   openTrapMenuInput: {fileID: 2940476943831502051, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
+  unstuckHackInput: {fileID: 2328408876708686614, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
 --- !u!114 &5856191721542497056
 MonoBehaviour:
   m_ObjectHideFlags: 0

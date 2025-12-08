@@ -315,7 +315,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -223.0373, y: 98.611694}
+  m_AnchoredPosition: {x: -229, y: 41.611694}
   m_SizeDelta: {x: 287.9254, y: 71.2234}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &645472674984333718
@@ -373,12 +373,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42
+  m_fontSize: 36
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 42
+  m_fontSizeMax: 36
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -851,7 +851,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -223.0373, y: -3}
+  m_AnchoredPosition: {x: -229, y: -42.660004}
   m_SizeDelta: {x: 287.9254, y: 71.2234}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7263932786523517358
@@ -909,12 +909,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42
+  m_fontSize: 36
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 42
+  m_fontSizeMax: 36
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -1474,19 +1474,22 @@ MonoBehaviour:
   - GameState: 0
     InstructionText: "\n<b>WASD</b> - move\n<b>Space</b> - pulo triplo\n<b>Shift</b>
       - reduzir velocidade\n<b>Q</b> - dash\n<b>E</b> - intera\xE7\xF5es\n\n<b>ESC</b>
-      - menu de pausa\n\n--------\n\n<b>F1</b> - hack ganhar gold \n<b>F2</b> - invincible
-      on/off"
+      - menu de pausa\n\n--------\n\n<size=28px>HACKS</size>\n\n<b>F1</b> - ganhar
+      gold \n<b>F2</b> - invincible on/off\n<b>F3</b> - reposicionar jogador pro
+      in\xEDcio (unstuck)"
   - GameState: 1
     InstructionText: "\n<b>WASD</b> - move\n<b>T</b> - testar constru\xE7\xE3o\n\n<b>E</b>
       - menu de armadilhas\n<b>Mouse ESQ.</b> - posiciona armadilha\n<b>Mouse SCROLL</b>
       - rotaciona armadilha\n<b>Mouse DIR.</b> - remove armadilha\n\n<b>ESC</b> -
-      testar fase\n\n--------\n\n<b>F1</b> - hack ganhar gold \n<b>F2</b> - invincible
-      on/off"
+      testar fase\n\n--------\n\n<size=28px>HACKS</size>\n\n<b>F1</b> - ganhar gold
+      \n<b>F2</b> - invincible on/off\n<b>F3</b> - reposicionar jogador pro in\xEDcio
+      (unstuck)"
   - GameState: 2
     InstructionText: "\n<b>WASD</b> - move\n<b>Space</b> - pulo triplo\n<b>Shift</b>
       - reduzir velocidade\n<b>Q</b> - dash\n<b>E</b> - intera\xE7\xF5es\n\n<b>T</b>
-      - modo constru\xE7\xE3o\n\n<b>ESC</b> - testar fase\n\n--------\n\n<b>F1</b>
-      - hack ganhar gold \n<b>F2</b> - invincible on/off"
+      - modo constru\xE7\xE3o\n\n<b>ESC</b> - testar fase\n\n--------\n\n<size=28px>HACKS</size>\n\n<b>F1</b>
+      - ganhar gold \n<b>F2</b> - invincible on/off\n<b>F3</b> - reposicionar jogador
+      pro in\xEDcio (unstuck)"
 --- !u!1 &2183636876366214127
 GameObject:
   m_ObjectHideFlags: 0
@@ -1929,7 +1932,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -127, y: 110}
+  m_AnchoredPosition: {x: -163, y: 53}
   m_SizeDelta: {x: 171.0753, y: 43.1444}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6811138409075968410
@@ -2326,7 +2329,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 352.22998, y: -56.077515}
+  m_AnchoredPosition: {x: 347, y: -54}
   m_SizeDelta: {x: 642.45, y: 66.1561}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2338744371645374616
@@ -2925,7 +2928,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -804, y: -452}
+  m_AnchoredPosition: {x: -826, y: -536}
   m_SizeDelta: {x: -1300.4336, y: 188.1378}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3809916070593148561
@@ -2983,12 +2986,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42
+  m_fontSize: 36
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 42
+  m_fontSizeMax: 36
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -4666,7 +4669,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 352.2273, y: -227.72473}
+  m_AnchoredPosition: {x: 352.2273, y: -231}
   m_SizeDelta: {x: 642.4546, y: 277.138}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &831514395777595709
@@ -4697,10 +4700,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\n<b>WASD</b> - move\n<b>Space</b> - pulo, duplo, triplo\n<b>Shift</b>
-    - corrida\n<b>Q</b> - dash\n<b>T</b> - modo constru\xE7\xE3o\n<b>Mouse DIR.</b>
-    - troca armadilha\n<b>Mouse ESQ.</b> - posiciona armadilha\n<b>Mouse SCROLL</b>
-    - rotaciona armadilha\n<b>E</b> - intera\xE7\xF5es\n<b>R</b> - restart"
+  m_text: "\n<b>WASD</b> - move\n<b>T</b> - testar constru\xE7\xE3o\n\n<b>E</b> -
+    menu de armadilhas\n<b>Mouse ESQ.</b> - posiciona armadilha\n<b>Mouse SCROLL</b>
+    - rotaciona armadilha\n<b>Mouse DIR.</b> - remove armadilha\n\n<b>ESC</b> - testar
+    fase\n\n--------\n\n<size=28px>HACKS</size>\n\n<b>F1</b> - ganhar gold \n<b>F2</b>
+    - invincible on/off\n<b>F3</b> - reposicionar jogador pro in\xEDcio (unstuck)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4727,7 +4731,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 21.95
+  m_fontSize: 18
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -5758,11 +5762,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 662137175193766229, guid: 119a8839a6c3f2d48b2cc4169a8a95a4, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -136.3074
+      value: -168
       objectReference: {fileID: 0}
     - target: {fileID: 662137175193766229, guid: 119a8839a6c3f2d48b2cc4169a8a95a4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 6.66
+      value: -31
       objectReference: {fileID: 0}
     - target: {fileID: 662137175193766229, guid: 119a8839a6c3f2d48b2cc4169a8a95a4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

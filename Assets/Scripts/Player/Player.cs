@@ -114,6 +114,7 @@ public class Player : MonoBehaviour
     [FormerlySerializedAs("switchTrapInput")] public InputActionReference removeTrapInput;
     public InputActionReference rotateTrapInput;
     public InputActionReference openTrapMenuInput;
+    public InputActionReference unstuckHackInput;
 
     private bool isTrapModeActive;
     private bool isTrapSelectionActive;
@@ -207,6 +208,9 @@ public class Player : MonoBehaviour
 
         rotateTrapInput.action.Enable();
         rotateTrapInput.action.performed += RotateObject;
+        
+        unstuckHackInput.action.Enable();
+        unstuckHackInput.action.performed += ResetPlayerPosition;
 
         //---------------------------------- Início da Ativação do Input System de Movimentacao e Camera ----------------------------------
 
@@ -264,6 +268,9 @@ public class Player : MonoBehaviour
         rotateTrapInput.action.Disable();
         rotateTrapInput.action.performed -= RotateObject;
 
+        unstuckHackInput.action.Disable();
+        unstuckHackInput.action.performed -= ResetPlayerPosition;
+        
 
         //---------------------------------- Início da Desativação do Input System de Movimentacao e Camera ----------------------------------
 
@@ -1244,6 +1251,12 @@ public class Player : MonoBehaviour
         playerSave.Save(this, "current_build");
         playerSave.LoadAndRebuild(this, "current_build");
         
+        ResetPlayerPosition();
+    }
+    
+    private void ResetPlayerPosition(InputAction.CallbackContext context) => ResetPlayerPosition();
+    private void ResetPlayerPosition()
+    {
         transform.position = initialPosition;
     }
 

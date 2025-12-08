@@ -3,16 +3,18 @@ using UnityEngine.UI;
 
 public class ActionsUI : MonoBehaviour
 {
-    [Header("Referências")]
+    [Header("Referï¿½ncias")]
     public Player player;
     public Transform jumpsParent;
     public GameObject jumpIconPrefab;
 
-    [Header("Ícone de Andar")]
+    [Header("ï¿½cone de Andar")]
     public GameObject shiftIcon;
 
-    [Header("Configuração")]
+    [Header("Configuraï¿½ï¿½o")]
     private Image[] icons;
+    
+    private Color defaultColor = Color.white;
 
     void OnEnable()
     {
@@ -38,36 +40,43 @@ public class ActionsUI : MonoBehaviour
 
     void BuildUI()
     {
-        // limpa ícones antigos
+        // limpa Ã­cones antigos
         foreach (Transform child in jumpsParent)
             Destroy(child.gameObject);
 
-        // cria novos ícones baseados no maxAirJumps
-        icons = new Image[player.maxAirJumps];
+        // cria novos Ã­cones baseados no maxAirJumps + 1 (inclui pulo do chÃ£o)
+        icons = new Image[player.maxAirJumps + 1];
 
-        for (int i = 0; i < player.maxAirJumps; i++)
+        for (int i = 0; i < icons.Length; i++)
         {
             GameObject iconObj = Instantiate(jumpIconPrefab, jumpsParent);
             icons[i] = iconObj.GetComponent<Image>();
         }
+        
+        defaultColor = icons[0].color;
     }
 
     void UpdateUI()
     {
-        // quantidade que o player ainda tem no ar
-        int remaining = player.airJumpsRemaining;
-
-        for (int i = 0; i < icons.Length; i++)
+        if (player.isGrounded)
         {
-            if (i < remaining)
+            // Se estÃ¡ no chÃ£o, todos os Ã­cones ficam coloridos
+            for (int i = 0; i < icons.Length; i++)
             {
-                // pulo disponível em cor
-                icons[i].color = new Color(1, 1, 1, 1f);
+                icons[i].color = defaultColor;
             }
-            else
+        }
+        else
+        {
+            // Se estÃ¡ no ar, primeiro Ã­cone (pulo do chÃ£o) fica transparente
+            icons[0].color = new Color(1, 1, 1, 0.2f);
+            // Os prÃ³ximos Ã­cones refletem os pulos aÃ©reos usados e restantes
+            for (int i = 1; i < icons.Length; i++)
             {
-                // pulo usado transparente
-                icons[i].color = new Color(1, 1, 1, 0.2f);
+                if (i <= player.maxAirJumps - player.airJumpsRemaining)
+                    icons[i].color = new Color(1, 1, 1, 0.2f); // usado
+                else
+                    icons[i].color = defaultColor; // disponÃ­vel
             }
         }
     }

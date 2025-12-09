@@ -40,7 +40,17 @@ public class WallArrowTrap : TrapBase
     protected override void Awake()
     {
         base.Awake();
+
+        PlayerSave.OnLevelLoaded += ResetArrows;
+        
         arrowTrapParts.AddRange(GetComponentsInChildren<ArrowTrapPart>(true));
+    }
+    
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        
+        PlayerSave.OnLevelLoaded -= ResetArrows;
     }
 
     protected override void OnAlwaysActive()
@@ -150,5 +160,26 @@ public class WallArrowTrap : TrapBase
         scheduledRestartTween?.Pause();
         foreach (var part in arrowTrapParts)
             part.PauseMovement();
+    }
+    
+    private void ResetArrows()
+    {
+        // Kill all active sequences and tweens
+        arrowShootSequence?.Kill();
+        arrowShootSequence = null;
+        
+        scheduledRestartTween?.Kill();
+        scheduledRestartTween = null;
+        
+        // Reset tracking variables
+        activeArrows = 0;
+        isAwaitingArrows = false;
+        lastShotTime = -Mathf.Infinity;
+        
+        // Reset all arrow trap parts to their initial state
+        foreach (var part in arrowTrapParts)
+        {
+            part.ResetToInitialState();
+        }
     }
 }

@@ -53,6 +53,30 @@ public class ArrowTrapPart : MonoBehaviour
     public void EnableTrigger() => hitTrigger.Collider.enabled = true;
     public void DisableTrigger() => hitTrigger.Collider.enabled = false;
 
+    public void ResetToInitialState()
+    {
+        // Kill any active tweens
+        appearTween?.Kill();
+        disappearTween?.Kill();
+        
+        // Reset state
+        isActive = false;
+        isMoving = false;
+        isPaused = false;
+        currentSettings = null;
+        OnDisappear = null;
+        
+        // Reset transform
+        transform.SetParent(parentTransform);
+        transform.localPosition = initialPosition;
+        transform.localRotation = initialRotation;
+        transform.localScale = initialScale;
+        
+        // Deactivate
+        gameObject.SetActive(false);
+        DisableTrigger();
+    }
+
     public void LaunchArrow(WallArrowTrap.ArrowSettings arrowSettings, Action onDisappear)
     {
         isActive = true;

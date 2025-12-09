@@ -158,13 +158,16 @@ public class PauseMenuUI : MonoBehaviour
         }
         
         GameManager.IsPlayerDead = false;
-        PlayerInventory.Instance.ClearGoldCache();
         
         if (GameManager.CurrentGameState != GameState.Exploring && !GameManager.IsTestingToSubmit)
         {
             SaveSystem.NextSaveToLoad = string.Empty;
             SaveSystem.ClearAllSaves(false, false);
+            PlayerInventory.Instance.ClearGoldCache();
         }
+        
+        if (GameManager.CurrentGameState == GameState.Exploring && !GameManager.IsTestingToSubmit)
+            PlayerInventory.Instance.ClearGoldCache();
         
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }

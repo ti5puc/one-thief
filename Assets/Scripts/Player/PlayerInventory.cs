@@ -21,6 +21,7 @@ public class PlayerInventory : MonoBehaviour
     [Header("Debug")]
     [SerializeField, ReadOnly] private int currentGold = 0;
     [SerializeField, ReadOnly] private int goldCache = 0;
+    [SerializeField, ReadOnly] private bool isGoldToGain = true;
     
     private InventoryData loadedData;
     
@@ -32,6 +33,7 @@ public class PlayerInventory : MonoBehaviour
         private set => currentGold = Mathf.Max(0, value);
     }
     public int GoldCache => goldCache;
+    public bool IsGoldToGain => Instance != null && Instance.isGoldToGain;
 
     private void Awake()
     {
@@ -159,6 +161,7 @@ public class PlayerInventory : MonoBehaviour
         if (GameManager.IsTestingToSubmit) return;
         if (GameManager.CurrentGameState != GameState.Exploring) return;
 
+        isGoldToGain = true;
         goldCache += amount;
         
         OnGoldToGainChanged?.Invoke(goldCache);
@@ -169,6 +172,7 @@ public class PlayerInventory : MonoBehaviour
         if (amount <= 0) return;
         if (GameManager.CurrentGameState == GameState.Exploring) return;
 
+        isGoldToGain = false;
         goldCache += amount;
         
         OnGoldToRemoveChanged?.Invoke(goldCache);
@@ -179,6 +183,7 @@ public class PlayerInventory : MonoBehaviour
         if (amount <= 0) return;
         if (GameManager.CurrentGameState == GameState.Exploring) return;
 
+        isGoldToGain = false;
         goldCache -= amount;
         
         // Ensure cache never goes below 0

@@ -10,6 +10,8 @@ public class InventoryUI : MonoBehaviour
     [Space(10)]
     [SerializeField] private TMP_Text playerNameText;
 
+    private string goldModifierText => PlayerInventory.Instance.IsGoldToGain ? "+" : "-";
+    
     private void Awake()
     {
         TreasureChest.OnPlayerEnteredChestArea += ShowInteractionHint;
@@ -38,6 +40,9 @@ public class InventoryUI : MonoBehaviour
     {
         OnGoldChanged(PlayerInventory.Instance.CurrentGold);
         goldToGainAmountText.gameObject.SetActive(PlayerInventory.Instance.GoldCache > 0);
+        goldToGainAmountText.text = PlayerInventory.Instance.GoldCache > 0
+            ? $"{goldModifierText} $ {PlayerInventory.Instance.GoldCache}"
+            : $"{goldModifierText} $ 0";
         
         playerNameText.text = FirebaseManager.Instance.IsAuthenticated
             ? FirebaseManager.Instance.PlayerName
@@ -62,13 +67,13 @@ public class InventoryUI : MonoBehaviour
     private void OnGoldToGainChanged(int newGoldAmount)
     {
         goldToGainAmountText.gameObject.SetActive(newGoldAmount > 0);
-        goldToGainAmountText.text = $"+ $ {newGoldAmount}";
+        goldToGainAmountText.text = $"{goldModifierText} $ {newGoldAmount}";
     }
     
     private void OnGoldToRemoveChanged(int newGoldAmount)
     {
         goldToGainAmountText.gameObject.SetActive(newGoldAmount > 0);
-        goldToGainAmountText.text = $"- $ {newGoldAmount}";
+        goldToGainAmountText.text = $"{goldModifierText} $ {newGoldAmount}";
     }
     
     private void OnGoldChanged(int newGoldAmount)

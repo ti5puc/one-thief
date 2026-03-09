@@ -2099,6 +2099,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d8706a80c97711844b1f9a79ece673c7, type: 2}
   - {fileID: 11400000, guid: 3ce63ce4d092b664c955bc7a5307f335, type: 2}
   - {fileID: 11400000, guid: 4dbeac6a37b2a0143b8e9ea02672e4c7, type: 2}
+  - {fileID: 11400000, guid: a8d81b615034def4482a82fcc9199735, type: 2}
   mouseXInput: {fileID: -2097932326460347269, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   mouseYInput: {fileID: -3574774305120366091, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   moveInput: {fileID: -6278439149609088581, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}

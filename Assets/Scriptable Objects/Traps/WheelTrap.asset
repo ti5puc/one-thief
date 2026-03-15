@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Wheel Trap
   id: 8
-  icon: {fileID: 875763600, guid: 282bbd26b24d23247beb5d34a30d1b76, type: 3}
+  icon: {fileID: 1828854554, guid: d3cdd3e71713c77479fb57396fe8b348, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2
@@ -38,7 +38,7 @@ MonoBehaviour:
   positioningMatrix:
     rows: 3
     cols: 3
-    data: 000000000200000000000000000000000100000000000000000000000200000000000000
+    data: 020000000200000002000000020000000100000002000000020000000200000002000000
   isAlwaysActive: 1
   delayToHitAfterActivated: 0.7
   keepHitTriggerAfterActivated: 0

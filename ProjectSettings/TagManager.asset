@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Wall
+  - Wheel
   layers:
   - Default
   - TransparentFX
@@ -21,8 +22,8 @@ TagManager:
   - Player
   - OnlyHitPlayer
   - Outline
-  - OnlyHitWall
-  - 
+  - OnlyHitObstacles
+  - TrapsCollisions
   - 
   - 
   - 

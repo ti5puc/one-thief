@@ -274,7 +274,7 @@ GameObject:
   - component: {fileID: 6249658430913243876}
   - component: {fileID: 1354567930142553420}
   - component: {fileID: 217810065699133271}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Hit Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}

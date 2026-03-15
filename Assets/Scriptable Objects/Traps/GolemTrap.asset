@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6cd7dac3bb849ba4e8e5a69902d239cf, type: 3}
-  m_Name: WallArrowTrap
+  m_Name: GolemTrap
   m_EditorClassIdentifier: 
-  trapName: Wall Arrows
-  id: 8
-  icon: {fileID: -1036350752, guid: 31732a01bd84a5d4fa67f122b5522cfe, type: 3}
+  trapName: Golem Trap
+  id: 3
+  icon: {fileID: 459405329, guid: 053e54d8b718a834d9f40ca6db8fbb51, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2
@@ -25,12 +25,12 @@ MonoBehaviour:
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
-  needsWallToPlace: 1
+  needsWallToPlace: 0
   wallLayer:
     serializedVersion: 2
     m_Bits: 256
-  trapPreview: {fileID: 7748410880102556186, guid: af06452dd18325c4993965169e4ab59f, type: 3}
-  trapObject: {fileID: 8639776039233223964, guid: 6b23f36b568036649a0eb259de5266a7, type: 3}
+  trapPreview: {fileID: 7135121857680011019, guid: 976c36a714a8ccc43882590b076539e7, type: 3}
+  trapObject: {fileID: 594690604577336013, guid: bbe0ac19fdb454542bfaae7f702c58d2, type: 3}
   invalidSurfacesForSpacer:
     serializedVersion: 2
     m_Bits: 1408

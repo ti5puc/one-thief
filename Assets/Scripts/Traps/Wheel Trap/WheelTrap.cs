@@ -29,15 +29,11 @@ public class WheelTrap : TrapBase
     protected override void OnAlwaysActive()
     {
         if (!isRolling)
-        {
             isRolling = true;
-        }
-    }
 
-    private void FixedUpdate()
-    {
         if (!isRolling) return;
         if (GameManager.CurrentGameState == GameState.Building) return;
+        if (GameManager.IsGamePaused) return;
 
         Vector3 moveDir = rollingForward ? Vector3.left : Vector3.right;
         wheelObject.transform.localPosition += moveDir * rollSpeed * Time.fixedDeltaTime;

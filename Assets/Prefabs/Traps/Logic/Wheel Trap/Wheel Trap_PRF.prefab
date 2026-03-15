@@ -271,6 +271,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trapSettings: {fileID: 11400000, guid: a8d81b615034def4482a82fcc9199735, type: 2}
+  disableActionTriggerOnAction: 0
   actionTrigger: {fileID: 8941475960223347947}
   hitTrigger: {fileID: 7677260810321156830}
   wheelObject: {fileID: 21912337547525321}

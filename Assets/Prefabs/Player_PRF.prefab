@@ -2100,6 +2100,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3ce63ce4d092b664c955bc7a5307f335, type: 2}
   - {fileID: 11400000, guid: 4dbeac6a37b2a0143b8e9ea02672e4c7, type: 2}
   - {fileID: 11400000, guid: a8d81b615034def4482a82fcc9199735, type: 2}
+  - {fileID: 11400000, guid: 45d34b9409bb2ee449215133c2f5aa15, type: 2}
   mouseXInput: {fileID: -2097932326460347269, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   mouseYInput: {fileID: -3574774305120366091, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
   moveInput: {fileID: -6278439149609088581, guid: 159c7d6eeb76da740b80db15b8dd48cd, type: 3}
@@ -2193,6 +2194,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 99fc7ad1-2c6c-4f52-8176-960cd1b26d56
     m_ActionName: 'Gameplay/Interact[/Keyboard/e]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 59ae2bec-fb5b-4e65-baca-46ff11268106
+    m_ActionName: 'Gameplay/PauseMenu[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 8934c58e-1fc0-459d-97a7-ec0f7ef1375f
+    m_ActionName: 'Hack/Gain Gold[/Keyboard/f1]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 141dd1fa-839d-4052-8507-a1d85d7ed5ec
+    m_ActionName: 'Hack/God Mode[/Keyboard/f2]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6094c467-edb1-492b-86b0-a2e3b1256374
+    m_ActionName: 'Hack/Unstuck[/Keyboard/f3]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Gameplay

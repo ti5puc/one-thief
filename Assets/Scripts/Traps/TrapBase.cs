@@ -9,7 +9,10 @@ public abstract class TrapBase : MonoBehaviour, IPlaceable
     [SerializeField] protected TrapSettings trapSettings;
 
     [Header("Base Colliders")]
+    [SerializeField] protected bool disableActionTriggerOnAction = true;
     [SerializeField] protected TriggerEventSender actionTrigger;
+
+    [Space(10)]
     [SerializeField] protected TriggerEventSender hitTrigger;
 
     protected bool hasActionTriggerStayed = false;
@@ -45,7 +48,8 @@ public abstract class TrapBase : MonoBehaviour, IPlaceable
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
         if (other.GetComponent<PlayerDeathIdentifier>().IsDead) return;
 
-        actionTrigger.gameObject.SetActive(false);
+        if (disableActionTriggerOnAction)
+            actionTrigger.gameObject.SetActive(false);
 
         OnAction(other, trapSettings.DelayToHit);
 

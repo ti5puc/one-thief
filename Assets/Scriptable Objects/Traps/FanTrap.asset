@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Fan
   id: 3
-  icon: {fileID: -349555092, guid: 4f07705dd44b379459b2a921b0fa69b8, type: 3}
+  icon: {fileID: 484266325, guid: b841d2a25454e2741b87ff765d000f63, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2
@@ -25,12 +25,12 @@ MonoBehaviour:
   trapSurface:
     serializedVersion: 2
     m_Bits: 64
-  needsWallToPlace: 1
+  needsWallToPlace: 0
   wallLayer:
     serializedVersion: 2
     m_Bits: 256
-  trapPreview: {fileID: 5933910675992652595, guid: 29ded82d59552294e83bf72325f17004, type: 3}
-  trapObject: {fileID: 6921317763224199576, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+  trapPreview: {fileID: 6793201507861313799, guid: 8382176bea66544439337e38059e292e, type: 3}
+  trapObject: {fileID: 1704629174718313425, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
   invalidSurfacesForSpacer:
     serializedVersion: 2
     m_Bits: 1408

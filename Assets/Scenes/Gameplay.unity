@@ -298,8 +298,8 @@ MonoBehaviour:
   playerOnScene: {fileID: 3037379297482495762}
   layoutOnScene: {fileID: 6601838474365726766}
   layouts:
-  - {fileID: 3474507630679255682, guid: bf280141d651cbd44b014d11deba83b3, type: 3}
   - {fileID: 5134383619742603769, guid: a207b90e8ef516244a33209e490a7582, type: 3}
+  - {fileID: 3474507630679255682, guid: bf280141d651cbd44b014d11deba83b3, type: 3}
   - {fileID: 1895800581943718730, guid: 894c0344215426d4980b4be5347769e0, type: 3}
 --- !u!4 &1019274251
 Transform:

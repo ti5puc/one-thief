@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6cd7dac3bb849ba4e8e5a69902d239cf, type: 3}
-  m_Name: SpikeTrap
+  m_Name: SpikeCeilTrap
   m_EditorClassIdentifier: 
-  trapName: Spikes
-  id: 8
-  icon: {fileID: -585484668, guid: fc8bc8f8254ccea4cb3bab8fff16faa4, type: 3}
+  trapName: Spikes Ceil
+  id: 7
+  icon: {fileID: -1989991766, guid: dd9202866e3efd948a22e9ddcadacc69, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2
@@ -29,8 +29,8 @@ MonoBehaviour:
   wallLayer:
     serializedVersion: 2
     m_Bits: 0
-  trapPreview: {fileID: 5470613590884588052, guid: 03a95a31b43631f4680aadb209c5987f, type: 3}
-  trapObject: {fileID: 4782766396064776245, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
+  trapPreview: {fileID: 6371102274456181674, guid: 1b7442cd10c95f749bc2725034dd34a1, type: 3}
+  trapObject: {fileID: 7189107332559007430, guid: 477785f6d212bb143be7e8134de45dbc, type: 3}
   invalidSurfacesForSpacer:
     serializedVersion: 2
     m_Bits: 1408

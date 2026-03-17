@@ -4,9 +4,14 @@ using UnityEngine;
 public class FanTrap : TrapBase
 {
     [Header("Fan Settings")]
+    [SerializeField] private bool isVerticalFan = false; // If true, pushes upward; if false, pushes forward
     [SerializeField] private float pushForce = 8f;
     [SerializeField] private float pushVerticalForce = 1f;
     [SerializeField] private float pushInterval = 0.1f; // How often to apply push force
+    [SerializeField] private float maxWindDistance = 10f; // Maximum distance where wind has effect
+    [SerializeField] private float maxLateralDistance = 5f; // Maximum lateral distance from center where wind has effect
+    [SerializeField] private AnimationCurve windFalloffCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f); // Distance (0-1) to force multiplier
+    [SerializeField] private AnimationCurve centerFalloffCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f); // Lateral distance (0-1) to force multiplier
 
     [Space(10)]
     [SerializeField] private Transform[] fanCenters; // The center points of the fans (for calculating direction)
@@ -102,17 +107,61 @@ public class FanTrap : TrapBase
             }
         }
 
-        // Calculate direction from closest fan center to player (outwards)
-        Vector3 fanToPlayer = controller.transform.position - closestFanCenter.position;
-        fanToPlayer.y = 0f; // Keep horizontal
-        fanToPlayer.Normalize();
+        Vector3 pushDirection;
+        float forceMultiplier;
 
-        // Add vertical component
-        Vector3 pushDirection = fanToPlayer;
-        pushDirection.y = pushVerticalForce;
-        pushDirection.Normalize();
+        if (isVerticalFan)
+        {
+            // Vertical fan - push upward only
+            pushDirection = Vector3.up;
 
-        controller.Knockback(pushDirection, pushForce);
+            // Calculate 3D distance falloff
+            float normalizedDistance = Mathf.Clamp01(closestDistance / maxWindDistance);
+            float distanceMultiplier = windFalloffCurve.Evaluate(normalizedDistance);
+
+            // Calculate horizontal distance from center (XZ plane)
+            Vector3 fanPos = closestFanCenter.position;
+            Vector3 playerPos = controller.transform.position;
+            float horizontalDistance = Vector3.Distance(
+                new Vector3(fanPos.x, 0, fanPos.z),
+                new Vector3(playerPos.x, 0, playerPos.z)
+            );
+            float normalizedHorizontalDistance = Mathf.Clamp01(horizontalDistance / maxLateralDistance);
+            float centerMultiplier = centerFalloffCurve.Evaluate(normalizedHorizontalDistance);
+
+            // Combine both multipliers
+            forceMultiplier = distanceMultiplier * centerMultiplier;
+        }
+        else
+        {
+            // Horizontal fan - push forward
+            // Calculate forward distance from fan center
+            Vector3 toPlayer = controller.transform.position - closestFanCenter.position;
+            float forwardDistance = Vector3.Dot(toPlayer, closestFanCenter.forward);
+
+            // Calculate lateral distance from center axis (how far from the center)
+            Vector3 projectedPoint = closestFanCenter.position + closestFanCenter.forward * forwardDistance;
+            float lateralDistance = Vector3.Distance(controller.transform.position, projectedPoint);
+
+            // Calculate force falloff based on forward distance
+            float normalizedForwardDistance = Mathf.Clamp01(forwardDistance / maxWindDistance);
+            float forwardMultiplier = windFalloffCurve.Evaluate(normalizedForwardDistance);
+
+            // Calculate force falloff based on lateral distance (center = strong, edges = weak)
+            float normalizedLateralDistance = Mathf.Clamp01(lateralDistance / maxLateralDistance);
+            float centerMultiplier = centerFalloffCurve.Evaluate(normalizedLateralDistance);
+
+            // Combine both multipliers
+            forceMultiplier = forwardMultiplier * centerMultiplier;
+
+            // Push in the forward direction of the fan
+            pushDirection = closestFanCenter.forward;
+            pushDirection.y = pushVerticalForce;
+        }
+
+        // Apply distance-based force
+        float adjustedForce = pushForce * forceMultiplier;
+        controller.Knockback(pushDirection, adjustedForce);
     }
 
     protected override void Initialize()

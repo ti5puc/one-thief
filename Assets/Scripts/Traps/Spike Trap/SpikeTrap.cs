@@ -39,5 +39,8 @@ public class SpikeTrap : TrapBase
         Debug.Log("Spike trap reactivated");
     }
 
-    protected override void OnAlwaysActive() => throw new NotImplementedException();
+    protected override void OnAlwaysActive()
+    {
+        // Do nothing - keep hit trigger active without animating parts
+    }
 }

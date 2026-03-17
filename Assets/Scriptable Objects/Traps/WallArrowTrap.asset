@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WallArrowTrap
   m_EditorClassIdentifier: 
   trapName: Wall Arrows
-  id: 9
+  id: 11
   icon: {fileID: -1036350752, guid: 31732a01bd84a5d4fa67f122b5522cfe, type: 3}
   placementCost: 0
   trapPlacementLayer:

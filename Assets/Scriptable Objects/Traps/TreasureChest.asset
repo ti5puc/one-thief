@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TreasureChest
   m_EditorClassIdentifier: 
   trapName: Treasure Chest
-  id: 7
+  id: 8
   icon: {fileID: -974872386, guid: c1fbc01312535ac479ecd7ded5e82db3, type: 3}
   placementCost: 150
   trapPlacementLayer:

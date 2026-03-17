@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HammerTrap
   m_EditorClassIdentifier: 
   trapName: Hammer Pendulum
-  id: 4
+  id: 5
   icon: {fileID: -278087537, guid: e1f201e1606912f4cbfbf7820e28642e, type: 3}
   placementCost: 0
   trapPlacementLayer:

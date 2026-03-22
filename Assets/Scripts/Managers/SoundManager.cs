@@ -17,26 +17,29 @@ public enum SoundType
 public class SoundManager : MonoBehaviour
 {
     [SerializeField] private AudioClip[] soundList;
-    private static SoundManager instance;
     private AudioSource audioSource;
 
+    public static SoundManager Instance { get; private set; }
+    
     private void Awake()
     {
-        instance = this;
-    }
-
-    private void Start()
-    {
         audioSource = GetComponent<AudioSource>();
+        
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
     public static void PlaySound(SoundType sound, float volume = 1f)
     {
-        instance.audioSource.PlayOneShot(instance.soundList[(int)sound], volume);
+        Instance.audioSource.PlayOneShot(Instance.soundList[(int)sound], volume);
     }
 
     public static AudioClip GetClip(SoundType sound)
     {
-        return instance.soundList[(int)sound];
+        return Instance.soundList[(int)sound];
     }
 }

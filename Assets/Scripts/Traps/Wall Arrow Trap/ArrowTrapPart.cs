@@ -50,28 +50,37 @@ public class ArrowTrapPart : MonoBehaviour
     public void PauseMovement() => isPaused = true;
     public void ResumeMovement() => isPaused = false;
 
-    public void EnableTrigger() => hitTrigger.Collider.enabled = true;
-    public void DisableTrigger() => hitTrigger.Collider.enabled = false;
+    public void EnableTrigger()
+    {
+        foreach (var col in hitTrigger.Colliders)
+            col.enabled = true;
+    }
+
+    public void DisableTrigger()
+    {
+        foreach (var col in hitTrigger.Colliders)
+            col.enabled = false;
+    }
 
     public void ResetToInitialState()
     {
         // Kill any active tweens
         appearTween?.Kill();
         disappearTween?.Kill();
-        
+
         // Reset state
         isActive = false;
         isMoving = false;
         isPaused = false;
         currentSettings = null;
         OnDisappear = null;
-        
+
         // Reset transform
         transform.SetParent(parentTransform);
         transform.localPosition = initialPosition;
         transform.localRotation = initialRotation;
         transform.localScale = initialScale;
-        
+
         // Deactivate
         gameObject.SetActive(false);
         DisableTrigger();

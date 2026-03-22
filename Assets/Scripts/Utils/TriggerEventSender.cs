@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TriggerEventSender : MonoBehaviour
@@ -7,8 +8,8 @@ public class TriggerEventSender : MonoBehaviour
     public event Action<Collider> OnStay;
     public event Action<Collider> OnExit;
 
-    private Collider selfCollider;
-    public Collider Collider => selfCollider ??= GetComponent<Collider>();
+    private List<Collider> selfColliders;
+    public List<Collider> Colliders => selfColliders ??= new List<Collider>(GetComponents<Collider>());
 
     private void OnTriggerEnter(Collider other)
     {

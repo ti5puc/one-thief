@@ -72,6 +72,7 @@ public class TreasureChest : MonoBehaviour, IPlaceable
         if (isChestOpened) return;
 
         isChestOpened = true;
+        SoundManager.PlaySound(SoundType.COIN);
         
         OnAnyChestOpened?.Invoke(goldAmount);
         OnChestOpened?.Invoke(goldAmount);

@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trapSettings: {fileID: 11400000, guid: 1cb13ecfe05e119459c5dadb2c551313, type: 2}
+  disableActionTriggerOnAction: 1
   actionTrigger: {fileID: 4698256072601574482}
   hitTrigger: {fileID: 1819915598743137444}
   swingAngle: 80
@@ -56,6 +57,7 @@ MonoBehaviour:
   knockbackForce: 10
   knockbackVerticalForce: 0.3
   swingObject: {fileID: 1047879313755056242}
+  trapAudioSource: {fileID: 3669997914547198324}
 --- !u!1 &3284517006645026412
 GameObject:
   m_ObjectHideFlags: 0
@@ -392,6 +394,11 @@ PrefabInstance:
 --- !u!1 &1047879313755056242 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6369746465230985721, guid: c1fba9a04a6836346aff93ea75d837bc, type: 3}
+  m_PrefabInstance: {fileID: 6264280610173170059}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &3669997914547198324 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 7206113098002835711, guid: c1fba9a04a6836346aff93ea75d837bc, type: 3}
   m_PrefabInstance: {fileID: 6264280610173170059}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &7155502451396438215 stripped

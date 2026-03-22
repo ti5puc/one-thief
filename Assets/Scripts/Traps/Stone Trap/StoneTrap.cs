@@ -13,6 +13,9 @@ public class StoneTrap : TrapBase
     [Space(10)]
     [SerializeField] private bool useGravity;
 
+    [Space(10)]
+    [SerializeField] private AudioSource trapAudioSource;
+
     [Header("References")]
     [SerializeField] private GameObject stoneObject;
 
@@ -46,6 +49,7 @@ public class StoneTrap : TrapBase
                     rb.useGravity = true;
                 }
             }
+            PlayImpactSound();
         };
 
         Debug.Log($"Player activated stone trap (fallDuration: {safeFallDuration}, interval: {interval})");
@@ -70,6 +74,19 @@ public class StoneTrap : TrapBase
         seq.Append(stoneObject.transform.DOLocalMoveY(stoneInitialPosition.y, safeFallDuration).SetEase(Ease.OutQuad));
 
         Debug.Log($"Stone trap reactivated (riseDuration: {safeFallDuration}, interval: {interval})");
+    }
+
+    private void PlayImpactSound()
+    {
+        SoundType soundToPlay = SoundType.TRAPIMPACT;
+
+        trapAudioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+
+        trapAudioSource.PlayOneShot(
+            SoundManager.GetClip(soundToPlay)
+        );
+
+        trapAudioSource.pitch = 1f;
     }
 
     protected override void OnAlwaysActive() => throw new NotImplementedException();

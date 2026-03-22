@@ -18,6 +18,10 @@ public class PendulumTrap : TrapBase
     [Space(10)]
     [SerializeField] private GameObject swingObject;
 
+    [Space(10)]
+    [SerializeField] private AudioSource trapAudioSource;
+    private bool localToggle = false;
+
     private bool hasStartedSwinging = false;
     private Sequence swingSequence;
     private Quaternion initialRotation;
@@ -45,7 +49,16 @@ public class PendulumTrap : TrapBase
 
             swingObject.transform.localRotation = Quaternion.Euler(new Vector3(-swingAngle, localRotY, localRotZ));
 
+            swingSequence.AppendCallback(() =>
+            {
+                PlayPendulumSound();
+            });
             swingSequence.Append(swingObject.transform.DOLocalRotate(new Vector3(swingAngle, localRotY, localRotZ), swingDuration).SetEase(swingEase));
+            
+            swingSequence.AppendCallback(() =>
+            {
+                PlayPendulumSound();
+            });
             swingSequence.Append(swingObject.transform.DOLocalRotate(new Vector3(-swingAngle, localRotY, localRotZ), swingDuration).SetEase(swingEase));
             swingSequence.SetLoops(-1);
 
@@ -95,6 +108,23 @@ public class PendulumTrap : TrapBase
 
     protected override void OnAction(Collider player, float totalDuration) => throw new NotImplementedException();
     protected override void OnReactivate(float totalDuration) => throw new NotImplementedException();
+
+    private void PlayPendulumSound()
+    {
+        SoundType soundToPlay = localToggle
+            ? SoundType.TRAPPENDULUM
+            : SoundType.TRAPPENDULUMR;
+
+        localToggle = !localToggle;
+
+        trapAudioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+
+        trapAudioSource.PlayOneShot(
+            SoundManager.GetClip(soundToPlay)
+        );
+
+        trapAudioSource.pitch = 1f;
+    }
 
     private void ResetKnockback()
     {

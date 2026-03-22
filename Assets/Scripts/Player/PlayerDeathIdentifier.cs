@@ -107,6 +107,8 @@ public class PlayerDeathIdentifier : MonoBehaviour
         if (isGodMode) return;
 
         IsDead = true;
+        SoundManager.PlaySound(SoundType.DEATH);
+
         foreach (var visual in VisualsToHide)
             visual.SetActive(false);
 

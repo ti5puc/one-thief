@@ -403,6 +403,7 @@ public class Player : MonoBehaviour
             {
                 DoJump(false);              // pulo do chão
                 lastJumpPressedTime = -999f; // consome o buffer
+                SoundManager.PlaySound(SoundType.JUMP1, 0.8f);
             }
             else
             {
@@ -412,6 +413,14 @@ public class Player : MonoBehaviour
                     DoJump(true);           // pulo aéreo
                     airJumpsRemaining = airJumpsRemaining - 1;
                     lastJumpPressedTime = -999f; // consome o buffer
+                    if(airJumpsRemaining == 1)
+                    {
+                        SoundManager.PlaySound(SoundType.JUMP2, 0.8f);
+                    }
+                    else
+                    {
+                        SoundManager.PlaySound(SoundType.JUMP3, 0.8f);
+                    }
                 }
             }
         }

@@ -18,6 +18,9 @@ public class FakeFloorTrap_v2 : TrapBase
     [Space(10)]
     [SerializeField] private float deathVfxOffset = -4f;
 
+    [Space(10)]
+    [SerializeField] private AudioSource trapAudioSource;
+
     [Header("References")]
     // [SerializeField] private GameObject fakeFloorVisual;
     [SerializeField] private DeathTrigger deathTrigger;
@@ -54,6 +57,7 @@ public class FakeFloorTrap_v2 : TrapBase
         if (foundNearestGround && nearestGround != null)
         {
             var groundTransform = nearestGround.transform;
+            PlayGroundSound();
             Sequence shakeSeq = DOTween.Sequence();
             shakeSeq.Join(groundTransform.DOShakePosition(safeBreakDuration, vibrationStrength, vibrationFrequency));
             shakeSeq.Join(groundTransform.DOShakeRotation(safeBreakDuration, vibrationRotation, vibrationFrequency));
@@ -86,7 +90,20 @@ public class FakeFloorTrap_v2 : TrapBase
     }
 
     protected override void OnAlwaysActive() => throw new NotImplementedException();
-    
+
+    private void PlayGroundSound()
+    {
+        SoundType soundToPlay = SoundType.TRAPFALL;
+
+        trapAudioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
+
+        trapAudioSource.PlayOneShot(
+            SoundManager.GetClip(soundToPlay)
+        );
+
+        trapAudioSource.pitch = 1f;
+    }
+
     private void ResetNearestGround()
     {
         foundNearestGround = false;

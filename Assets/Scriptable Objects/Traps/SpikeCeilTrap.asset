@@ -39,8 +39,8 @@ MonoBehaviour:
     rows: 3
     cols: 3
     data: 000000000000000000000000000000000100000000000000000000000000000000000000
-  isAlwaysActive: 0
-  delayToHitAfterActivated: 1
+  isAlwaysActive: 1
+  delayToHitAfterActivated: 0
   keepHitTriggerAfterActivated: 1
   hitTriggerActiveTime: 0.2
   canReactive: 0

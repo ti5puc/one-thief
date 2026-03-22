@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpikeCeilTrap
   m_EditorClassIdentifier: 
   trapName: Spikes Ceil
-  id: 7
+  id: 12
   icon: {fileID: -1989991766, guid: dd9202866e3efd948a22e9ddcadacc69, type: 3}
   placementCost: 0
   trapPlacementLayer:
@@ -39,8 +39,8 @@ MonoBehaviour:
     rows: 3
     cols: 3
     data: 000000000000000000000000000000000100000000000000000000000000000000000000
-  isAlwaysActive: 0
-  delayToHitAfterActivated: 1
+  isAlwaysActive: 1
+  delayToHitAfterActivated: 0
   keepHitTriggerAfterActivated: 1
   hitTriggerActiveTime: 0.2
   canReactive: 0

@@ -20,9 +20,9 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.06038627, g: 0.2592666, b: 0.5566038, a: 1}
-  m_AmbientEquatorColor: {r: 0.35039157, g: 0.49174252, b: 0.5849056, a: 1}
-  m_AmbientGroundColor: {r: 0.01886791, g: 0.0032929843, b: 0.004070954, a: 1}
+  m_AmbientSkyColor: {r: 0.07625089, g: 0.033374865, b: 0.2830189, a: 1}
+  m_AmbientEquatorColor: {r: 0.11320752, g: 0.06140974, b: 0.06140974, a: 1}
+  m_AmbientGroundColor: {r: 0.19263972, g: 0.27686423, b: 0.3490566, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
@@ -298,8 +298,8 @@ MonoBehaviour:
   playerOnScene: {fileID: 3037379297482495762}
   layoutOnScene: {fileID: 6601838474365726766}
   layouts:
-  - {fileID: 5134383619742603769, guid: a207b90e8ef516244a33209e490a7582, type: 3}
   - {fileID: 3474507630679255682, guid: bf280141d651cbd44b014d11deba83b3, type: 3}
+  - {fileID: 5134383619742603769, guid: a207b90e8ef516244a33209e490a7582, type: 3}
   - {fileID: 1895800581943718730, guid: 894c0344215426d4980b4be5347769e0, type: 3}
 --- !u!4 &1019274251
 Transform:

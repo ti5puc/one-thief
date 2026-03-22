@@ -7,7 +7,7 @@ public class PlaceableSettings : ScriptableObject
     [Header("General Settings")]
     [SerializeField] protected string trapName;
     [InfoBox("To set this ID go to One Thief > Trap Settings > Assign Unique IDs")]
-    [SerializeField, ReadOnly] protected int id;
+    [SerializeField] protected int id;
 
     [Space(10), ShowAssetPreview(60)]
     [SerializeField] private Sprite icon;

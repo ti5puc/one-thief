@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FanTrap
   m_EditorClassIdentifier: 
   trapName: Fan
-  id: 3
+  id: 9
   icon: {fileID: 484266325, guid: b841d2a25454e2741b87ff765d000f63, type: 3}
   placementCost: 0
   trapPlacementLayer:

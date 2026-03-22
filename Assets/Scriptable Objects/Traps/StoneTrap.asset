@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: StoneTrap
   m_EditorClassIdentifier: 
   trapName: Weight Fall
-  id: 9
+  id: 5
   icon: {fileID: 404825351, guid: 98da6aa6973ffe140bfd2e2706fb84f8, type: 3}
   placementCost: 0
   trapPlacementLayer:

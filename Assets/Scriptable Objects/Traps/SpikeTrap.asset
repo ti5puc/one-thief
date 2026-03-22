@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpikeTrap
   m_EditorClassIdentifier: 
   trapName: Spikes
-  id: 8
+  id: 4
   icon: {fileID: -585484668, guid: fc8bc8f8254ccea4cb3bab8fff16faa4, type: 3}
   placementCost: 0
   trapPlacementLayer:

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1150245864465600286}
   - component: {fileID: 6694458584920037981}
   - component: {fileID: 74099596896076657}
+  - component: {fileID: 1152378897881115509}
   m_Layer: 8
   m_Name: Wall_PRF
   m_TagString: Wall
@@ -108,3 +109,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1152378897881115509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3270531613295722307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb613f8c74b86604992e7cf499de3e50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isWall: 1
+  wallMaterials:
+  - {fileID: 2100000, guid: 204306cb845628b4982aa7a3107a627a, type: 2}
+  - {fileID: 2100000, guid: 7a1d10dd564c6804a942d034566fce76, type: 2}
+  - {fileID: 2100000, guid: 5dfc131b8a9631f4f838131d26522522, type: 2}
+  - {fileID: 2100000, guid: 9baabaaa1db7a64479b0d110eca2a325, type: 2}
+  - {fileID: 2100000, guid: 1496a8d864efa114e84843a680b1e94a, type: 2}
+  floorMaterials: []
+  meshRenderer: {fileID: 6694458584920037981}

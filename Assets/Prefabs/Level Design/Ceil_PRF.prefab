@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 6576400938920042315}
   - component: {fileID: 1822528718449846616}
   - component: {fileID: 7176233095283386180}
+  - component: {fileID: 3134402967004760385}
   m_Layer: 7
   m_Name: Ceil_PRF
   m_TagString: Untagged
@@ -230,3 +231,27 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3134402967004760385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3634363907304555873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb613f8c74b86604992e7cf499de3e50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isWall: 0
+  wallMaterials: []
+  floorMaterials:
+  - {fileID: 2100000, guid: 3a20f11d8c400b54c9370abf7ddb9948, type: 2}
+  - {fileID: 2100000, guid: 036121132744ef54fbe1d8f92cfd699a, type: 2}
+  - {fileID: 2100000, guid: 19fa561e3188968418c87339d5f1f55f, type: 2}
+  - {fileID: 2100000, guid: 7f881417b2d6ad64abdc38fb317ca4f1, type: 2}
+  - {fileID: 2100000, guid: 9e4557d23b92bec4b954bf09ad359288, type: 2}
+  - {fileID: 2100000, guid: 9e4557d23b92bec4b954bf09ad359288, type: 2}
+  - {fileID: 2100000, guid: 9e4557d23b92bec4b954bf09ad359288, type: 2}
+  - {fileID: 2100000, guid: 9e4557d23b92bec4b954bf09ad359288, type: 2}
+  meshRenderer: {fileID: 1822528718449846616}

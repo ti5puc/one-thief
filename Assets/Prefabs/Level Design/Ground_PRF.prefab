@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7161413744343488148}
   - component: {fileID: 8230928933628948531}
   - component: {fileID: 4571171151467565928}
+  - component: {fileID: 5107033644059016733}
   m_Layer: 6
   m_Name: Ground_PRF
   m_TagString: Untagged
@@ -122,6 +123,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd20985b5f28a2141b828bca21f278a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cachedPosition: {x: 0, y: 0, z: 0}
+  cachedRotation: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5107033644059016733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1313715232073731135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb613f8c74b86604992e7cf499de3e50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isWall: 0
+  wallMaterials: []
+  floorMaterials:
+  - {fileID: 2100000, guid: 3a20f11d8c400b54c9370abf7ddb9948, type: 2}
+  - {fileID: 2100000, guid: 036121132744ef54fbe1d8f92cfd699a, type: 2}
+  - {fileID: 2100000, guid: 19fa561e3188968418c87339d5f1f55f, type: 2}
+  - {fileID: 2100000, guid: 7f881417b2d6ad64abdc38fb317ca4f1, type: 2}
+  - {fileID: 2100000, guid: 9e4557d23b92bec4b954bf09ad359288, type: 2}
+  - {fileID: 2100000, guid: 9e4557d23b92bec4b954bf09ad359288, type: 2}
+  meshRenderer: {fileID: 7161413744343488148}
 --- !u!1 &4256814450652104448
 GameObject:
   m_ObjectHideFlags: 0

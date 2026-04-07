@@ -28,6 +28,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 6127df21252b9a84d8115d1bf560a47e, type: 2}
+    - target: {fileID: 2655544556081516079, guid: ce41a096be6b59e40bf03fa81a75deb6, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
     - target: {fileID: 3397549143083145615, guid: ce41a096be6b59e40bf03fa81a75deb6, type: 3}
       propertyPath: m_Name
       value: Treasure_Preview_PRF Variant
@@ -133,6 +137,11 @@ BoxCollider:
   m_CorrespondingSourceObject: {fileID: 366295902169630770, guid: ce41a096be6b59e40bf03fa81a75deb6, type: 3}
   m_PrefabInstance: {fileID: 1263479458244303359}
   m_PrefabAsset: {fileID: 0}
+--- !u!23 &3842314214787094480 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2655544556081516079, guid: ce41a096be6b59e40bf03fa81a75deb6, type: 3}
+  m_PrefabInstance: {fileID: 1263479458244303359}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4516621342585438320 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3397549143083145615, guid: ce41a096be6b59e40bf03fa81a75deb6, type: 3}
@@ -154,6 +163,7 @@ MonoBehaviour:
   - material: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
     renderers:
     - {fileID: 4535748605601608393}
+    - {fileID: 3842314214787094480}
   - material: {fileID: 2100000, guid: 5618cf85b4ebad04e83b4988428d66a8, type: 2}
     renderers:
     - {fileID: 4869763007805008987}
@@ -164,6 +174,7 @@ MonoBehaviour:
   - material: {fileID: 2100000, guid: 4a467bd8c5d0bb74b81c2e0a887a603c, type: 2}
     renderers:
     - {fileID: 4535748605601608393}
+    - {fileID: 3842314214787094480}
   - material: {fileID: 2100000, guid: cee5e5def85a18d459704ae6527995dd, type: 2}
     renderers:
     - {fileID: 4869763007805008987}

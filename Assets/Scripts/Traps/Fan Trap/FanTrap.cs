@@ -16,6 +16,10 @@ public class FanTrap : TrapBase
     [Space(10)]
     [SerializeField] private Transform[] fanCenters; // The center points of the fans (for calculating direction)
 
+    [Space(10)]
+    [SerializeField] private GameObject[] fanObjects; // Visual fan objects to rotate
+    [SerializeField] private float fanRotationSpeed = 360f; // Degrees per second
+
     private PlayerDeathIdentifier currentPlayerInTrigger;
     private float lastPushTime;
 
@@ -36,6 +40,9 @@ public class FanTrap : TrapBase
 
     protected override void OnAlwaysActive()
     {
+        if (GameManager.CurrentGameState == GameState.Building) return;
+        if (GameManager.IsGamePaused) return;
+
         // Fan is always active - push player if they're in the trigger
         if (currentPlayerInTrigger != null && !currentPlayerInTrigger.IsDead)
         {
@@ -43,6 +50,15 @@ public class FanTrap : TrapBase
             {
                 PushPlayer(currentPlayerInTrigger);
                 lastPushTime = Time.time;
+            }
+        }
+
+        // rotate the fan objects around their local Z-axis
+        foreach (var fanObject in fanObjects)
+        {
+            if (fanObject != null)
+            {
+                fanObject.transform.Rotate(0, 0, fanRotationSpeed * Time.deltaTime, Space.Self);
             }
         }
     }

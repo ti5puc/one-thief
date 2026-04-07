@@ -1,3 +1,5 @@
+using DG.Tweening;
+using NaughtyAttributes;
 using UnityEngine;
 
 public class TurretTrap : TrapBase
@@ -9,15 +11,33 @@ public class TurretTrap : TrapBase
     [SerializeField] private float shootInterval = 2f;
     [SerializeField] private float rotationSpeed = 1f;
     [SerializeField] private float bulletSpeed = 10f;
-    [SerializeField] private float gravity = 9.81f;
-    [SerializeField] private float shootAngleOffset = 0f; // Additional angle above minimum required angle
 
+    [Space(10)]
+    [SerializeField] private Animator turretAnimator;
+    [SerializeField, AnimatorParam(nameof(turretAnimator))] private int shootAnimTriggerHash;
+
+    [Space(10)]
+    [SerializeField] private MeshRenderer crystalRenderer;
+    [SerializeField] private Color baseCrystalColor;
+    [SerializeField] private Color standByCrystalColor;
+    [SerializeField] private Color shootingCrystalColor;
+    [SerializeField] private float chargeUpDuration = 0.5f;
+    [SerializeField] private float crystalTransitionDuration = 0.4f;
+
+    private MaterialPropertyBlock crystalMPB;
+    private static readonly int BaseColorID = Shader.PropertyToID("_BaseColor");
+    private Color currentCrystalColor;
+    private Tweener crystalColorTween;
     private Transform currentTarget;
     private float lastShootTime;
+    private bool isChargingUp;
 
     protected override void Awake()
     {
         base.Awake();
+        crystalMPB = new MaterialPropertyBlock();
+        SetCrystalColor(baseCrystalColor);
+        currentCrystalColor = baseCrystalColor;
         actionTrigger.OnEnter += HandleIdentifyTarget;
         actionTrigger.OnExit += HandleResetTarget;
     }
@@ -25,6 +45,7 @@ public class TurretTrap : TrapBase
     protected override void OnDestroy()
     {
         base.OnDestroy();
+        crystalColorTween?.Kill();
         actionTrigger.OnEnter -= HandleIdentifyTarget;
         actionTrigger.OnExit -= HandleResetTarget;
     }
@@ -38,24 +59,50 @@ public class TurretTrap : TrapBase
         // Rotate towards target
         RotateTowardsTarget();
 
+        // Charge-up crystal color as we approach the next shot
+        float timeUntilShoot = (lastShootTime + shootInterval) - Time.time;
+        if (chargeUpDuration > 0f && timeUntilShoot <= chargeUpDuration)
+        {
+            if (!isChargingUp)
+            {
+                isChargingUp = true;
+                crystalColorTween?.Kill();
+                if (turretAnimator != null)
+                    turretAnimator.SetTrigger(shootAnimTriggerHash);
+            }
+            float t = Mathf.Clamp01(1f - timeUntilShoot / chargeUpDuration);
+            SetCrystalColor(Color.Lerp(standByCrystalColor, shootingCrystalColor, t));
+        }
+
         // Shoot at intervals
         if (Time.time >= lastShootTime + shootInterval)
         {
             ShootAtTarget();
             lastShootTime = Time.time;
+            isChargingUp = false;
+            TransitionCrystalColor(standByCrystalColor, crystalTransitionDuration);
         }
     }
 
     private void HandleIdentifyTarget(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
             SetTarget(other.transform);
+            lastShootTime = Time.time;
+            isChargingUp = false;
+            TransitionCrystalColor(standByCrystalColor, crystalTransitionDuration);
+        }
     }
 
     private void HandleResetTarget(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
             SetTarget(null);
+            isChargingUp = false;
+            TransitionCrystalColor(baseCrystalColor, crystalTransitionDuration);
+        }
     }
 
     private void SetTarget(Transform target)
@@ -83,6 +130,27 @@ public class TurretTrap : TrapBase
         }
     }
 
+    private void SetCrystalColor(Color color)
+    {
+        currentCrystalColor = color;
+        if (crystalRenderer == null) return;
+        crystalMPB.SetColor(BaseColorID, color);
+        crystalRenderer.SetPropertyBlock(crystalMPB);
+    }
+
+    private void TransitionCrystalColor(Color targetColor, float duration)
+    {
+        crystalColorTween?.Kill();
+        Color startColor = currentCrystalColor;
+        float progress = 0f;
+        crystalColorTween = DOTween.To(
+            () => progress,
+            x => { progress = x; SetCrystalColor(Color.Lerp(startColor, targetColor, x)); },
+            1f,
+            duration
+        );
+    }
+
     private void ShootAtTarget()
     {
         if (GameManager.CurrentGameState == GameState.Building) return;
@@ -105,68 +173,10 @@ public class TurretTrap : TrapBase
             }
         }
 
-        // Calculate launch angle and velocity
-        if (CalculateLaunchData(spawnPos, targetPos, bulletSpeed, gravity, shootAngleOffset,
-            out Vector3 launchVelocity, out float launchAngle))
-        {
-            // Spawn and setup bullet
-            TurretBullet bullet = Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
-            bullet.Setup(launchVelocity, gravity);
-        }
-    }
-
-    /// <summary>
-    /// Calculates the launch velocity needed to hit a target with projectile motion.
-    /// </summary>
-    private bool CalculateLaunchData(Vector3 startPos, Vector3 targetPos, float speed, float gravityValue,
-        float angleOffset, out Vector3 velocity, out float angle)
-    {
-        velocity = Vector3.zero;
-        angle = 0f;
-
-        Vector3 toTarget = targetPos - startPos;
-        Vector3 toTargetXZ = new Vector3(toTarget.x, 0, toTarget.z);
-        float horizontalDistance = toTargetXZ.magnitude;
-        float verticalDistance = toTarget.y;
-
-        // Calculate the minimum angle needed to hit the target
-        // Using the projectile motion formula: tan(2θ) = (gx²) / (v²x - gy)
-        float speedSquared = speed * speed;
-        float gravityTimesDistance = gravityValue * horizontalDistance;
-
-        // Discriminant for the quadratic equation
-        float discriminant = speedSquared * speedSquared -
-            gravityValue * (gravityValue * horizontalDistance * horizontalDistance + 2 * verticalDistance * speedSquared);
-
-        if (discriminant < 0)
-        {
-            // Target is out of range
-            Debug.LogWarning("Target is out of range for turret!");
-            return false;
-        }
-
-        // Calculate the two possible angles (low and high trajectory)
-        float sqrtDiscriminant = Mathf.Sqrt(discriminant);
-        float angle1 = Mathf.Atan2(speedSquared - sqrtDiscriminant, gravityTimesDistance);
-        float angle2 = Mathf.Atan2(speedSquared + sqrtDiscriminant, gravityTimesDistance);
-
-        // Use the lower angle and add the offset
-        angle = Mathf.Min(angle1, angle2) + angleOffset * Mathf.Deg2Rad;
-
-        // Ensure angle is valid
-        if (angle < 0 || angle > Mathf.PI / 2)
-        {
-            Debug.LogWarning("Invalid launch angle calculated!");
-            return false;
-        }
-
-        // Calculate the velocity vector
-        Vector3 direction = toTargetXZ.normalized;
-        float horizontalVelocity = speed * Mathf.Cos(angle);
-        float verticalVelocity = speed * Mathf.Sin(angle);
-
-        velocity = direction * horizontalVelocity + Vector3.up * verticalVelocity;
-        return true;
+        // Shoot straight at the player
+        Vector3 velocity = directionToTarget.normalized * bulletSpeed;
+        TurretBullet bullet = Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
+        bullet.Setup(velocity, 0f);
     }
 
     protected override void OnHit(Collider player)

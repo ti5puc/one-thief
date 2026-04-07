@@ -77,9 +77,13 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 628062607898286081, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
       propertyPath: m_Name
-      value: Cob Static Trap_Preview_PRF Variant
+      value: Static Cob Trap_Preview_PRF Variant
       objectReference: {fileID: 0}
     - target: {fileID: 2333732239832603131, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2693694400025023578, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
@@ -123,6 +127,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5666796807967496713, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
     - target: {fileID: 6716223012293484115, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -152,11 +160,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3249175655651556546, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
   m_PrefabInstance: {fileID: 4346925244410980655}
   m_PrefabAsset: {fileID: 0}
---- !u!64 &2283569865547000646 stripped
-MeshCollider:
-  m_CorrespondingSourceObject: {fileID: 2586121489874698857, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
-  m_PrefabInstance: {fileID: 4346925244410980655}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &3811227155907539246 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 628062607898286081, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
@@ -178,15 +181,15 @@ MonoBehaviour:
   - material: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
     renderers:
     - {fileID: 6706930238458572629}
-    - {fileID: 7018772352301660028}
+    - {fileID: 8284337252846482214}
   invalidMaterialsList:
   - material: {fileID: 2100000, guid: 4a467bd8c5d0bb74b81c2e0a887a603c, type: 2}
     renderers:
     - {fileID: 6706930238458572629}
-    - {fileID: 7018772352301660028}
+    - {fileID: 8284337252846482214}
   colliders:
   - {fileID: 6979645143941586690}
-  - {fileID: 2283569865547000646}
+  - {fileID: 7192791437684429449}
   notAllowedPointer: {fileID: 932986186413473991}
   groundPreviewObject: {fileID: 5105985005350120237}
   wallCheckPoint: {fileID: 0}
@@ -205,8 +208,13 @@ BoxCollider:
   m_CorrespondingSourceObject: {fileID: 6669777437357798957, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
   m_PrefabInstance: {fileID: 4346925244410980655}
   m_PrefabAsset: {fileID: 0}
---- !u!23 &7018772352301660028 stripped
+--- !u!65 &7192791437684429449 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 6882217999263972262, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
+  m_PrefabInstance: {fileID: 4346925244410980655}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8284337252846482214 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 6716223012293484115, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
+  m_CorrespondingSourceObject: {fileID: 5666796807967496713, guid: a0ca4299ff418a3409fd5a0206432a69, type: 3}
   m_PrefabInstance: {fileID: 4346925244410980655}
   m_PrefabAsset: {fileID: 0}

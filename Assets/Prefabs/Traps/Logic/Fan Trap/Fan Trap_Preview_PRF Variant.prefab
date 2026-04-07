@@ -8,10 +8,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 236319328980717166, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 399178454669710388, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1704629174718313425, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
       propertyPath: m_Name
       value: Fan Trap_Preview_PRF Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 2200807491237606881, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
     - target: {fileID: 2374418520306996181, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -52,6 +64,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2570593656423637836, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6865161615713687237, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -83,6 +99,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 236319328980717166, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
   m_PrefabInstance: {fileID: 5327270126547012310}
   m_PrefabAsset: {fileID: 0}
+--- !u!23 &6297322232852971319 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2200807491237606881, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
+  m_PrefabInstance: {fileID: 5327270126547012310}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6793201507861313799 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1704629174718313425, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
@@ -103,10 +124,12 @@ MonoBehaviour:
   validMaterialsList:
   - material: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
     renderers:
+    - {fileID: 6297322232852971319}
     - {fileID: 1633601504380214291}
   invalidMaterialsList:
   - material: {fileID: 2100000, guid: 4a467bd8c5d0bb74b81c2e0a887a603c, type: 2}
     renderers:
+    - {fileID: 6297322232852971319}
     - {fileID: 1633601504380214291}
   colliders:
   - {fileID: 2368614985010922178}
@@ -132,7 +155,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1822281439718795581, guid: 226ec08ad45880a479d46b30f0dac431, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.83
+      value: 1.62
       objectReference: {fileID: 0}
     - target: {fileID: 1822281439718795581, guid: 226ec08ad45880a479d46b30f0dac431, type: 3}
       propertyPath: m_LocalPosition.z

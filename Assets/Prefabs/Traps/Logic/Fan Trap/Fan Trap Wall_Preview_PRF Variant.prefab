@@ -12,6 +12,34 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
+    - target: {fileID: 1074525950468073116, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
+    - target: {fileID: 1142153687744236582, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1578942508790515529, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2771481535716790967, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3985591379139222160, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4428933673443373922, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
+    - target: {fileID: 4692554909090496721, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6839781232065372474, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -54,7 +82,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6921317763224199576, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
       propertyPath: m_Name
-      value: Fan Trap_Preview_PRF Variant
+      value: Fan Trap Wall_Preview_PRF Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 8057921996018119396, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8176820871811227954, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -72,9 +104,19 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 4473227317028667305}
   m_SourcePrefab: {fileID: 100100000, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+--- !u!23 &1090629988916361673 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4428933673443373922, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+  m_PrefabInstance: {fileID: 3626534078282779307}
+  m_PrefabAsset: {fileID: 0}
 --- !u!23 &3542794565785288160 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 251780898766468939, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
+  m_PrefabInstance: {fileID: 3626534078282779307}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &4376779959171181623 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1074525950468073116, guid: 32a88e8b2fb698f4aaa9925c0c7b2c07, type: 3}
   m_PrefabInstance: {fileID: 3626534078282779307}
   m_PrefabAsset: {fileID: 0}
 --- !u!23 &4840787704598375321 stripped
@@ -104,11 +146,15 @@ MonoBehaviour:
     renderers:
     - {fileID: 3542794565785288160}
     - {fileID: 4840787704598375321}
+    - {fileID: 1090629988916361673}
+    - {fileID: 4376779959171181623}
   invalidMaterialsList:
   - material: {fileID: 2100000, guid: 4a467bd8c5d0bb74b81c2e0a887a603c, type: 2}
     renderers:
     - {fileID: 3542794565785288160}
     - {fileID: 4840787704598375321}
+    - {fileID: 1090629988916361673}
+    - {fileID: 4376779959171181623}
   colliders:
   - {fileID: 6881116619821285027}
   - {fileID: 8300131184421308003}
@@ -149,7 +195,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1822281439718795581, guid: 226ec08ad45880a479d46b30f0dac431, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.83
+      value: 1.57
       objectReference: {fileID: 0}
     - target: {fileID: 1822281439718795581, guid: 226ec08ad45880a479d46b30f0dac431, type: 3}
       propertyPath: m_LocalPosition.z

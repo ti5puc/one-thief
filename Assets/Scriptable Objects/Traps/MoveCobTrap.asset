@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cd7dac3bb849ba4e8e5a69902d239cf, type: 3}
+  m_Name: MoveCobTrap
+  m_EditorClassIdentifier: 
+  trapName: Moving Cob
+  id: 14
+  icon: {fileID: 2108419294, guid: f49166ed7c7bfef4ba827de8df67f40c, type: 3}
+  placementCost: 0
+  trapPlacementLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  ignorePlacementLayer:
+    serializedVersion: 2
+    m_Bits: 2048
+  trapSurface:
+    serializedVersion: 2
+    m_Bits: 64
+  needsWallToPlace: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  trapPreview: {fileID: 2000742442402901584, guid: 6eaff755f450e1540825a45ba9658b46, type: 3}
+  trapObject: {fileID: 3595696755569487287, guid: 860662adc331fe541b05f79574a80376, type: 3}
+  invalidSurfacesForSpacer:
+    serializedVersion: 2
+    m_Bits: 1408
+  trapSpacerPreview: {fileID: 1983344900661682279, guid: 470971583f3c90b42b363cc184c1ede2, type: 3}
+  positioningMatrix:
+    rows: 3
+    cols: 3
+    data: 000000000200000000000000000000000100000000000000000000000200000000000000
+  isAlwaysActive: 1
+  delayToHitAfterActivated: 0.7
+  keepHitTriggerAfterActivated: 0
+  hitTriggerActiveTime: 0.2
+  canReactive: 0
+  delayBeforeReactivate: 4

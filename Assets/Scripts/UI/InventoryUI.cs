@@ -22,6 +22,10 @@ public class InventoryUI : MonoBehaviour
         FakeChestTrap.OnPlayerExitedChestArea += HideInteractionHint;
         FakeChestTrap.OnAnyChestOpened += HideInteractionHint;
 
+        ExitPortal.OnPlayerEnteredPortalArea += ShowInteractionHint;
+        ExitPortal.OnPlayerExitedPortalArea += HideInteractionHint;
+        ExitPortal.OnAnyPortalActivated += HideInteractionHint;
+
         PlayerInventory.OnGoldToGainChanged += OnGoldToGainChanged;
         PlayerInventory.OnGoldToRemoveChanged += OnGoldToRemoveChanged;
         PlayerInventory.OnGoldChanged += OnGoldChanged;
@@ -38,6 +42,10 @@ public class InventoryUI : MonoBehaviour
         FakeChestTrap.OnPlayerEnteredChestArea -= ShowInteractionHint;
         FakeChestTrap.OnPlayerExitedChestArea -= HideInteractionHint;
         FakeChestTrap.OnAnyChestOpened -= HideInteractionHint;
+
+        ExitPortal.OnPlayerEnteredPortalArea -= ShowInteractionHint;
+        ExitPortal.OnPlayerExitedPortalArea -= HideInteractionHint;
+        ExitPortal.OnAnyPortalActivated -= HideInteractionHint;
 
         PlayerInventory.OnGoldToGainChanged -= OnGoldToGainChanged;
         PlayerInventory.OnGoldToRemoveChanged -= OnGoldToRemoveChanged;

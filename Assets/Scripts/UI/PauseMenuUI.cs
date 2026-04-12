@@ -17,6 +17,7 @@ public class PauseMenuUI : MonoBehaviour
     
     [Space(5)]
     [SerializeField] private TMP_Text treasureHintText;
+    [SerializeField] private TMP_Text exitPortalHintText;
     
     [Space(10)]
     [SerializeField] private InputActionReference pauseMenuAction;
@@ -83,10 +84,14 @@ public class PauseMenuUI : MonoBehaviour
             var treasureCounter = FindFirstObjectByType<TreasureCollectCounter>();
             var hasNoTreasureOnScene = treasureCounter != null && treasureCounter.TreasuresOnScene <= 0;
 
+            var exitPortal = FindFirstObjectByType<ExitPortal>();
+            var hasNoPortalOnScene = exitPortal == null;
+
             testButtonText.text = "Testar fase";
             treasureHintText.gameObject.SetActive(hasNoTreasureOnScene);
+            exitPortalHintText.gameObject.SetActive(!hasNoTreasureOnScene && hasNoPortalOnScene);
 
-            testButton.interactable = !isExploring && !hasNoTreasureOnScene;
+            testButton.interactable = !isExploring && !hasNoTreasureOnScene && !hasNoPortalOnScene;
             resetButton.interactable = true;
         }
         

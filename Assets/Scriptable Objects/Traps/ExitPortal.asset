@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cd7dac3bb849ba4e8e5a69902d239cf, type: 3}
-  m_Name: SpikeTrap
+  m_Script: {fileID: 11500000, guid: 0c822442c5bd2f3428d51151804cca8c, type: 3}
+  m_Name: ExitPortal
   m_EditorClassIdentifier: 
-  trapName: Spikes
-  id: 4
-  icon: {fileID: -585484668, guid: fc8bc8f8254ccea4cb3bab8fff16faa4, type: 3}
+  trapName: Exit Portal
+  id: 16
+  icon: {fileID: 445181352, guid: c22e868cf3c33fa4891b8010231277b3, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2
@@ -29,8 +29,8 @@ MonoBehaviour:
   wallLayer:
     serializedVersion: 2
     m_Bits: 0
-  trapPreview: {fileID: 5470613590884588052, guid: 03a95a31b43631f4680aadb209c5987f, type: 3}
-  trapObject: {fileID: 4782766396064776245, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
+  trapPreview: {fileID: 1348095800131755287, guid: 9e30d1e165d58864d950bd161cb85c58, type: 3}
+  trapObject: {fileID: 2131908354555486100, guid: d91121456e51c2e4fa31b5331d3be6d1, type: 3}
   invalidSurfacesForSpacer:
     serializedVersion: 2
     m_Bits: 1408
@@ -39,9 +39,3 @@ MonoBehaviour:
     rows: 3
     cols: 3
     data: 000000000000000000000000000000000100000000000000000000000000000000000000
-  isAlwaysActive: 0
-  delayToHitAfterActivated: 1
-  keepHitTriggerAfterActivated: 1
-  hitTriggerActiveTime: 0.2
-  canReactive: 1
-  delayBeforeReactivate: 4

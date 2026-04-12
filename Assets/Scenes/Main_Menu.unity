@@ -2280,12 +2280,13 @@ MonoBehaviour:
     atento aos <b>comandos no painel superior esquerdo</b> dentro do jogo; eles mudam
     entre os modos de <b>constru\xE7\xE3o</b> e <b>explora\xE7\xE3o</b>. O <color=#FFD700><b>ouro</b></color>
     \xE9 essencial para criar fases e \xE9 obtido ao vencer mapas de outros jogadores.
-    Para concluir uma fase e receber a recompensa, basta <b>coletar todos os ba\xFAs</b>
-    do cen\xE1rio.\r\n\r\nPara <b>publicar seu mapa</b>, voc\xEA precisar\xE1 depositar
-    <color=#FFD700><b>ouro</b></color> nele colocando ba\xFAs e realizar um <b>teste
-    de valida\xE7\xE3o</b> atrav\xE9s do menu de pausa (<b>ESC</b>). Durante o teste,
-    <b>colete todos os ba\xFAs</b> que voc\xEA posicionou. Ao conseguir, uma janela
-    aparecer\xE1 automaticamente para voc\xEA <b>nomear e enviar</b> sua fase."
+    Para concluir uma fase e receber a recompensa, basta <b>encontrar a sa\xEDda</b>
+    da fase. Ao sair, voc\xEA levar\xE1 consigo todo o ouro que conseguir pegar.\r\n\r\nMas
+    para <b>publicar seu mapa</b>, voc\xEA precisar\xE1 depositar <color=#FFD700><b>ouro</b></color>
+    nele colocando ba\xFAs e realizar um <b>teste de valida\xE7\xE3o</b> atrav\xE9s
+    do menu de pausa (<b>ESC</b>). Durante o teste, <b>colete todos os ba\xFAs</b>
+    que voc\xEA posicionou. Ao coletar e interagir com o portal da <b>sa\xEDda</br>,
+    uma janela aparecer\xE1 para voc\xEA <b>nomear e enviar</b> sua fase."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2906,7 +2907,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 325781596}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.59975004
+  m_Size: 0.50491077
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

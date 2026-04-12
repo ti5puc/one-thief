@@ -15,6 +15,11 @@ public class WinUI : MonoBehaviour
     [Header("Collected all")]
     [SerializeField] private Transform okGroup;
     [SerializeField] private Button okButton;
+    [SerializeField] private TMP_Text okButtonText;
+    
+    [Space(10)]
+    [SerializeField] private Transform cancelGroup;
+    [SerializeField] private Button cancelButton;
     
     [Header("Submit")]
     [SerializeField] private Transform submitGroup;
@@ -22,14 +27,18 @@ public class WinUI : MonoBehaviour
     [SerializeField] private Button denyButton;
     [SerializeField] private TMP_InputField levelName;
 
+    private bool allChestsCollected;
+
     private void Awake()
     {
         submitButton.onClick.AddListener(OnSubmitButtonClicked);
         denyButton.onClick.AddListener(OnDenyButtonClicked);
+        cancelButton.onClick.AddListener(OnCancelButtonClicked);
         okButton.onClick.AddListener(OnWinExploring);
         levelName.onValueChanged.AddListener(EnableButton);
 
-        TreasureCollectCounter.OnAllTreasuresCollected += TryShow;
+        ExitPortal.OnAnyPortalActivated += TryShow;
+        TreasureCollectCounter.OnAllTreasuresCollected += OnAllTreasuresCollected;
         
         Hide();
     }
@@ -38,10 +47,12 @@ public class WinUI : MonoBehaviour
     {
         submitButton.onClick.RemoveListener(OnSubmitButtonClicked);
         denyButton.onClick.RemoveListener(OnDenyButtonClicked);
+        cancelButton.onClick.RemoveListener(OnCancelButtonClicked);
         okButton.onClick.RemoveListener(OnWinExploring);
         levelName.onValueChanged.RemoveListener(EnableButton);
             
-        TreasureCollectCounter.OnAllTreasuresCollected -= TryShow;
+        ExitPortal.OnAnyPortalActivated -= TryShow;
+        TreasureCollectCounter.OnAllTreasuresCollected -= OnAllTreasuresCollected;
     }
 
     private void TryShow()
@@ -57,22 +68,40 @@ public class WinUI : MonoBehaviour
         OnShow?.Invoke();
     }
 
+    private void OnAllTreasuresCollected()
+    {
+        allChestsCollected = true;
+    }
+
     private void ShowSubmit()
     {
-        messageText.text = "Fase testada. Deseja enviar?";
-        submitGroup.gameObject.SetActive(true);
-        okGroup.gameObject.SetActive(false);
-        
-        EnableButton(levelName.text);
+        if (allChestsCollected)
+        {
+            messageText.text = "Fase testada. Deseja enviar?";
+            submitGroup.gameObject.SetActive(true);
+            okGroup.gameObject.SetActive(false);
+            cancelGroup.gameObject.SetActive(false);
+            EnableButton(levelName.text);
+        }
+        else
+        {
+            messageText.text = "Colete todos os baús antes de enviar a fase.";
+            okButtonText.text = "Continuar testando";
+            submitGroup.gameObject.SetActive(false);
+            okGroup.gameObject.SetActive(true);
+            cancelGroup.gameObject.SetActive(false);
+        }
         
         gameObject.SetActive(true);
     }
 
     private void ShowCollectAll()
     {
-        messageText.text = "Todos os tesouros foram coletados!";
+        messageText.text = $"Deseja sair?<br>Ouro resgatado: {PlayerInventory.Instance.GoldCache}";
+        okButtonText.text = "Sim";
         submitGroup.gameObject.SetActive(false);
         okGroup.gameObject.SetActive(true);
+        cancelGroup.gameObject.SetActive(true);
         
         gameObject.SetActive(true);
     }
@@ -87,7 +116,7 @@ public class WinUI : MonoBehaviour
 
     private void EnableButton(string lvlName)
     {
-        submitButton.interactable = !string.IsNullOrWhiteSpace(lvlName);
+        submitButton.interactable = !string.IsNullOrWhiteSpace(lvlName) && allChestsCollected;
     }
 
     private void OnSubmitButtonClicked()
@@ -122,7 +151,7 @@ public class WinUI : MonoBehaviour
         
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
     }
-
+    
     private void OnDenyButtonClicked()
     {
         GameManager.Resume();
@@ -141,6 +170,14 @@ public class WinUI : MonoBehaviour
 
     private void OnWinExploring()
     {
+        // Se está no modo submit mas sem todos os baús, apenas fecha o UI e deixa continuar jogando
+        if (GameManager.IsTestingToSubmit && !allChestsCollected)
+        {
+            Hide();
+            GameManager.HideCursor();
+            return;
+        }
+        
         OnGetGold?.Invoke();
         Hide();
         
@@ -149,5 +186,11 @@ public class WinUI : MonoBehaviour
         GameManager.ShowCursor();
         
         SceneManager.LoadSceneAsync("Challenge_Menu");
+    }
+    
+    private void OnCancelButtonClicked()
+    {
+        Hide();
+        GameManager.HideCursor();
     }
 }

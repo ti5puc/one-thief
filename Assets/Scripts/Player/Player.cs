@@ -78,6 +78,10 @@ public class Player : MonoBehaviour
     public float dashMaxStepHeight = 0.35f;   // (implementar) altura máxima de degrau que o dash sobe
     public float dashGroundTestUp = 1.2f;    // (implementar) teste para movimentação em rampa
 
+    [Header("Wall Run")]
+    public bool isWallRunning;
+    private WallRunRail currentWallRunRail;
+
     //Referencias para o InputSystem
     [Header("ReferenciasMovimentacaoECamera")]
     public InputActionReference jumpInput;
@@ -470,6 +474,32 @@ public class Player : MonoBehaviour
             return; // Durante o dash ignora o resto da movimentação
         }
 
+        if (isWallRunning && currentWallRunRail != null)
+        {
+            float wallRunSpeed = moveSpeed;
+
+            if (isCrouching)
+            {
+                wallRunSpeed *= crouchSpeedMultiplier;
+            }
+            else if (isSprinting)
+            {
+                wallRunSpeed *= sprintMultiplier;
+            }
+
+            Vector3 runDirection = currentWallRunRail.GetRunDirection();
+            Vector3 wallRunNewPosition = rb.position + runDirection * (wallRunSpeed * Time.fixedDeltaTime);
+
+            rb.MovePosition(wallRunNewPosition);
+
+            Vector3 v = rb.linearVelocity;
+            v.y = 0f;
+            rb.linearVelocity = v;
+
+            return;
+        }
+
+
         float speed = moveSpeed;
         OnMoveChanged?.Invoke(_moveDirection.sqrMagnitude > 0.0001f, isSprinting);
 
@@ -487,6 +517,8 @@ public class Player : MonoBehaviour
         if (moveDirection.sqrMagnitude > 1f) moveDirection.Normalize();
         Vector3 newPosition = rb.position + moveDirection * (speed * Time.fixedDeltaTime);
         rb.MovePosition(newPosition);
+
+       
     }
 
     void GroundCheck()
@@ -534,6 +566,13 @@ public class Player : MonoBehaviour
     }
     void OnJump(InputAction.CallbackContext ctx)
     {
+        if (isWallRunning)
+        {
+            isWallRunning = false;
+            currentWallRunRail = null;
+            rb.useGravity = true;
+        }
+
         lastJumpPressedTime = Time.time;
     }
 
@@ -559,6 +598,33 @@ public class Player : MonoBehaviour
         }
         rb.useGravity = false;
         var v = rb.linearVelocity;
+        v.y = 0f;
+        rb.linearVelocity = v;
+    }
+
+    public void EnterWallRun(WallRunRail rail)
+    {
+        if (rail == null) return;
+
+        isWallRunning = true;
+        currentWallRunRail = rail;
+        rb.useGravity = false;
+
+        Vector3 v = rb.linearVelocity;
+        v.y = 0f;
+        rb.linearVelocity = v;
+    }
+
+    public void ExitWallRun(WallRunRail rail)
+    {
+        if (!isWallRunning) return;
+        if (rail != currentWallRunRail) return;
+
+        isWallRunning = false;
+        currentWallRunRail = null;
+        rb.useGravity = true;
+
+        Vector3 v = rb.linearVelocity;
         v.y = 0f;
         rb.linearVelocity = v;
     }

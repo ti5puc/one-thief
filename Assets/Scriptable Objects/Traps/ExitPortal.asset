@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Exit Portal
   id: 16
-  icon: {fileID: 445181352, guid: c22e868cf3c33fa4891b8010231277b3, type: 3}
+  icon: {fileID: 1159861750, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

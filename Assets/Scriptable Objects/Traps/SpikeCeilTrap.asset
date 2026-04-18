@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Spikes Ceil
   id: 12
-  icon: {fileID: -1989991766, guid: dd9202866e3efd948a22e9ddcadacc69, type: 3}
+  icon: {fileID: -364146226, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

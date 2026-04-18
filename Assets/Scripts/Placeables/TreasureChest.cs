@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,6 +20,7 @@ public class TreasureChest : MonoBehaviour, IPlaceable
 
     [Header("Animation")]
     [SerializeField] private GameObject lidObject;
+    [SerializeField] private List<GameObject> vfxGold;
     [SerializeField] private Vector3 lidOpenRotation = new Vector3(-90f, 90f, -90f);
     [SerializeField] private Ease lidOpenEase = Ease.OutBack;
     [SerializeField] private float lidOpenDuration = 0.4f;
@@ -80,6 +82,8 @@ public class TreasureChest : MonoBehaviour, IPlaceable
         if (isChestOpened) return;
 
         isChestOpened = true;
+        foreach (var vfx in vfxGold)
+            vfx.SetActive(true);
         SoundManager.PlaySound(SoundType.COIN);
 
         Sequence openSequence = DOTween.Sequence();
@@ -102,6 +106,11 @@ public class TreasureChest : MonoBehaviour, IPlaceable
             transform.DOScale(Vector3.zero, scaleDownDuration)
                 .SetEase(Ease.InBack)
         );
-        openSequence.OnComplete(() => gameObject.SetActive(false));
+        openSequence.OnComplete(() =>
+        {
+            foreach (var vfx in vfxGold)
+                vfx.SetActive(false);
+            gameObject.SetActive(false);
+        });
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Static Cob
   id: 13
-  icon: {fileID: -1674918517, guid: 0f61bdf9eed4da34ebef3dd88ea42141, type: 3}
+  icon: {fileID: -1372372357, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

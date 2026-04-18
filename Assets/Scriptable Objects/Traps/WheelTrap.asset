@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Wheel Trap
   id: 8
-  icon: {fileID: 1828854554, guid: d3cdd3e71713c77479fb57396fe8b348, type: 3}
+  icon: {fileID: 1459134264, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

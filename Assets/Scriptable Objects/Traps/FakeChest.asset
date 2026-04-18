@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Fake Chest
   id: 15
-  icon: {fileID: -707853255, guid: 1e2e895acd42f894a83ee341ca7946e6, type: 3}
+  icon: {fileID: 1966984692, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

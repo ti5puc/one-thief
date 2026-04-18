@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Weight Fall
   id: 5
-  icon: {fileID: 404825351, guid: 98da6aa6973ffe140bfd2e2706fb84f8, type: 3}
+  icon: {fileID: -509307352, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Axe Pendulum
   id: 0
-  icon: {fileID: 791361578, guid: cc65c2377cb4571468e8a809091980e7, type: 3}
+  icon: {fileID: 151351017, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

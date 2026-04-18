@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Golem Trap
   id: 10
-  icon: {fileID: 459405329, guid: 053e54d8b718a834d9f40ca6db8fbb51, type: 3}
+  icon: {fileID: -670890332, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

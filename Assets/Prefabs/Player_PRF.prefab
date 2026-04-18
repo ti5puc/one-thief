@@ -1386,7 +1386,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1408,7 +1408,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 65
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -2078,6 +2078,7 @@ MonoBehaviour:
   dashMaxSlopeAngle: 45
   dashMaxStepHeight: 0.35
   dashGroundTestUp: 1.2
+  isWallRunning: 0
   jumpInput: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   sprintInput: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   dashInput: {fileID: -111666491642429466, guid: 052faaac586de48259a63d0c4782560b, type: 3}

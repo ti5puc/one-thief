@@ -22,10 +22,12 @@ public class WinUI : MonoBehaviour
     [SerializeField] private Button cancelButton;
     
     [Header("Submit")]
+    [SerializeField] private TMP_Text submitMessageText;
     [SerializeField] private Transform submitGroup;
     [SerializeField] private Button submitButton;
     [SerializeField] private Button denyButton;
     [SerializeField] private TMP_InputField levelName;
+    [SerializeField] private TMP_InputField levelGold;
 
     private bool allChestsCollected;
 
@@ -36,6 +38,7 @@ public class WinUI : MonoBehaviour
         cancelButton.onClick.AddListener(OnCancelButtonClicked);
         okButton.onClick.AddListener(OnWinExploring);
         levelName.onValueChanged.AddListener(EnableButton);
+        levelGold.onValueChanged.AddListener(OnGoldInputChanged);
 
         ExitPortal.OnAnyPortalActivated += TryShow;
         TreasureCollectCounter.OnAllTreasuresCollected += OnAllTreasuresCollected;
@@ -50,10 +53,13 @@ public class WinUI : MonoBehaviour
         cancelButton.onClick.RemoveListener(OnCancelButtonClicked);
         okButton.onClick.RemoveListener(OnWinExploring);
         levelName.onValueChanged.RemoveListener(EnableButton);
+        levelGold.onValueChanged.RemoveListener(OnGoldInputChanged);
             
         ExitPortal.OnAnyPortalActivated -= TryShow;
         TreasureCollectCounter.OnAllTreasuresCollected -= OnAllTreasuresCollected;
     }
+
+    private void OnGoldInputChanged(string _) => EnableButton(levelName.text);
 
     private void TryShow()
     {
@@ -77,15 +83,24 @@ public class WinUI : MonoBehaviour
     {
         if (allChestsCollected)
         {
+            messageText.gameObject.SetActive(true);
+            submitMessageText.gameObject.SetActive(false);
+
             messageText.text = "Fase testada. Deseja enviar?";
+
             submitGroup.gameObject.SetActive(true);
             okGroup.gameObject.SetActive(false);
             cancelGroup.gameObject.SetActive(false);
+            levelGold.text = string.Empty;
             EnableButton(levelName.text);
         }
         else
         {
+            messageText.gameObject.SetActive(true);
+            submitMessageText.gameObject.SetActive(false);
+
             messageText.text = "Colete todos os baús antes de enviar a fase.";
+
             okButtonText.text = "Continuar testando";
             submitGroup.gameObject.SetActive(false);
             okGroup.gameObject.SetActive(true);
@@ -97,7 +112,11 @@ public class WinUI : MonoBehaviour
 
     private void ShowCollectAll()
     {
-        messageText.text = $"Deseja sair?<br>Ouro resgatado: {PlayerInventory.Instance.GoldCache}";
+        messageText.gameObject.SetActive(false);
+        submitMessageText.gameObject.SetActive(true);
+
+        submitMessageText.text = $"Deseja sair?<br>Ouro resgatado: ${PlayerInventory.Instance.GoldCache}";
+
         okButtonText.text = "Sim";
         submitGroup.gameObject.SetActive(false);
         okGroup.gameObject.SetActive(true);
@@ -116,7 +135,12 @@ public class WinUI : MonoBehaviour
 
     private void EnableButton(string lvlName)
     {
-        submitButton.interactable = !string.IsNullOrWhiteSpace(lvlName) && allChestsCollected;
+        bool nameValid = !string.IsNullOrWhiteSpace(lvlName);
+        bool goldValid = int.TryParse(levelGold.text, out int goldValue)
+                         && goldValue > 0
+                         && PlayerInventory.Instance != null
+                         && goldValue <= PlayerInventory.Instance.CurrentGold;
+        submitButton.interactable = nameValid && goldValid && allChestsCollected;
     }
 
     private void OnSubmitButtonClicked()
@@ -126,17 +150,25 @@ public class WinUI : MonoBehaviour
             Debug.LogError("Level needs a name.");
             return;
         }
+
+        if (!int.TryParse(levelGold.text, out int submittedGold)
+            || submittedGold <= 0
+            || submittedGold > PlayerInventory.Instance.CurrentGold)
+        {
+            Debug.LogError("Invalid gold amount.");
+            return;
+        }
         
         bool hasLevelId = SaveSystem.LocalSaveHasLevelId(SaveSystem.NextSaveToLoad);
         if (hasLevelId)
         {
             var levelId = SaveSystem.GetLocalSaveLevelId(SaveSystem.NextSaveToLoad);
-            SaveSystem.EditLevelOnFirebase(levelId, levelName.text, PlayerInventory.Instance.GoldCache, GameManager.NextLayoutIndex);
+            SaveSystem.EditLevelOnFirebase(levelId, levelName.text, submittedGold, GameManager.NextLayoutIndex);
         }
         else
-            SaveSystem.SubmitLevelToFirebase(levelName.text, PlayerInventory.Instance.GoldCache, GameManager.NextLayoutIndex);
+            SaveSystem.SubmitLevelToFirebase(levelName.text, submittedGold, GameManager.NextLayoutIndex);
         
-        PlayerInventory.Instance.SpendGoldToRemove();
+        PlayerInventory.Instance.DeductGold(submittedGold);
         
         GameManager.Resume();
         GameManager.IsTestingToSubmit = false;

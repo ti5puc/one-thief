@@ -31,11 +31,18 @@ public class SaveSystem : MonoBehaviour
     [Header("Debug")]
     [SerializeField, ReadOnly] private string nextSaveToLoad;
 
+    private static int nextLevelTotalGold;
+
     public static SaveSystem Instance { get; private set; }
     public static string NextSaveToLoad
     {
         get => Instance.nextSaveToLoad;
         set => Instance.nextSaveToLoad = value;
+    }
+    public static int NextLevelTotalGold
+    {
+        get => nextLevelTotalGold;
+        set => nextLevelTotalGold = value;
     }
 
     private void Awake()
@@ -166,6 +173,9 @@ public class SaveSystem : MonoBehaviour
                 Debug.LogError($"[TrapGridSaveSystem] Falha ao deserializar save '{saveId}'");
                 return false;
             }
+
+            // Store total gold for the loaded level
+            nextLevelTotalGold = data.TotalGold;
 
             // Unflatten grid
             rows = data.Rows;

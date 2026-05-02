@@ -119,6 +119,23 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
+    public void DeductGold(int amount)
+    {
+        if (amount <= 0) return;
+
+        currentGold = Mathf.Max(0, currentGold - amount);
+        
+        var newInventoryData = new InventoryData
+        {
+            Gold = currentGold,
+            PlayerName = FirebaseManager.Instance.PlayerName
+        };
+        SaveSystem.SaveInventory(newInventoryData);
+        loadedData = newInventoryData;
+        
+        OnGoldChanged?.Invoke(CurrentGold);
+    }
+
     public void ApplyGoldInCache()
     {
         if (goldCache <= 0) return;

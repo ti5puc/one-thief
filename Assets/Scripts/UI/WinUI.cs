@@ -28,11 +28,14 @@ public class WinUI : MonoBehaviour
     [SerializeField] private Button denyButton;
     [SerializeField] private TMP_InputField levelName;
     [SerializeField] private TMP_InputField levelGold;
+    [SerializeField] private TMP_InputField levelTaxGold;
 
     private bool allChestsCollected;
 
     private void Awake()
     {
+        levelTaxGold.interactable = false;
+
         submitButton.onClick.AddListener(OnSubmitButtonClicked);
         denyButton.onClick.AddListener(OnDenyButtonClicked);
         cancelButton.onClick.AddListener(OnCancelButtonClicked);
@@ -59,7 +62,24 @@ public class WinUI : MonoBehaviour
         TreasureCollectCounter.OnAllTreasuresCollected -= OnAllTreasuresCollected;
     }
 
-    private void OnGoldInputChanged(string _) => EnableButton(levelName.text);
+    private void OnGoldInputChanged(string _)
+    {
+        UpdateTaxDisplay();
+        EnableButton(levelName.text);
+    }
+
+    private void UpdateTaxDisplay()
+    {
+        if (int.TryParse(levelGold.text, out int goldValue) && goldValue > 0)
+        {
+            int tax = goldValue > 500 ? Mathf.RoundToInt(goldValue * 0.1f) : 0;
+            levelTaxGold.text = tax.ToString();
+        }
+        else
+        {
+            levelTaxGold.text = "0";
+        }
+    }
 
     private void TryShow()
     {
@@ -92,6 +112,7 @@ public class WinUI : MonoBehaviour
             okGroup.gameObject.SetActive(false);
             cancelGroup.gameObject.SetActive(false);
             levelGold.text = string.Empty;
+            levelTaxGold.text = "0";
             EnableButton(levelName.text);
         }
         else
@@ -158,15 +179,17 @@ public class WinUI : MonoBehaviour
             Debug.LogError("Invalid gold amount.");
             return;
         }
+
+        int submittedTax = submittedGold > 500 ? Mathf.RoundToInt(submittedGold * 0.11f) : 0;
         
         bool hasLevelId = SaveSystem.LocalSaveHasLevelId(SaveSystem.NextSaveToLoad);
         if (hasLevelId)
         {
             var levelId = SaveSystem.GetLocalSaveLevelId(SaveSystem.NextSaveToLoad);
-            SaveSystem.EditLevelOnFirebase(levelId, levelName.text, submittedGold, GameManager.NextLayoutIndex);
+            SaveSystem.EditLevelOnFirebase(levelId, levelName.text, submittedGold, submittedTax, GameManager.NextLayoutIndex);
         }
         else
-            SaveSystem.SubmitLevelToFirebase(levelName.text, submittedGold, GameManager.NextLayoutIndex);
+            SaveSystem.SubmitLevelToFirebase(levelName.text, submittedGold, submittedTax, GameManager.NextLayoutIndex);
         
         PlayerInventory.Instance.DeductGold(submittedGold);
         
@@ -208,6 +231,15 @@ public class WinUI : MonoBehaviour
             Hide();
             GameManager.HideCursor();
             return;
+        }
+
+        if (GameManager.CurrentGameState == GameState.Exploring && !GameManager.IsTestingToSubmit)
+        {
+            int totalGold = SaveSystem.NextLevelTotalGold;
+            float winValue = totalGold > 0
+                ? Mathf.Clamp01((float)PlayerInventory.Instance.GoldCache / totalGold)
+                : 0f;
+            SaveSystem.AddWinToLevel(winValue);
         }
         
         OnGetGold?.Invoke();

@@ -14,83 +14,66 @@ public class LookAtCamera : MonoBehaviour
     [SerializeField] private RotationMode rotationMode = RotationMode.YOnly;
 
     private Camera mainCamera;
-    private Quaternion initialRotation;
-    private Vector3 initialEuler;
-    private float initialForwardDistance = 1f;
+    private Quaternion initialLocalRotation;
 
     private void Start()
     {
         mainCamera = Camera.main;
-        initialRotation = transform.rotation;
-        initialEuler = transform.eulerAngles;
-
-        // cache initial horizontal (XZ) distance to camera in world space as a fixed baseline
-        if (mainCamera != null)
-        {
-            Vector3 camPos = mainCamera.transform.position;
-            Vector3 objPos = transform.position;
-            Vector2 camXZ = new Vector2(camPos.x, camPos.z);
-            Vector2 objXZ = new Vector2(objPos.x, objPos.z);
-            initialForwardDistance = Mathf.Max(0.0001f, Vector2.Distance(camXZ, objXZ));
-        }
+        initialLocalRotation = transform.localRotation;
     }
 
     private void Update()
     {
-        if (mainCamera != null)
+        if (mainCamera == null) return;
+
+        // Inverse of parent world rotation brings world-space vectors into parent-local space.
+        // transform.parent.rotation is always the full world rotation of the parent chain.
+        Quaternion invParentRot = transform.parent != null
+            ? Quaternion.Inverse(transform.parent.rotation)
+            : Quaternion.identity;
+
+        Vector3 toCameraLocal = invParentRot * (mainCamera.transform.position - transform.position);
+        Vector3 initEuler = initialLocalRotation.eulerAngles;
+
+        switch (rotationMode)
         {
-            switch (rotationMode)
-            {
-                case RotationMode.Full:
-                    transform.rotation = Quaternion.LookRotation(mainCamera.transform.position - transform.position, Vector3.up) * initialRotation;
+            case RotationMode.Full:
+                {
+                    if (toCameraLocal.sqrMagnitude > 0.0001f)
+                    {
+                        transform.localRotation = Quaternion.LookRotation(toCameraLocal, Vector3.up) * initialLocalRotation;
+                    }
                     break;
-                case RotationMode.XOnly:
+                }
+            case RotationMode.XOnly:
+                {
+                    if (toCameraLocal.sqrMagnitude > 0.000001f)
                     {
-                        Vector3 toCamera = mainCamera.transform.position - transform.position;
-                        if (toCamera.sqrMagnitude > 0.000001f)
-                        {
-                            // keep initial Y and Z; compute pitch only from world vertical offset (ignore X/Z by using fixed baseline)
-                            float dy = toCamera.y; // world-space vertical difference
-                            float pitch = Mathf.Rad2Deg * Mathf.Atan2(dy, initialForwardDistance);
-
-                            Vector3 initialRight = initialRotation * -Vector3.right;
-                            Vector3 camOffsetXZ = new Vector3(toCamera.x, 0f, toCamera.z);
-                            float sideDot = Vector3.Dot(initialRight, camOffsetXZ);
-
-                            if (sideDot < 0f)
-                                pitch = -pitch;
-
-                            transform.rotation = Quaternion.Euler(initialEuler.x + pitch, initialEuler.y, initialEuler.z);
-                        }
-                        break;
+                        float dxz = Mathf.Max(new Vector2(toCameraLocal.x, toCameraLocal.z).magnitude, 0.0001f);
+                        float pitch = Mathf.Atan2(toCameraLocal.y, dxz) * Mathf.Rad2Deg;
+                        transform.localRotation = Quaternion.Euler(initEuler.x + pitch, initEuler.y, initEuler.z);
                     }
-                case RotationMode.YOnly:
+                    break;
+                }
+            case RotationMode.YOnly:
+                {
+                    Vector3 flatLocal = new Vector3(toCameraLocal.x, 0f, toCameraLocal.z);
+                    if (flatLocal.sqrMagnitude > 0.0001f)
                     {
-                        Vector3 cameraPos = mainCamera.transform.position;
-                        Vector3 objectPos = transform.position;
-                        Vector3 flatToCamera = new Vector3(cameraPos.x - objectPos.x, 0f, cameraPos.z - objectPos.z);
-                        if (flatToCamera.sqrMagnitude > 0.0001f)
-                        {
-                            Quaternion yRot = Quaternion.LookRotation(flatToCamera, Vector3.up);
-                            transform.rotation = yRot * initialRotation;
-                        }
-                        break;
+                        float yAngle = Quaternion.LookRotation(flatLocal, Vector3.up).eulerAngles.y + 180f;
+                        transform.localRotation = Quaternion.Euler(initEuler.x, yAngle, initEuler.z);
                     }
-                case RotationMode.XYOnly:
+                    break;
+                }
+            case RotationMode.XYOnly:
+                {
+                    if (toCameraLocal.sqrMagnitude > 0.0001f)
                     {
-                        Vector3 cameraPos = mainCamera.transform.position;
-                        Vector3 objectPos = transform.position;
-                        Vector3 toCamera = cameraPos - objectPos;
-                        if (toCamera.sqrMagnitude > 0.0001f)
-                        {
-                            Quaternion lookRot = Quaternion.LookRotation(toCamera, Vector3.up);
-                            Vector3 euler = (lookRot * initialRotation).eulerAngles;
-                            euler.z = transform.rotation.eulerAngles.z;
-                            transform.rotation = Quaternion.Euler(euler);
-                        }
-                        break;
+                        Vector3 lookEuler = Quaternion.LookRotation(toCameraLocal, Vector3.up).eulerAngles;
+                        transform.localRotation = Quaternion.Euler(lookEuler.x, lookEuler.y, initEuler.z);
                     }
-            }
+                    break;
+                }
         }
     }
 }

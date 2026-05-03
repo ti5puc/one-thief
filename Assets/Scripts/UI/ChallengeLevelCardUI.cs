@@ -7,10 +7,13 @@ using UnityEngine.UI;
 
 public class ChallengeLevelCardUI : MonoBehaviour
 {
+    public static event Action OnNotEnoughGold;
+
     [SerializeField] private TMP_Text levelNameText;
     [SerializeField] private TMP_Text playerNameText;
     [SerializeField] private TMP_Text totalGoldText;
-    [SerializeField] private TMP_Text totalDeathsText;
+    [SerializeField] private TMP_Text taxGoldText;
+    [SerializeField] private TMP_Text dificultyText;
 
     [Space(10)]
     [SerializeField] private Image layoutImage;
@@ -22,6 +25,7 @@ public class ChallengeLevelCardUI : MonoBehaviour
     private string levelId;
     private string playerId;
     private int layoutIndex;
+    private int entryTax;
 
     private void Awake()
     {
@@ -33,16 +37,18 @@ public class ChallengeLevelCardUI : MonoBehaviour
         playButton.onClick.RemoveListener(OnPlayButtonClicked);
     }
 
-    public void SetLevelData(string levelId, string playerId, string levelName, string playerName, int totalGold, int totalDeaths, int layoutIndex)
+    public void SetLevelData(string levelId, string playerId, string levelName, string playerName, int totalGold, int totalDeaths, int layoutIndex, int entryTax = 0, float totalWins = 0f)
     {
         this.levelId = levelId;
         this.playerId = playerId;
         this.layoutIndex = layoutIndex;
+        this.entryTax = entryTax;
         
         levelNameText.text = levelName;
         playerNameText.text = $"Criado por: {playerName}";
         totalGoldText.text = $"Para saquear: ${totalGold}";
-        totalDeathsText.text =$"Mortes: {totalDeaths}";
+        taxGoldText.text = $"Taxa: ${entryTax}";
+        dificultyText.text = $"Dificuldade: {SaveSystem.GetDifficultyLabel(totalDeaths, totalWins)}";
         
         layoutImage.sprite = layoutSprites[Mathf.Clamp(layoutIndex, 0, layoutSprites.Count - 1)];
     }
@@ -51,6 +57,16 @@ public class ChallengeLevelCardUI : MonoBehaviour
     {
         try
         {
+            if (entryTax > 0)
+            {
+                if (PlayerInventory.Instance == null || PlayerInventory.Instance.CurrentGold < entryTax)
+                {
+                    OnNotEnoughGold?.Invoke();
+                    return;
+                }
+                PlayerInventory.Instance.DeductGold(entryTax);
+            }
+
             Debug.Log($"[ChallengeLevelCardUI] Loading level {levelId} for play...");
             
             GameManager.SetCanEnterBuildMode(false);

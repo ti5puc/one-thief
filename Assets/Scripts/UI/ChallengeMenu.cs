@@ -6,13 +6,22 @@ using UnityEngine.UI;
 public class ChallengeMenu : MonoBehaviour
 {
     [Header("Levels Panel")]
+    [SerializeField] private GameObject levelsPanel;
     [SerializeField] private ChallengeLevelCardUI levelCardPrefab;
     [SerializeField] private RectTransform scrollViewContent;
     [SerializeField] private Button returnButton;
+    
+    [Header("No Gold Panel")]
+    [SerializeField] private GameObject noGoldPanel;
+    [SerializeField] private Button noGoldReturnButton;
 
     private async void Awake()
     {
         returnButton.onClick.AddListener(ReturnToMenu);
+        noGoldReturnButton.onClick.AddListener(HideNoGoldMessage);
+        noGoldPanel.SetActive(false);
+
+        ChallengeLevelCardUI.OnNotEnoughGold += ShowNoGoldMessage;
         
         foreach (Transform child in scrollViewContent)
             Destroy(child.gameObject);
@@ -23,11 +32,26 @@ public class ChallengeMenu : MonoBehaviour
     private void OnDestroy()
     {
         returnButton.onClick.RemoveListener(ReturnToMenu);
+        noGoldReturnButton.onClick.RemoveListener(HideNoGoldMessage);
+
+        ChallengeLevelCardUI.OnNotEnoughGold -= ShowNoGoldMessage;
     }
 
     private void ReturnToMenu()
     {
         SceneManager.LoadSceneAsync("Play_Menu");
+    }
+
+    private void ShowNoGoldMessage()
+    {
+        levelsPanel.SetActive(false);
+        noGoldPanel.SetActive(true);
+    }
+
+    private void HideNoGoldMessage()
+    {
+        levelsPanel.SetActive(true);
+        noGoldPanel.SetActive(false);
     }
 
     private async Task LoadPlayerLevels()
@@ -64,7 +88,7 @@ public class ChallengeMenu : MonoBehaviour
                     var playerName = await SaveSystem.GetPlayerName(levelData.PlayerId);
                     
                     card.SetLevelData(levelId, levelData.PlayerId, levelData.LevelName, playerName, levelData.TotalGold, 
-                        levelData.TotalDeaths, levelData.LayoutIndex);
+                        levelData.TotalDeaths, levelData.LayoutIndex, levelData.EntryTax, levelData.TotalWins);
                 }
                 catch (System.Exception ex)
                 {

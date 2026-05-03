@@ -116,6 +116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationMode: 2
+  detachFromParent: 1
 --- !u!1 &2069641583674882919
 GameObject:
   m_ObjectHideFlags: 0

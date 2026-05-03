@@ -17,6 +17,8 @@ public class LevelSaveData
     public int LayoutIndex;
     public int TotalGold;
     public int TotalDeaths;
+    public float TotalWins;
+    public int EntryTax;
 }
 
 public class SaveSystem : MonoBehaviour
@@ -32,6 +34,7 @@ public class SaveSystem : MonoBehaviour
     [SerializeField, ReadOnly] private string nextSaveToLoad;
 
     private static int nextLevelTotalGold;
+    private static int nextLevelEntryTax;
 
     public static SaveSystem Instance { get; private set; }
     public static string NextSaveToLoad
@@ -43,6 +46,11 @@ public class SaveSystem : MonoBehaviour
     {
         get => nextLevelTotalGold;
         set => nextLevelTotalGold = value;
+    }
+    public static int NextLevelEntryTax
+    {
+        get => nextLevelEntryTax;
+        set => nextLevelEntryTax = value;
     }
 
     private void Awake()
@@ -174,8 +182,9 @@ public class SaveSystem : MonoBehaviour
                 return false;
             }
 
-            // Store total gold for the loaded level
+            // Store level metadata
             nextLevelTotalGold = data.TotalGold;
+            nextLevelEntryTax = data.EntryTax;
 
             // Unflatten grid
             rows = data.Rows;
@@ -545,7 +554,7 @@ public class SaveSystem : MonoBehaviour
     /// Submit the current level to Firebase with a custom name
     /// Each submission creates a new level with a unique ID
     /// </summary>
-    public static async void SubmitLevelToFirebase(string levelName, int totalGold, int layoutIndex)
+    public static async void SubmitLevelToFirebase(string levelName, int totalGold, int entryTax, int layoutIndex)
     {
         if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
         {
@@ -570,7 +579,9 @@ public class SaveSystem : MonoBehaviour
                 PlayerId = FirebaseManager.Instance.UserId,
                 LayoutIndex = layoutIndex,
                 TotalGold = totalGold,
-                TotalDeaths = 0
+                TotalDeaths = 0,
+                TotalWins = 0f,
+                EntryTax = entryTax
             };
             
             string json = JsonUtility.ToJson(levelData);
@@ -595,7 +606,7 @@ public class SaveSystem : MonoBehaviour
     /// Edit an existing level on Firebase by updating the document
     /// Similar to SubmitLevelToFirebase, but updates an existing document instead of creating a new one
     /// </summary>
-    public static async void EditLevelOnFirebase(string levelId, string levelName, int totalGold, int layoutIndex)
+    public static async void EditLevelOnFirebase(string levelId, string levelName, int totalGold, int entryTax, int layoutIndex)
     {
         if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
         {
@@ -620,7 +631,9 @@ public class SaveSystem : MonoBehaviour
                 PlayerId = FirebaseManager.Instance.UserId,
                 LayoutIndex = layoutIndex,
                 TotalGold = totalGold,
-                TotalDeaths = 0
+                TotalDeaths = 0,
+                TotalWins = 0f,
+                EntryTax = entryTax
             };
             
             string json = JsonUtility.ToJson(levelData);
@@ -718,6 +731,100 @@ public class SaveSystem : MonoBehaviour
         {
             Debug.LogError($"[SaveSystem] Error increasing player deaths: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Add a win value (0f-1f) to the current loaded level's TotalWins on Firebase
+    /// winValue = 1f means all gold collected, 0.5f means half, etc.
+    /// </summary>
+    public static async void AddWinToLevel(float winValue)
+    {
+        string saveId = NextSaveToLoad;
+
+        if (!LocalSaveHasLevelId(saveId))
+        {
+            Debug.Log("[SaveSystem] Current level is not from Firebase, skipping win tracking");
+            return;
+        }
+
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogError("[SaveSystem] Cannot update wins - not authenticated");
+            return;
+        }
+
+        try
+        {
+            string levelId = GetLocalSaveLevelId(saveId);
+
+            if (string.IsNullOrEmpty(levelId))
+            {
+                Debug.LogError("[SaveSystem] Failed to get level ID from save");
+                return;
+            }
+
+            string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+            string filePath = Path.Combine(saveFolderPath, saveId + FILE_EXTENSION);
+
+            if (!File.Exists(filePath))
+            {
+                Debug.LogError($"[SaveSystem] Local save file not found: {filePath}");
+                return;
+            }
+
+            string json = File.ReadAllText(filePath);
+            LevelSaveData levelData = JsonUtility.FromJson<LevelSaveData>(json);
+
+            if (levelData == null)
+            {
+                Debug.LogError("[SaveSystem] Failed to deserialize level data");
+                return;
+            }
+
+            levelData.TotalWins += Mathf.Clamp01(winValue);
+
+            Debug.Log($"[SaveSystem] Adding {winValue} win to level '{levelId}', total: {levelData.TotalWins}");
+
+            var updates = new Dictionary<string, object>
+            {
+                { "TotalWins", (object)levelData.TotalWins }
+            };
+
+            bool success = await FirebaseManager.Instance.UpdateDocumentFields("levels", levelId, updates);
+
+            if (success)
+            {
+                string updatedJson = JsonUtility.ToJson(levelData, true);
+                File.WriteAllText(filePath, updatedJson);
+                Debug.Log($"[SaveSystem] Successfully updated wins for level '{levelId}'");
+            }
+            else
+            {
+                Debug.LogError("[SaveSystem] Failed to update wins on Firebase");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error adding win to level: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Returns a localized difficulty label based on the deaths/wins ratio.
+    /// Reference: Normal difficulty = 3 deaths per 1 complete win.
+    /// </summary>
+    public static string GetDifficultyLabel(int totalDeaths, float totalWins)
+    {
+        if (totalWins <= 0f || totalDeaths <= 0)
+            return "Normal";
+
+        float ratio = totalDeaths / totalWins;
+
+        if (ratio < 1.0f)  return "Muito Fácil";
+        if (ratio < 2.0f)  return "Fácil";
+        if (ratio < 5.0f)  return "Normal";
+        if (ratio < 9.0f)  return "Difícil";
+        return "Muito Difícil";
     }
 
     /// <summary>

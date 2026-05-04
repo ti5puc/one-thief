@@ -233,16 +233,20 @@ public class WinUI : MonoBehaviour
             return;
         }
 
-        if (GameManager.CurrentGameState == GameState.Exploring && !GameManager.IsTestingToSubmit)
+        bool isCreator = !string.IsNullOrEmpty(SaveSystem.NextLevelCreatorId) &&
+                         FirebaseManager.Instance != null &&
+                         FirebaseManager.Instance.UserId == SaveSystem.NextLevelCreatorId;
+
+        if (GameManager.CurrentGameState == GameState.Exploring && !GameManager.IsTestingToSubmit && !isCreator)
         {
             int totalGold = SaveSystem.NextLevelTotalGold;
             float winValue = totalGold > 0
                 ? Mathf.Clamp01((float)PlayerInventory.Instance.GoldCache / totalGold)
                 : 0f;
             SaveSystem.AddWinToLevel(winValue);
+            OnGetGold?.Invoke();
         }
         
-        OnGetGold?.Invoke();
         Hide();
         
         GameManager.Resume();

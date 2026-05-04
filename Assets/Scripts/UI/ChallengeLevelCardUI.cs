@@ -57,7 +57,10 @@ public class ChallengeLevelCardUI : MonoBehaviour
     {
         try
         {
-            if (entryTax > 0)
+            bool isCreator = FirebaseManager.Instance != null &&
+                             FirebaseManager.Instance.UserId == playerId;
+
+            if (!isCreator && entryTax > 0)
             {
                 if (PlayerInventory.Instance == null || PlayerInventory.Instance.CurrentGold < entryTax)
                 {
@@ -65,6 +68,7 @@ public class ChallengeLevelCardUI : MonoBehaviour
                     return;
                 }
                 PlayerInventory.Instance.DeductGold(entryTax);
+                SaveSystem.AddTaxGoldToCreator(playerId, entryTax);
             }
 
             Debug.Log($"[ChallengeLevelCardUI] Loading level {levelId} for play...");

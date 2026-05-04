@@ -35,6 +35,7 @@ public class SaveSystem : MonoBehaviour
 
     private static int nextLevelTotalGold;
     private static int nextLevelEntryTax;
+    private static string nextLevelCreatorId;
 
     public static SaveSystem Instance { get; private set; }
     public static string NextSaveToLoad
@@ -51,6 +52,11 @@ public class SaveSystem : MonoBehaviour
     {
         get => nextLevelEntryTax;
         set => nextLevelEntryTax = value;
+    }
+    public static string NextLevelCreatorId
+    {
+        get => nextLevelCreatorId;
+        set => nextLevelCreatorId = value;
     }
 
     private void Awake()
@@ -869,6 +875,8 @@ public class SaveSystem : MonoBehaviour
             var localSaveId = "firebase_" + levelId;
             string filePath = Path.Combine(saveFolderPath, localSaveId + FILE_EXTENSION);
             File.WriteAllText(filePath, saveJson);
+
+            nextLevelCreatorId = levelData.PlayerId;
             
             Debug.Log($"[SaveSystem] Firebase level '{levelId}' loaded and saved as '{localSaveId}'");
             return localSaveId;
@@ -877,6 +885,43 @@ public class SaveSystem : MonoBehaviour
         {
             Debug.LogError($"[SaveSystem] Error loading Firebase level: {ex.Message}");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Add tax gold to the level creator's Firebase inventory (TaxGoldToGain field).
+    /// </summary>
+    public static async void AddTaxGoldToCreator(string creatorPlayerId, int taxAmount)
+    {
+        if (taxAmount <= 0 || string.IsNullOrEmpty(creatorPlayerId)) return;
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated) return;
+
+        try
+        {
+            string json = await FirebaseManager.Instance.LoadDocument("players", creatorPlayerId);
+            int currentTaxGold = 0;
+
+            if (!string.IsNullOrEmpty(json))
+            {
+                var data = JsonUtility.FromJson<InventoryData>(json);
+                if (data != null) currentTaxGold = data.TaxGoldToGain;
+            }
+
+            var updates = new Dictionary<string, object>
+            {
+                { "TaxGoldToGain", currentTaxGold + taxAmount }
+            };
+
+            bool success = await FirebaseManager.Instance.UpdateDocumentFields("players", creatorPlayerId, updates);
+
+            if (success)
+                Debug.Log($"[SaveSystem] Added {taxAmount} tax gold to creator '{creatorPlayerId}'");
+            else
+                Debug.LogError($"[SaveSystem] Failed to add tax gold to creator '{creatorPlayerId}'");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error adding tax gold to creator: {ex.Message}");
         }
     }
 

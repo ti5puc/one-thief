@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -10,6 +11,11 @@ public class MainMenu : MonoBehaviour
     [Space(10)]
     [SerializeField] private Button howToPlayOkButton;
     [SerializeField] private Button howToPlayBackButton;
+
+    [Space(10)]
+    [SerializeField] private GameObject earnedGoldPanel;
+    [SerializeField] private TMP_Text earnedGoldText;
+    [SerializeField] private Button okButton;
     
     private const string first_time_play_key = "FirstTimePlay";
     
@@ -30,12 +36,19 @@ public class MainMenu : MonoBehaviour
         howToPlayBackButton.onClick.AddListener(ReturnToMainPanel);
         
         ShowMainPanel();
+        
+        okButton.onClick.AddListener(OnOkClicked);
+
+        int taxGold = PlayerInventory.Instance != null ? PlayerInventory.Instance.TaxGoldToGain : 0;
+        if (taxGold > 0)
+            ShowEarnedGoldPanel(taxGold);
     }
     
     private void OnDestroy()
     {
         howToPlayOkButton.onClick.RemoveListener(OnHowToPlayOkButtonClicked);
         howToPlayBackButton.onClick.RemoveListener(ReturnToMainPanel);
+        okButton.onClick.RemoveListener(OnOkClicked);
     }
 
     public void PlayGame()
@@ -70,6 +83,7 @@ public class MainMenu : MonoBehaviour
     {
         mainPanel.SetActive(false);
         howToPlayPanel.SetActive(true);
+        earnedGoldPanel.SetActive(false);
         
         howToPlayOkButton.gameObject.SetActive(false);
         IsFirstTimePlay = false;
@@ -79,12 +93,21 @@ public class MainMenu : MonoBehaviour
     {
         mainPanel.SetActive(true);
         howToPlayPanel.SetActive(false);
+        earnedGoldPanel.SetActive(false);
     }
 
     public void ReturnToMainPanel()
     {
         ShowMainPanel();
         IsFirstTimePlay = false;
+    }
+    
+    public void ShowEarnedGoldPanel(int goldAmount)
+    {
+        earnedGoldText.text = $"Você ganhou ${goldAmount} de taxa de entrada das suas masmorras!";
+        earnedGoldPanel.SetActive(true);
+        mainPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
     }
     
     private void OnHowToPlayOkButtonClicked()
@@ -99,5 +122,11 @@ public class MainMenu : MonoBehaviour
             IsFirstTimePlay = false;
             ShowMainPanel();
         }
+    }
+
+    private void OnOkClicked()
+    {
+        PlayerInventory.Instance?.ClaimTaxGold();
+        ShowMainPanel();
     }
 }

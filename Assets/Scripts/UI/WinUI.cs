@@ -244,6 +244,14 @@ public class WinUI : MonoBehaviour
                 ? Mathf.Clamp01((float)PlayerInventory.Instance.GoldCache / totalGold)
                 : 0f;
             SaveSystem.AddWinToLevel(winValue);
+            
+            if (winValue > 0)
+            {
+                string levelId = SaveSystem.GetLocalSaveLevelId(SaveSystem.NextSaveToLoad);
+                if (!string.IsNullOrEmpty(levelId))
+                    SaveSystem.IncrementPlayerWinsOnLevel(levelId);
+            }
+            
             OnGetGold?.Invoke();
         }
         

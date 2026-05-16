@@ -42,12 +42,16 @@ public class ChallengeLevelCardUI : MonoBehaviour
         this.levelId = levelId;
         this.playerId = playerId;
         this.layoutIndex = layoutIndex;
-        this.entryTax = entryTax;
+
+        int effectiveGold = SaveSystem.GetEffectiveGold(totalGold, totalDeaths, totalWins);
+        int baseTax = SaveSystem.GetEffectiveTax(effectiveGold);
+        int playerWins = SaveSystem.GetPlayerWinsOnLevel(levelId);
+        this.entryTax = Mathf.RoundToInt(baseTax * SaveSystem.GetRecurrenceMultiplier(playerWins));
         
         levelNameText.text = levelName;
         playerNameText.text = $"Criado por: {playerName}";
-        totalGoldText.text = $"Para saquear: ${totalGold}";
-        taxGoldText.text = $"Taxa: ${entryTax}";
+        totalGoldText.text = $"Para saquear: ${effectiveGold}";
+        taxGoldText.text = $"Taxa: ${this.entryTax}";
         dificultyText.text = $"Dificuldade: {SaveSystem.GetDifficultyLabel(totalDeaths, totalWins)}";
         
         layoutImage.sprite = layoutSprites[Mathf.Clamp(layoutIndex, 0, layoutSprites.Count - 1)];

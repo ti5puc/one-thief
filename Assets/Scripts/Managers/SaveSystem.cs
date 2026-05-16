@@ -5,6 +5,15 @@ using NaughtyAttributes;
 using UnityEngine;
 
 [System.Serializable]
+public class RecurrenceData
+{
+    public List<string> LevelIds = new List<string>();
+    public List<int> WinCounts = new List<int>();
+    // Unix timestamp (seconds UTC) of the first win in the current 24-hour window per level
+    public List<double> WindowStartTimes = new List<double>();
+}
+
+[System.Serializable]
 public class LevelSaveData
 {
     public int Rows;
@@ -25,17 +34,47 @@ public class SaveSystem : MonoBehaviour
 {
     private const string SAVE_FOLDER = "Saves";
     private const string INVENTORY_FILE = "inventory";
+    private const string RECURRENCE_FILE = "level_recurrence";
     private const string FILE_EXTENSION = ".json";
     private const string USER_CREDENTIALS_FILE = "user_credentials";
     private const string CREDENTIALS_EXTENSION = ".txt";
     private const string DEFAULT_PASSWORD = "OnePasswordToRuleThemAll@12345";
     
+    [Header("Difficulty — Ratio Thresholds")]
+    [SerializeField] private float easyRatioThreshold     = 1.0f;
+    [SerializeField] private float normalRatioThreshold   = 2.0f;
+    [SerializeField] private float hardRatioThreshold     = 5.0f;
+    [SerializeField] private float veryHardRatioThreshold = 9.0f;
+
+    [Header("Difficulty — Gold Multipliers")]
+    [SerializeField] private float veryEasyMultiplier = 1.0f;
+    [SerializeField] private float easyMultiplier     = 1.2f;
+    [SerializeField] private float normalMultiplier   = 1.5f;
+    [SerializeField] private float hardMultiplier     = 2.0f;
+    [SerializeField] private float veryHardMultiplier = 2.5f;
+
+    [Header("Entry Tax")]
+    [SerializeField] private float taxRate       = 0.11f;
+    [SerializeField] private int   minGoldForTax = 500;
+
+    [Header("Recurrence — Tax Multipliers")]
+    [SerializeField] private float recurrence1Win  = 1.0f;
+    [SerializeField] private float recurrence2Wins = 1.5f;
+    [SerializeField] private float recurrence3Wins = 2.0f;
+    [SerializeField] private float recurrence4Wins = 3.5f;
+    [SerializeField] private float recurrence5Wins = 5.0f;
+    [SerializeField] private float recurrence6Wins = 8.0f;
+
+    [Header("Recurrence — Window")]
+    [SerializeField] private double recurrenceWindowHours = 24.0;
+
     [Header("Debug")]
     [SerializeField, ReadOnly] private string nextSaveToLoad;
 
     private static int nextLevelTotalGold;
     private static int nextLevelEntryTax;
     private static string nextLevelCreatorId;
+    private static string nextLevelId;
 
     public static SaveSystem Instance { get; private set; }
     public static string NextSaveToLoad
@@ -57,6 +96,11 @@ public class SaveSystem : MonoBehaviour
     {
         get => nextLevelCreatorId;
         set => nextLevelCreatorId = value;
+    }
+    public static string NextLevelId
+    {
+        get => nextLevelId;
+        set => nextLevelId = value;
     }
 
     private void Awake()
@@ -189,8 +233,10 @@ public class SaveSystem : MonoBehaviour
             }
 
             // Store level metadata
-            nextLevelTotalGold = data.TotalGold;
-            nextLevelEntryTax = data.EntryTax;
+            nextLevelTotalGold = GetEffectiveGold(data.TotalGold, data.TotalDeaths, data.TotalWins);
+            int baseTax = GetEffectiveTax(nextLevelTotalGold);
+            int playerWins = LocalSaveHasLevelId(saveId) ? GetPlayerWinsOnLevel(nextLevelId) : 0;
+            nextLevelEntryTax = Mathf.RoundToInt(baseTax * GetRecurrenceMultiplier(playerWins));
 
             // Unflatten grid
             rows = data.Rows;
@@ -817,7 +863,6 @@ public class SaveSystem : MonoBehaviour
 
     /// <summary>
     /// Returns a localized difficulty label based on the deaths/wins ratio.
-    /// Reference: Normal difficulty = 3 deaths per 1 complete win.
     /// </summary>
     public static string GetDifficultyLabel(int totalDeaths, float totalWins)
     {
@@ -826,11 +871,176 @@ public class SaveSystem : MonoBehaviour
 
         float ratio = totalDeaths / totalWins;
 
-        if (ratio < 1.0f)  return "Muito Fácil";
-        if (ratio < 2.0f)  return "Fácil";
-        if (ratio < 5.0f)  return "Normal";
-        if (ratio < 9.0f)  return "Difícil";
+        float e  = Instance != null ? Instance.easyRatioThreshold     : 1.0f;
+        float n  = Instance != null ? Instance.normalRatioThreshold   : 2.0f;
+        float h  = Instance != null ? Instance.hardRatioThreshold     : 5.0f;
+        float vh = Instance != null ? Instance.veryHardRatioThreshold : 9.0f;
+
+        if (ratio < e)  return "Muito Fácil";
+        if (ratio < n)  return "Fácil";
+        if (ratio < h)  return "Normal";
+        if (ratio < vh) return "Difícil";
         return "Muito Difícil";
+    }
+
+    /// <summary>
+    /// Returns the gold multiplier for a difficulty based on deaths/wins ratio.
+    /// New levels (no data) start at 1.0x (Muito Fácil).
+    /// </summary>
+    public static float GetDifficultyMultiplier(int totalDeaths, float totalWins)
+    {
+        if (totalWins <= 0f || totalDeaths <= 0)
+            return Instance != null ? Instance.normalMultiplier : 1.5f;
+
+        float ratio = totalDeaths / totalWins;
+
+        float e  = Instance != null ? Instance.easyRatioThreshold     : 1.0f;
+        float n  = Instance != null ? Instance.normalRatioThreshold   : 2.0f;
+        float h  = Instance != null ? Instance.hardRatioThreshold     : 5.0f;
+        float vh = Instance != null ? Instance.veryHardRatioThreshold : 9.0f;
+
+        if (ratio < e)  return Instance != null ? Instance.veryEasyMultiplier : 1.0f;
+        if (ratio < n)  return Instance != null ? Instance.easyMultiplier     : 1.2f;
+        if (ratio < h)  return Instance != null ? Instance.normalMultiplier   : 1.5f;
+        if (ratio < vh) return Instance != null ? Instance.hardMultiplier     : 2.0f;
+        return Instance != null ? Instance.veryHardMultiplier : 2.5f;
+    }
+
+    /// <summary>
+    /// Returns the effective gold a player can loot, scaled by difficulty.
+    /// baseGold is the creator's submitted value (Muito Fácil reference, 1.0x).
+    /// </summary>
+    public static int GetEffectiveGold(int baseGold, int totalDeaths, float totalWins)
+    {
+        return Mathf.RoundToInt(baseGold * GetDifficultyMultiplier(totalDeaths, totalWins));
+    }
+
+    /// <summary>
+    /// Returns the base entry tax for a given effective gold amount (11% if > 500, else 0).
+    /// </summary>
+    public static int GetEffectiveTax(int effectiveGold)
+    {
+        int   minGold = Instance != null ? Instance.minGoldForTax : 500;
+        float rate    = Instance != null ? Instance.taxRate        : 0.11f;
+        return effectiveGold > minGold ? Mathf.RoundToInt(effectiveGold * rate) : 0;
+    }
+
+    /// <summary>
+    /// Returns the recurrence multiplier applied to entry tax based on how many
+    /// times the player has already won this level.
+    /// </summary>
+    public static float GetRecurrenceMultiplier(int wins)
+    {
+        if (wins <= 1) return Instance != null ? Instance.recurrence1Win  : 1.0f;
+        if (wins == 2) return Instance != null ? Instance.recurrence2Wins : 1.5f;
+        if (wins == 3) return Instance != null ? Instance.recurrence3Wins : 2.0f;
+        if (wins == 4) return Instance != null ? Instance.recurrence4Wins : 3.5f;
+        if (wins == 5) return Instance != null ? Instance.recurrence5Wins : 5.0f;
+        return Instance != null ? Instance.recurrence6Wins : 8.0f;
+    }
+
+    private static double GetUnixTimeSeconds() =>
+        (System.DateTime.UtcNow - new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds;
+
+    private static double RecurrenceWindowSeconds =>
+        Instance != null ? Instance.recurrenceWindowHours * 3600.0 : 86400.0;
+
+    /// <summary>
+    /// Returns how many times the local player has won a specific Firebase level
+    /// within the current 24-hour window. Auto-resets when the window expires.
+    /// </summary>
+    public static int GetPlayerWinsOnLevel(string levelId)
+    {
+        if (string.IsNullOrEmpty(levelId)) return 0;
+        RecurrenceData data = LoadRecurrenceData();
+        if (data == null) return 0;
+        int idx = data.LevelIds.IndexOf(levelId);
+        if (idx < 0) return 0;
+
+        // Check if the 24-hour window has expired
+        double windowStart = idx < data.WindowStartTimes.Count ? data.WindowStartTimes[idx] : 0;
+        if (windowStart > 0 && (GetUnixTimeSeconds() - windowStart) >= RecurrenceWindowSeconds)
+        {
+            data.WinCounts[idx] = 0;
+            data.WindowStartTimes[idx] = 0;
+            SaveRecurrenceData(data);
+            return 0;
+        }
+
+        return data.WinCounts[idx];
+    }
+
+    /// <summary>
+    /// Increments the local player's win count for a specific Firebase level.
+    /// Starts or resets the 24-hour recurrence window as needed.
+    /// Call this whenever the player exits a level with gold collected.
+    /// </summary>
+    public static void IncrementPlayerWinsOnLevel(string levelId)
+    {
+        if (string.IsNullOrEmpty(levelId)) return;
+        RecurrenceData data = LoadRecurrenceData() ?? new RecurrenceData();
+        int idx = data.LevelIds.IndexOf(levelId);
+        double now = GetUnixTimeSeconds();
+
+        if (idx >= 0)
+        {
+            // Ensure WindowStartTimes is in sync
+            while (data.WindowStartTimes.Count <= idx)
+                data.WindowStartTimes.Add(0);
+
+            double windowStart = data.WindowStartTimes[idx];
+            bool windowExpired = windowStart <= 0 || (now - windowStart) >= RecurrenceWindowSeconds;
+
+            if (windowExpired)
+            {
+                data.WinCounts[idx] = 1;
+                data.WindowStartTimes[idx] = now;
+            }
+            else
+            {
+                data.WinCounts[idx]++;
+            }
+        }
+        else
+        {
+            data.LevelIds.Add(levelId);
+            data.WinCounts.Add(1);
+            data.WindowStartTimes.Add(now);
+        }
+
+        SaveRecurrenceData(data);
+    }
+
+    private static RecurrenceData LoadRecurrenceData()
+    {
+        string path = Path.Combine(Application.persistentDataPath, SAVE_FOLDER, RECURRENCE_FILE + FILE_EXTENSION);
+        if (!File.Exists(path)) return null;
+        try
+        {
+            string json = File.ReadAllText(path);
+            return JsonUtility.FromJson<RecurrenceData>(json);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[SaveSystem] Error loading recurrence data: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static void SaveRecurrenceData(RecurrenceData data)
+    {
+        try
+        {
+            string folderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+            string path = Path.Combine(folderPath, RECURRENCE_FILE + FILE_EXTENSION);
+            File.WriteAllText(path, JsonUtility.ToJson(data, true));
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error saving recurrence data: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -877,6 +1087,7 @@ public class SaveSystem : MonoBehaviour
             File.WriteAllText(filePath, saveJson);
 
             nextLevelCreatorId = levelData.PlayerId;
+            nextLevelId = levelId;
             
             Debug.Log($"[SaveSystem] Firebase level '{levelId}' loaded and saved as '{localSaveId}'");
             return localSaveId;

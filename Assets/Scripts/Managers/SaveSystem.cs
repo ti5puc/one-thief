@@ -5,6 +5,15 @@ using NaughtyAttributes;
 using UnityEngine;
 
 [System.Serializable]
+public class RecurrenceData
+{
+    public List<string> LevelIds = new List<string>();
+    public List<int> WinCounts = new List<int>();
+    // Unix timestamp (seconds UTC) of the first win in the current 24-hour window per level
+    public List<double> WindowStartTimes = new List<double>();
+}
+
+[System.Serializable]
 public class LevelSaveData
 {
     public int Rows;
@@ -17,25 +26,81 @@ public class LevelSaveData
     public int LayoutIndex;
     public int TotalGold;
     public int TotalDeaths;
+    public float TotalWins;
+    public int EntryTax;
 }
 
 public class SaveSystem : MonoBehaviour
 {
     private const string SAVE_FOLDER = "Saves";
     private const string INVENTORY_FILE = "inventory";
+    private const string RECURRENCE_FILE = "level_recurrence";
     private const string FILE_EXTENSION = ".json";
     private const string USER_CREDENTIALS_FILE = "user_credentials";
     private const string CREDENTIALS_EXTENSION = ".txt";
     private const string DEFAULT_PASSWORD = "OnePasswordToRuleThemAll@12345";
     
+    [Header("Difficulty — Ratio Thresholds")]
+    [SerializeField] private float easyRatioThreshold     = 1.0f;
+    [SerializeField] private float normalRatioThreshold   = 2.0f;
+    [SerializeField] private float hardRatioThreshold     = 5.0f;
+    [SerializeField] private float veryHardRatioThreshold = 9.0f;
+
+    [Header("Difficulty — Gold Multipliers")]
+    [SerializeField] private float veryEasyMultiplier = 1.0f;
+    [SerializeField] private float easyMultiplier     = 1.2f;
+    [SerializeField] private float normalMultiplier   = 1.5f;
+    [SerializeField] private float hardMultiplier     = 2.0f;
+    [SerializeField] private float veryHardMultiplier = 2.5f;
+
+    [Header("Entry Tax")]
+    [SerializeField] private float taxRate       = 0.11f;
+    [SerializeField] private int   minGoldForTax = 500;
+
+    [Header("Recurrence — Tax Multipliers")]
+    [SerializeField] private float recurrence1Win  = 1.0f;
+    [SerializeField] private float recurrence2Wins = 1.5f;
+    [SerializeField] private float recurrence3Wins = 2.0f;
+    [SerializeField] private float recurrence4Wins = 3.5f;
+    [SerializeField] private float recurrence5Wins = 5.0f;
+    [SerializeField] private float recurrence6Wins = 8.0f;
+
+    [Header("Recurrence — Window")]
+    [SerializeField] private double recurrenceWindowHours = 24.0;
+
     [Header("Debug")]
     [SerializeField, ReadOnly] private string nextSaveToLoad;
+
+    private static int nextLevelTotalGold;
+    private static int nextLevelEntryTax;
+    private static string nextLevelCreatorId;
+    private static string nextLevelId;
 
     public static SaveSystem Instance { get; private set; }
     public static string NextSaveToLoad
     {
         get => Instance.nextSaveToLoad;
         set => Instance.nextSaveToLoad = value;
+    }
+    public static int NextLevelTotalGold
+    {
+        get => nextLevelTotalGold;
+        set => nextLevelTotalGold = value;
+    }
+    public static int NextLevelEntryTax
+    {
+        get => nextLevelEntryTax;
+        set => nextLevelEntryTax = value;
+    }
+    public static string NextLevelCreatorId
+    {
+        get => nextLevelCreatorId;
+        set => nextLevelCreatorId = value;
+    }
+    public static string NextLevelId
+    {
+        get => nextLevelId;
+        set => nextLevelId = value;
     }
 
     private void Awake()
@@ -166,6 +231,12 @@ public class SaveSystem : MonoBehaviour
                 Debug.LogError($"[TrapGridSaveSystem] Falha ao deserializar save '{saveId}'");
                 return false;
             }
+
+            // Store level metadata
+            nextLevelTotalGold = GetEffectiveGold(data.TotalGold, data.TotalDeaths, data.TotalWins);
+            int baseTax = GetEffectiveTax(nextLevelTotalGold);
+            int playerWins = LocalSaveHasLevelId(saveId) ? GetPlayerWinsOnLevel(nextLevelId) : 0;
+            nextLevelEntryTax = Mathf.RoundToInt(baseTax * GetRecurrenceMultiplier(playerWins));
 
             // Unflatten grid
             rows = data.Rows;
@@ -535,7 +606,7 @@ public class SaveSystem : MonoBehaviour
     /// Submit the current level to Firebase with a custom name
     /// Each submission creates a new level with a unique ID
     /// </summary>
-    public static async void SubmitLevelToFirebase(string levelName, int totalGold, int layoutIndex)
+    public static async void SubmitLevelToFirebase(string levelName, int totalGold, int entryTax, int layoutIndex)
     {
         if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
         {
@@ -560,7 +631,9 @@ public class SaveSystem : MonoBehaviour
                 PlayerId = FirebaseManager.Instance.UserId,
                 LayoutIndex = layoutIndex,
                 TotalGold = totalGold,
-                TotalDeaths = 0
+                TotalDeaths = 0,
+                TotalWins = 0f,
+                EntryTax = entryTax
             };
             
             string json = JsonUtility.ToJson(levelData);
@@ -585,7 +658,7 @@ public class SaveSystem : MonoBehaviour
     /// Edit an existing level on Firebase by updating the document
     /// Similar to SubmitLevelToFirebase, but updates an existing document instead of creating a new one
     /// </summary>
-    public static async void EditLevelOnFirebase(string levelId, string levelName, int totalGold, int layoutIndex)
+    public static async void EditLevelOnFirebase(string levelId, string levelName, int totalGold, int entryTax, int layoutIndex)
     {
         if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
         {
@@ -610,7 +683,9 @@ public class SaveSystem : MonoBehaviour
                 PlayerId = FirebaseManager.Instance.UserId,
                 LayoutIndex = layoutIndex,
                 TotalGold = totalGold,
-                TotalDeaths = 0
+                TotalDeaths = 0,
+                TotalWins = 0f,
+                EntryTax = entryTax
             };
             
             string json = JsonUtility.ToJson(levelData);
@@ -711,6 +786,264 @@ public class SaveSystem : MonoBehaviour
     }
 
     /// <summary>
+    /// Add a win value (0f-1f) to the current loaded level's TotalWins on Firebase
+    /// winValue = 1f means all gold collected, 0.5f means half, etc.
+    /// </summary>
+    public static async void AddWinToLevel(float winValue)
+    {
+        string saveId = NextSaveToLoad;
+
+        if (!LocalSaveHasLevelId(saveId))
+        {
+            Debug.Log("[SaveSystem] Current level is not from Firebase, skipping win tracking");
+            return;
+        }
+
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated)
+        {
+            Debug.LogError("[SaveSystem] Cannot update wins - not authenticated");
+            return;
+        }
+
+        try
+        {
+            string levelId = GetLocalSaveLevelId(saveId);
+
+            if (string.IsNullOrEmpty(levelId))
+            {
+                Debug.LogError("[SaveSystem] Failed to get level ID from save");
+                return;
+            }
+
+            string saveFolderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+            string filePath = Path.Combine(saveFolderPath, saveId + FILE_EXTENSION);
+
+            if (!File.Exists(filePath))
+            {
+                Debug.LogError($"[SaveSystem] Local save file not found: {filePath}");
+                return;
+            }
+
+            string json = File.ReadAllText(filePath);
+            LevelSaveData levelData = JsonUtility.FromJson<LevelSaveData>(json);
+
+            if (levelData == null)
+            {
+                Debug.LogError("[SaveSystem] Failed to deserialize level data");
+                return;
+            }
+
+            levelData.TotalWins += Mathf.Clamp01(winValue);
+
+            Debug.Log($"[SaveSystem] Adding {winValue} win to level '{levelId}', total: {levelData.TotalWins}");
+
+            var updates = new Dictionary<string, object>
+            {
+                { "TotalWins", (object)levelData.TotalWins }
+            };
+
+            bool success = await FirebaseManager.Instance.UpdateDocumentFields("levels", levelId, updates);
+
+            if (success)
+            {
+                string updatedJson = JsonUtility.ToJson(levelData, true);
+                File.WriteAllText(filePath, updatedJson);
+                Debug.Log($"[SaveSystem] Successfully updated wins for level '{levelId}'");
+            }
+            else
+            {
+                Debug.LogError("[SaveSystem] Failed to update wins on Firebase");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error adding win to level: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Returns a localized difficulty label based on the deaths/wins ratio.
+    /// </summary>
+    public static string GetDifficultyLabel(int totalDeaths, float totalWins)
+    {
+        if (totalWins <= 0f || totalDeaths <= 0)
+            return "Normal";
+
+        float ratio = totalDeaths / totalWins;
+
+        float e  = Instance != null ? Instance.easyRatioThreshold     : 1.0f;
+        float n  = Instance != null ? Instance.normalRatioThreshold   : 2.0f;
+        float h  = Instance != null ? Instance.hardRatioThreshold     : 5.0f;
+        float vh = Instance != null ? Instance.veryHardRatioThreshold : 9.0f;
+
+        if (ratio < e)  return "Muito Fácil";
+        if (ratio < n)  return "Fácil";
+        if (ratio < h)  return "Normal";
+        if (ratio < vh) return "Difícil";
+        return "Muito Difícil";
+    }
+
+    /// <summary>
+    /// Returns the gold multiplier for a difficulty based on deaths/wins ratio.
+    /// New levels (no data) start at 1.0x (Muito Fácil).
+    /// </summary>
+    public static float GetDifficultyMultiplier(int totalDeaths, float totalWins)
+    {
+        if (totalWins <= 0f || totalDeaths <= 0)
+            return Instance != null ? Instance.normalMultiplier : 1.5f;
+
+        float ratio = totalDeaths / totalWins;
+
+        float e  = Instance != null ? Instance.easyRatioThreshold     : 1.0f;
+        float n  = Instance != null ? Instance.normalRatioThreshold   : 2.0f;
+        float h  = Instance != null ? Instance.hardRatioThreshold     : 5.0f;
+        float vh = Instance != null ? Instance.veryHardRatioThreshold : 9.0f;
+
+        if (ratio < e)  return Instance != null ? Instance.veryEasyMultiplier : 1.0f;
+        if (ratio < n)  return Instance != null ? Instance.easyMultiplier     : 1.2f;
+        if (ratio < h)  return Instance != null ? Instance.normalMultiplier   : 1.5f;
+        if (ratio < vh) return Instance != null ? Instance.hardMultiplier     : 2.0f;
+        return Instance != null ? Instance.veryHardMultiplier : 2.5f;
+    }
+
+    /// <summary>
+    /// Returns the effective gold a player can loot, scaled by difficulty.
+    /// baseGold is the creator's submitted value (Muito Fácil reference, 1.0x).
+    /// </summary>
+    public static int GetEffectiveGold(int baseGold, int totalDeaths, float totalWins)
+    {
+        return Mathf.RoundToInt(baseGold * GetDifficultyMultiplier(totalDeaths, totalWins));
+    }
+
+    /// <summary>
+    /// Returns the base entry tax for a given effective gold amount (11% if > 500, else 0).
+    /// </summary>
+    public static int GetEffectiveTax(int effectiveGold)
+    {
+        int   minGold = Instance != null ? Instance.minGoldForTax : 500;
+        float rate    = Instance != null ? Instance.taxRate        : 0.11f;
+        return effectiveGold > minGold ? Mathf.RoundToInt(effectiveGold * rate) : 0;
+    }
+
+    /// <summary>
+    /// Returns the recurrence multiplier applied to entry tax based on how many
+    /// times the player has already won this level.
+    /// </summary>
+    public static float GetRecurrenceMultiplier(int wins)
+    {
+        if (wins <= 1) return Instance != null ? Instance.recurrence1Win  : 1.0f;
+        if (wins == 2) return Instance != null ? Instance.recurrence2Wins : 1.5f;
+        if (wins == 3) return Instance != null ? Instance.recurrence3Wins : 2.0f;
+        if (wins == 4) return Instance != null ? Instance.recurrence4Wins : 3.5f;
+        if (wins == 5) return Instance != null ? Instance.recurrence5Wins : 5.0f;
+        return Instance != null ? Instance.recurrence6Wins : 8.0f;
+    }
+
+    private static double GetUnixTimeSeconds() =>
+        (System.DateTime.UtcNow - new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds;
+
+    private static double RecurrenceWindowSeconds =>
+        Instance != null ? Instance.recurrenceWindowHours * 3600.0 : 86400.0;
+
+    /// <summary>
+    /// Returns how many times the local player has won a specific Firebase level
+    /// within the current 24-hour window. Auto-resets when the window expires.
+    /// </summary>
+    public static int GetPlayerWinsOnLevel(string levelId)
+    {
+        if (string.IsNullOrEmpty(levelId)) return 0;
+        RecurrenceData data = LoadRecurrenceData();
+        if (data == null) return 0;
+        int idx = data.LevelIds.IndexOf(levelId);
+        if (idx < 0) return 0;
+
+        // Check if the 24-hour window has expired
+        double windowStart = idx < data.WindowStartTimes.Count ? data.WindowStartTimes[idx] : 0;
+        if (windowStart > 0 && (GetUnixTimeSeconds() - windowStart) >= RecurrenceWindowSeconds)
+        {
+            data.WinCounts[idx] = 0;
+            data.WindowStartTimes[idx] = 0;
+            SaveRecurrenceData(data);
+            return 0;
+        }
+
+        return data.WinCounts[idx];
+    }
+
+    /// <summary>
+    /// Increments the local player's win count for a specific Firebase level.
+    /// Starts or resets the 24-hour recurrence window as needed.
+    /// Call this whenever the player exits a level with gold collected.
+    /// </summary>
+    public static void IncrementPlayerWinsOnLevel(string levelId)
+    {
+        if (string.IsNullOrEmpty(levelId)) return;
+        RecurrenceData data = LoadRecurrenceData() ?? new RecurrenceData();
+        int idx = data.LevelIds.IndexOf(levelId);
+        double now = GetUnixTimeSeconds();
+
+        if (idx >= 0)
+        {
+            // Ensure WindowStartTimes is in sync
+            while (data.WindowStartTimes.Count <= idx)
+                data.WindowStartTimes.Add(0);
+
+            double windowStart = data.WindowStartTimes[idx];
+            bool windowExpired = windowStart <= 0 || (now - windowStart) >= RecurrenceWindowSeconds;
+
+            if (windowExpired)
+            {
+                data.WinCounts[idx] = 1;
+                data.WindowStartTimes[idx] = now;
+            }
+            else
+            {
+                data.WinCounts[idx]++;
+            }
+        }
+        else
+        {
+            data.LevelIds.Add(levelId);
+            data.WinCounts.Add(1);
+            data.WindowStartTimes.Add(now);
+        }
+
+        SaveRecurrenceData(data);
+    }
+
+    private static RecurrenceData LoadRecurrenceData()
+    {
+        string path = Path.Combine(Application.persistentDataPath, SAVE_FOLDER, RECURRENCE_FILE + FILE_EXTENSION);
+        if (!File.Exists(path)) return null;
+        try
+        {
+            string json = File.ReadAllText(path);
+            return JsonUtility.FromJson<RecurrenceData>(json);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[SaveSystem] Error loading recurrence data: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static void SaveRecurrenceData(RecurrenceData data)
+    {
+        try
+        {
+            string folderPath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+            string path = Path.Combine(folderPath, RECURRENCE_FILE + FILE_EXTENSION);
+            File.WriteAllText(path, JsonUtility.ToJson(data, true));
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error saving recurrence data: {ex.Message}");
+        }
+    }
+
+    /// <summary>
     /// Load a specific level from Firebase by its levelId and save it locally
     /// Returns the localSaveId if successful, null otherwise
     /// </summary>
@@ -752,6 +1085,9 @@ public class SaveSystem : MonoBehaviour
             var localSaveId = "firebase_" + levelId;
             string filePath = Path.Combine(saveFolderPath, localSaveId + FILE_EXTENSION);
             File.WriteAllText(filePath, saveJson);
+
+            nextLevelCreatorId = levelData.PlayerId;
+            nextLevelId = levelId;
             
             Debug.Log($"[SaveSystem] Firebase level '{levelId}' loaded and saved as '{localSaveId}'");
             return localSaveId;
@@ -760,6 +1096,43 @@ public class SaveSystem : MonoBehaviour
         {
             Debug.LogError($"[SaveSystem] Error loading Firebase level: {ex.Message}");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Add tax gold to the level creator's Firebase inventory (TaxGoldToGain field).
+    /// </summary>
+    public static async void AddTaxGoldToCreator(string creatorPlayerId, int taxAmount)
+    {
+        if (taxAmount <= 0 || string.IsNullOrEmpty(creatorPlayerId)) return;
+        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsAuthenticated) return;
+
+        try
+        {
+            string json = await FirebaseManager.Instance.LoadDocument("players", creatorPlayerId);
+            int currentTaxGold = 0;
+
+            if (!string.IsNullOrEmpty(json))
+            {
+                var data = JsonUtility.FromJson<InventoryData>(json);
+                if (data != null) currentTaxGold = data.TaxGoldToGain;
+            }
+
+            var updates = new Dictionary<string, object>
+            {
+                { "TaxGoldToGain", currentTaxGold + taxAmount }
+            };
+
+            bool success = await FirebaseManager.Instance.UpdateDocumentFields("players", creatorPlayerId, updates);
+
+            if (success)
+                Debug.Log($"[SaveSystem] Added {taxAmount} tax gold to creator '{creatorPlayerId}'");
+            else
+                Debug.LogError($"[SaveSystem] Failed to add tax gold to creator '{creatorPlayerId}'");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[SaveSystem] Error adding tax gold to creator: {ex.Message}");
         }
     }
 

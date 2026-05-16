@@ -8,6 +8,7 @@ public class InventoryData
 {
     public int Gold;
     public string PlayerName;
+    public int TaxGoldToGain;
 }
 
 public class PlayerInventory : MonoBehaviour
@@ -17,6 +18,7 @@ public class PlayerInventory : MonoBehaviour
     public static event Action<int> OnGoldToRemoveChanged;
     
     [SerializeField] private InputActionReference gainGoldHackAction;
+    [SerializeField] private InputActionReference gainTaxGoldHackAction;
 
     [Header("Debug")]
     [SerializeField, ReadOnly] private int currentGold = 0;
@@ -33,6 +35,7 @@ public class PlayerInventory : MonoBehaviour
         private set => currentGold = Mathf.Max(0, value);
     }
     public int GoldCache => goldCache;
+    public int TaxGoldToGain => loadedData?.TaxGoldToGain ?? 0;
     public bool IsGoldToGain => Instance != null && Instance.isGoldToGain;
 
     private void Awake()
@@ -50,6 +53,9 @@ public class PlayerInventory : MonoBehaviour
         gainGoldHackAction.action.Enable();
         gainGoldHackAction.action.performed += GainGoldHack;
         
+        gainTaxGoldHackAction.action.Enable();
+        gainTaxGoldHackAction.action.performed += GainTaxGoldHack;
+        
         TreasureChest.OnAnyChestOpened += AddGoldToGain;
         WinUI.OnGetGold += ApplyGoldInCache;
         
@@ -61,6 +67,8 @@ public class PlayerInventory : MonoBehaviour
     {
         // gainGoldHackAction.action.Disable();
         // gainGoldHackAction.action.performed -= GainGoldHack;
+        // gainTaxGoldHackAction.action.Disable();
+        // gainTaxGoldHackAction.action.performed -= GainTaxGoldHack;
         
         TreasureChest.OnAnyChestOpened -= AddGoldToGain;
         WinUI.OnGetGold -= ApplyGoldInCache;
@@ -119,6 +127,24 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
+    public void DeductGold(int amount)
+    {
+        if (amount <= 0) return;
+
+        currentGold = Mathf.Max(0, currentGold - amount);
+        
+        var newInventoryData = new InventoryData
+        {
+            Gold = currentGold,
+            PlayerName = FirebaseManager.Instance.PlayerName,
+            TaxGoldToGain = loadedData?.TaxGoldToGain ?? 0
+        };
+        SaveSystem.SaveInventory(newInventoryData);
+        loadedData = newInventoryData;
+        
+        OnGoldChanged?.Invoke(CurrentGold);
+    }
+
     public void ApplyGoldInCache()
     {
         if (goldCache <= 0) return;
@@ -128,7 +154,8 @@ public class PlayerInventory : MonoBehaviour
         var newInventoryData = new InventoryData 
         { 
             Gold = currentGold,
-            PlayerName = FirebaseManager.Instance.PlayerName
+            PlayerName = FirebaseManager.Instance.PlayerName,
+            TaxGoldToGain = loadedData?.TaxGoldToGain ?? 0
         };
         SaveSystem.SaveInventory(newInventoryData);
         loadedData = newInventoryData;
@@ -146,7 +173,8 @@ public class PlayerInventory : MonoBehaviour
         var newInventoryData = new InventoryData 
         { 
             Gold = currentGold,
-            PlayerName = FirebaseManager.Instance.PlayerName
+            PlayerName = FirebaseManager.Instance.PlayerName,
+            TaxGoldToGain = loadedData?.TaxGoldToGain ?? 0
         };
         SaveSystem.SaveInventory(newInventoryData);
         loadedData = newInventoryData;
@@ -195,6 +223,18 @@ public class PlayerInventory : MonoBehaviour
         OnGoldToRemoveChanged?.Invoke(goldCache);
     }
 
+    public void ClaimTaxGold()
+    {
+        if (loadedData == null || loadedData.TaxGoldToGain <= 0) return;
+
+        currentGold += loadedData.TaxGoldToGain;
+        loadedData.Gold = currentGold;
+        loadedData.TaxGoldToGain = 0;
+
+        SaveSystem.SaveInventory(loadedData);
+        OnGoldChanged?.Invoke(CurrentGold);
+    }
+
     public void ClearGoldCache()
     {
         goldCache = 0;
@@ -205,5 +245,13 @@ public class PlayerInventory : MonoBehaviour
     {
         goldCache += 1000;
         ApplyGoldInCache();
+    }
+    
+    private void GainTaxGoldHack(InputAction.CallbackContext callback)
+    {
+        if (loadedData == null) return;
+
+        loadedData.TaxGoldToGain += 1000;
+        SaveSystem.SaveInventory(loadedData);
     }
 }

@@ -55,7 +55,7 @@ public class BuildMenu : MonoBehaviour
             var playerName = await SaveSystem.GetPlayerName(levelData.PlayerId);
             
             card.SetLevelData(levelId, levelData.PlayerId, levelData.LevelName, playerName, levelData.TotalGold, 
-                levelData.TotalDeaths, levelData.LayoutIndex);
+                levelData.TotalDeaths, levelData.LayoutIndex, levelData.EntryTax, levelData.TotalWins);
         }
     }
     

@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,9 @@ public class FakeChestTrap : TrapBase
 
     [Header("References")]
     [SerializeField] private InputActionReference openChestAction;
+
+    [Space(10)]
+    [SerializeField] private TMP_Text fakeGoldText;
 
     [Header("Animation")]
     [SerializeField] private GameObject lidObject;
@@ -27,6 +31,7 @@ public class FakeChestTrap : TrapBase
 
     private bool isPlayerInRange = false;
     private bool isChestOpened = false;
+    private int fakeGoldAmount;
 
     private Vector3 lidOriginalLocalRotation;
     private Vector3 spearsStartWorldPos;
@@ -43,6 +48,8 @@ public class FakeChestTrap : TrapBase
 
         // Only Exit needs to be registered here; TrapBase.Awake already handles Enter/Stay via virtual dispatch
         actionTrigger.OnExit += OnActionTriggerExit;
+
+        fakeGoldAmount = UnityEngine.Random.Range(SaveSystem.NextLevelTotalGold / 4, SaveSystem.NextLevelTotalGold);
     }
 
     protected override void OnDestroy()
@@ -66,6 +73,10 @@ public class FakeChestTrap : TrapBase
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
 
         isPlayerInRange = true;
+
+        fakeGoldText.gameObject.SetActive(true);
+        fakeGoldText.text = $"${fakeGoldAmount}";
+
         OnPlayerEnteredChestArea?.Invoke();
     }
 
@@ -81,6 +92,8 @@ public class FakeChestTrap : TrapBase
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
 
         isPlayerInRange = false;
+        fakeGoldText.gameObject.SetActive(false);
+
         OnPlayerExitedChestArea?.Invoke();
     }
 

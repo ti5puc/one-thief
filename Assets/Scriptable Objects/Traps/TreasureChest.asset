@@ -15,7 +15,7 @@ MonoBehaviour:
   trapName: Treasure Chest
   id: 6
   icon: {fileID: 1764881221, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
-  placementCost: 150
+  placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2
     m_Bits: 1024

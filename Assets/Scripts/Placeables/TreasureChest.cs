@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,6 +19,9 @@ public class TreasureChest : MonoBehaviour, IPlaceable
     [SerializeField] private InputActionReference openChestAction;
     [SerializeField] private TriggerEventSender actionTrigger;
 
+    [Space(10)]
+    [SerializeField] private TMP_Text goldText;
+
     [Header("Animation")]
     [SerializeField] private GameObject lidObject;
     [SerializeField] private List<GameObject> vfxGold;
@@ -30,6 +34,11 @@ public class TreasureChest : MonoBehaviour, IPlaceable
     private bool isChestOpened = false;
 
     public PlaceableSettings PlaceableSettings => placeableSettings;
+
+    public void SetGoldAmount(int amount)
+    {
+        goldAmount = Mathf.Max(0, amount);
+    }
 
     private void Awake()
     {
@@ -57,6 +66,10 @@ public class TreasureChest : MonoBehaviour, IPlaceable
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
 
         isPlayerInRange = true;
+
+        goldText.gameObject.SetActive(true);
+        goldText.text = $"${goldAmount}";
+
         OnPlayerEnteredChestArea?.Invoke();
     }
 
@@ -72,6 +85,8 @@ public class TreasureChest : MonoBehaviour, IPlaceable
         if (other.CompareTag(GameManager.PlayerTag) == false) return;
 
         isPlayerInRange = false;
+        goldText.gameObject.SetActive(false);
+
         OnPlayerExitedChestArea?.Invoke();
     }
 

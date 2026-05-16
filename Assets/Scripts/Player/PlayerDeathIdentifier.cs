@@ -149,7 +149,11 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
         VfxOffset = 0f;
         
-        if (GameManager.CurrentGameState == GameState.Exploring && GameManager.IsTestingToSubmit == false)
+        bool isCreator = !string.IsNullOrEmpty(SaveSystem.NextLevelCreatorId) &&
+                         FirebaseManager.Instance != null &&
+                         FirebaseManager.Instance.UserId == SaveSystem.NextLevelCreatorId;
+
+        if (GameManager.CurrentGameState == GameState.Exploring && GameManager.IsTestingToSubmit == false && !isCreator)
             SaveSystem.IncreasePlayerDeathsOnLevel();
     }
 

@@ -14,6 +14,7 @@ public class MainMenu : MonoBehaviour
 
     [Space(10)]
     [SerializeField] private GameObject earnedGoldPanel;
+    [SerializeField] private TweenPopupUI earnedTweenPanel;
     [SerializeField] private TMP_Text earnedGoldText;
     [SerializeField] private Button okButton;
     
@@ -127,6 +128,10 @@ public class MainMenu : MonoBehaviour
     private void OnOkClicked()
     {
         PlayerInventory.Instance?.ClaimTaxGold();
-        ShowMainPanel();
+        
+        if (earnedTweenPanel != null)
+            earnedTweenPanel.Hide(ShowMainPanel, false);
+        else
+            ShowMainPanel();
     }
 }

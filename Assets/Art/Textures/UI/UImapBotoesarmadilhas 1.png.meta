@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5ef5885f5aa74b141aa73951dad3be71
+guid: 2f3400173fa2ea14da08b33e117a5ad6
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -136,7 +136,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_0
+      name: UImapBotoesarmadilhas 1_0
       rect:
         serializedVersion: 2
         x: 91
@@ -144,21 +144,21 @@ TextureImporter:
         width: 1063
         height: 302
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 546df07b882864c45ac9d642d2d40acb
-      internalID: -1703167811
+      spriteID: e33f1eca2fe6ae547bf5162d5ea4e96d
+      internalID: -810232142
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_1
+      name: UImapBotoesarmadilhas 1_1
       rect:
         serializedVersion: 2
         x: 1227
@@ -166,21 +166,21 @@ TextureImporter:
         width: 306
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 84dfa27219f277b44bab7ec21cc1c07d
-      internalID: -439040548
+      spriteID: a76fde919c971f44ab42b00f76c512c4
+      internalID: 1908232486
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_2
+      name: UImapBotoesarmadilhas 1_2
       rect:
         serializedVersion: 2
         x: 1561
@@ -188,21 +188,21 @@ TextureImporter:
         width: 1095
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 70, y: 56, z: 67, w: 57}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 997675812ee3d9c4ca1a0150570ed3f4
-      internalID: -644811874
+      spriteID: 24c501efdf864db48b882e10e3f9a53e
+      internalID: -1965265703
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_3
+      name: UImapBotoesarmadilhas 1_3
       rect:
         serializedVersion: 2
         x: 91
@@ -210,21 +210,21 @@ TextureImporter:
         width: 1074
         height: 313
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 291b6251b7b4c3b4f89e23738f6d13c7
-      internalID: -894204334
+      spriteID: f71dfff6c20b11a438b0c96442a194ab
+      internalID: 2037501748
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_4
+      name: UImapBotoesarmadilhas 1_4
       rect:
         serializedVersion: 2
         x: 1215
@@ -232,21 +232,21 @@ TextureImporter:
         width: 9
         height: 20
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dce975ef327589f4b932685dc68b3118
-      internalID: 151351017
+      spriteID: d5bb70decb95fd64685e61e8f69a0d6b
+      internalID: 429048052
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_5
+      name: UImapBotoesarmadilhas 1_5
       rect:
         serializedVersion: 2
         x: 1261
@@ -254,21 +254,21 @@ TextureImporter:
         width: 994
         height: 229
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9f4ac418dc9ad9e4894b282109f5cb6c
-      internalID: 133418368
+      spriteID: 855c281613588ea41a9e3845a19aeb1b
+      internalID: -112242530
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_6
+      name: UImapBotoesarmadilhas 1_6
       rect:
         serializedVersion: 2
         x: 2284
@@ -276,21 +276,21 @@ TextureImporter:
         width: 5
         height: 8
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6b78f6b10963a774eb05d50f06368581
-      internalID: -509307352
+      spriteID: 311d02f74f74c5043bcefed058fc83a0
+      internalID: -1940307455
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_7
+      name: UImapBotoesarmadilhas 1_7
       rect:
         serializedVersion: 2
         x: 1241
@@ -298,21 +298,21 @@ TextureImporter:
         width: 4
         height: 7
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 08991729b6821c3489461a5f3357e590
-      internalID: 1459134264
+      spriteID: d787f1734f6bb404b966188608543039
+      internalID: -1823051606
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_8
+      name: UImapBotoesarmadilhas 1_8
       rect:
         serializedVersion: 2
         x: 2265
@@ -320,21 +320,21 @@ TextureImporter:
         width: 5
         height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c0b3692eba1d9484da602e4409af3241
-      internalID: -1975410370
+      spriteID: 639f33c40d3fc614b9d080a3280fb1c2
+      internalID: 1921403051
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_9
+      name: UImapBotoesarmadilhas 1_9
       rect:
         serializedVersion: 2
         x: 97
@@ -342,21 +342,21 @@ TextureImporter:
         width: 305
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 65fee45ae3d0eba40bd7f83be4826c8a
-      internalID: -1606136738
+      spriteID: ed97fbbf05c574a4f9dfbc0b6ce1e9e3
+      internalID: -410104629
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_10
+      name: UImapBotoesarmadilhas 1_10
       rect:
         serializedVersion: 2
         x: 427
@@ -364,21 +364,21 @@ TextureImporter:
         width: 305
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0b94d0139bd8bb24daacd5bf3c390c6b
-      internalID: 1959801211
+      spriteID: 401d2dd96d63c0049b9d985196c9f22b
+      internalID: -1575915506
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_11
+      name: UImapBotoesarmadilhas 1_11
       rect:
         serializedVersion: 2
         x: 751
@@ -386,21 +386,21 @@ TextureImporter:
         width: 307
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3e7e7c309f5cbd141a2a6dcb0467391b
-      internalID: -59342501
+      spriteID: 51da10bd0e045b0489e55faa09821ec8
+      internalID: -1082164879
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_12
+      name: UImapBotoesarmadilhas 1_12
       rect:
         serializedVersion: 2
         x: 1075
@@ -408,21 +408,21 @@ TextureImporter:
         width: 307
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a09e94ddc2f21ea44903a003f11109bd
-      internalID: 1764881221
+      spriteID: 8c86ec6ab59d5e44d9907d51a45638f8
+      internalID: -1324488696
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_13
+      name: UImapBotoesarmadilhas 1_13
       rect:
         serializedVersion: 2
         x: 1407
@@ -430,21 +430,21 @@ TextureImporter:
         width: 306
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e9f2ff6a4fab56644868be062878c446
-      internalID: 1966984692
+      spriteID: d7ca29cb40349b04eb8ad684f709d8c8
+      internalID: -1571463516
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_14
+      name: UImapBotoesarmadilhas 1_14
       rect:
         serializedVersion: 2
         x: 94
@@ -452,21 +452,21 @@ TextureImporter:
         width: 312
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b73c706d6047353489576a224550ea9b
-      internalID: -368102771
+      spriteID: cfe950f464a0a7542968156625ebadaf
+      internalID: -349755646
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_15
+      name: UImapBotoesarmadilhas 1_15
       rect:
         serializedVersion: 2
         x: 430
@@ -474,21 +474,21 @@ TextureImporter:
         width: 308
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 73a319ddb37209849a03457bebd7a2d2
-      internalID: -1372372357
+      spriteID: 4cdb97d1ae69ee44f90a020c41539306
+      internalID: 1505026001
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_16
+      name: UImapBotoesarmadilhas 1_16
       rect:
         serializedVersion: 2
         x: 753
@@ -496,21 +496,21 @@ TextureImporter:
         width: 307
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3ea86836e4947334dba9c970e115c3f7
-      internalID: 1159861750
+      spriteID: 853d2a84c0a6bf741b04b9c7d9502438
+      internalID: -917114292
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_17
+      name: UImapBotoesarmadilhas 1_17
       rect:
         serializedVersion: 2
         x: 1077
@@ -518,21 +518,21 @@ TextureImporter:
         width: 306
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8ae4d570197477943bc3d043a5b5739d
-      internalID: -670890332
+      spriteID: ef8dad87a78413346aa2e980e27eb429
+      internalID: 794651116
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_18
+      name: UImapBotoesarmadilhas 1_18
       rect:
         serializedVersion: 2
         x: 102
@@ -540,21 +540,21 @@ TextureImporter:
         width: 308
         height: 307
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a251c7c889e75684d84921a1b160cf32
-      internalID: -1297664664
+      spriteID: 213db44ba45f5dc4fabad04b7b4a6635
+      internalID: -593301132
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_19
+      name: UImapBotoesarmadilhas 1_19
       rect:
         serializedVersion: 2
         x: 428
@@ -562,21 +562,21 @@ TextureImporter:
         width: 308
         height: 307
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fb313418bd11e464498beec626e78576
-      internalID: -364146226
+      spriteID: 6f79f020ae412a54eae0faa2597fa603
+      internalID: -972897353
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_20
+      name: UImapBotoesarmadilhas 1_20
       rect:
         serializedVersion: 2
         x: 753
@@ -584,21 +584,21 @@ TextureImporter:
         width: 307
         height: 307
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7d99efb0e13cf2b418ecd2a1c20e738f
-      internalID: -378240996
+      spriteID: e200ba8acc8aa7946ab92936d017f306
+      internalID: -1311685399
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_21
+      name: UImapBotoesarmadilhas 1_21
       rect:
         serializedVersion: 2
         x: 1079
@@ -606,21 +606,21 @@ TextureImporter:
         width: 306
         height: 307
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 949b70fe991b0e2408fccaf33a553b20
-      internalID: 1909721775
+      spriteID: f8c4a50b527f01c4c9b72399f032b7b4
+      internalID: 700995973
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_22
+      name: UImapBotoesarmadilhas 1_22
       rect:
         serializedVersion: 2
         x: 102
@@ -628,21 +628,21 @@ TextureImporter:
         width: 308
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 346a835391276724991166906be9dcfc
-      internalID: -289846459
+      spriteID: 057c225a5c77fa040b26b08fc9a58c07
+      internalID: -857579919
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_23
+      name: UImapBotoesarmadilhas 1_23
       rect:
         serializedVersion: 2
         x: 428
@@ -650,21 +650,21 @@ TextureImporter:
         width: 308
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a6194010546e3dd469d49145a463bfe4
-      internalID: 1522456515
+      spriteID: f6f3935a7bdb80d48b4803f7b0694ffb
+      internalID: 982084103
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_24
+      name: UImapBotoesarmadilhas 1_24
       rect:
         serializedVersion: 2
         x: 753
@@ -672,21 +672,21 @@ TextureImporter:
         width: 307
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f69ca4bedeb418a4da72a18cb9e8b452
-      internalID: -939036924
+      spriteID: 381c499b793df0a44a73e246cad7555b
+      internalID: 1006450664
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_25
+      name: UImapBotoesarmadilhas 1_25
       rect:
         serializedVersion: 2
         x: 1081
@@ -694,21 +694,21 @@ TextureImporter:
         width: 307
         height: 308
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9ae912603a04c9d4ebac846cce13b4d0
-      internalID: -352197780
+      spriteID: 525337b1c6181f8498c9237920e9d576
+      internalID: -162360030
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UImapBotoesarmadilhas_26
+      name: UImapBotoesarmadilhas 1_26
       rect:
         serializedVersion: 2
         x: 2978
@@ -716,15 +716,15 @@ TextureImporter:
         width: 777
         height: 111
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c8f66c22a31e1e740b6bf56cfdfd6bf7
-      internalID: -1415548778
+      spriteID: 35f6e8fd8eef8964f9747b0f1416d94c
+      internalID: -187389411
       vertices: []
       indices: 
       edges: []
@@ -743,33 +743,33 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      UImapBotoesarmadilhas_0: -1703167811
-      UImapBotoesarmadilhas_1: -439040548
-      UImapBotoesarmadilhas_10: 1959801211
-      UImapBotoesarmadilhas_11: -59342501
-      UImapBotoesarmadilhas_12: 1764881221
-      UImapBotoesarmadilhas_13: 1966984692
-      UImapBotoesarmadilhas_14: -368102771
-      UImapBotoesarmadilhas_15: -1372372357
-      UImapBotoesarmadilhas_16: 1159861750
-      UImapBotoesarmadilhas_17: -670890332
-      UImapBotoesarmadilhas_18: -1297664664
-      UImapBotoesarmadilhas_19: -364146226
-      UImapBotoesarmadilhas_2: -644811874
-      UImapBotoesarmadilhas_20: -378240996
-      UImapBotoesarmadilhas_21: 1909721775
-      UImapBotoesarmadilhas_22: -289846459
-      UImapBotoesarmadilhas_23: 1522456515
-      UImapBotoesarmadilhas_24: -939036924
-      UImapBotoesarmadilhas_25: -352197780
-      UImapBotoesarmadilhas_26: -1415548778
-      UImapBotoesarmadilhas_3: -894204334
-      UImapBotoesarmadilhas_4: 151351017
-      UImapBotoesarmadilhas_5: 133418368
-      UImapBotoesarmadilhas_6: -509307352
-      UImapBotoesarmadilhas_7: 1459134264
-      UImapBotoesarmadilhas_8: -1975410370
-      UImapBotoesarmadilhas_9: -1606136738
+      UImapBotoesarmadilhas 1_0: -810232142
+      UImapBotoesarmadilhas 1_1: 1908232486
+      UImapBotoesarmadilhas 1_10: -1575915506
+      UImapBotoesarmadilhas 1_11: -1082164879
+      UImapBotoesarmadilhas 1_12: -1324488696
+      UImapBotoesarmadilhas 1_13: -1571463516
+      UImapBotoesarmadilhas 1_14: -349755646
+      UImapBotoesarmadilhas 1_15: 1505026001
+      UImapBotoesarmadilhas 1_16: -917114292
+      UImapBotoesarmadilhas 1_17: 794651116
+      UImapBotoesarmadilhas 1_18: -593301132
+      UImapBotoesarmadilhas 1_19: -972897353
+      UImapBotoesarmadilhas 1_2: -1965265703
+      UImapBotoesarmadilhas 1_20: -1311685399
+      UImapBotoesarmadilhas 1_21: 700995973
+      UImapBotoesarmadilhas 1_22: -857579919
+      UImapBotoesarmadilhas 1_23: 982084103
+      UImapBotoesarmadilhas 1_24: 1006450664
+      UImapBotoesarmadilhas 1_25: -162360030
+      UImapBotoesarmadilhas 1_26: -187389411
+      UImapBotoesarmadilhas 1_3: 2037501748
+      UImapBotoesarmadilhas 1_4: 429048052
+      UImapBotoesarmadilhas 1_5: -112242530
+      UImapBotoesarmadilhas 1_6: -1940307455
+      UImapBotoesarmadilhas 1_7: -1823051606
+      UImapBotoesarmadilhas 1_8: 1921403051
+      UImapBotoesarmadilhas 1_9: -410104629
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

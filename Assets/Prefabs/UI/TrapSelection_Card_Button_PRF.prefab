@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -410104629, guid: 2f3400173fa2ea14da08b33e117a5ad6, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 4085510932542964796}
   - component: {fileID: 3405077486501664107}
   - component: {fileID: 1296695405228079891}
+  - component: {fileID: 4875011139352565465}
   m_Layer: 5
   m_Name: TrapSelection_Card_Button_PRF
   m_TagString: Untagged
@@ -144,8 +145,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: -1606136738, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -213,6 +214,21 @@ MonoBehaviour:
   trapNameText: {fileID: 8492848545166489843}
   iconImage: {fileID: 4085510932542964796}
   selectButton: {fileID: 3405077486501664107}
+--- !u!114 &4875011139352565465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5113163669553121242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dcbdadf3d689b54e8b21b006ef3ecf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverScale: 1.05
+  duration: 0.2
+  ease: 27
 --- !u!1 &6712826430119798218
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,7 +246,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8953305676257522776
 RectTransform:
   m_ObjectHideFlags: 0

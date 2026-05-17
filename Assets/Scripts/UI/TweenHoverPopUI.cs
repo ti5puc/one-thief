@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class TweenHoverPopUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -8,22 +9,28 @@ public class TweenHoverPopUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     [SerializeField] private float duration = 0.2f;
     [SerializeField] private Ease ease = Ease.OutBack;
 
-    private Vector3 _originalScale;
+    private Button button;
+    private Vector3 originalScale;
 
     void Awake()
     {
-        _originalScale = Vector3.one;
+        originalScale = Vector3.one;
+        button = GetComponent<Button>();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (button != null && !button.interactable) return;
+
         transform.DOKill();
-        transform.DOScale(_originalScale * hoverScale, duration).SetEase(ease);
+        transform.DOScale(originalScale * hoverScale, duration).SetEase(ease);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (button != null && !button.interactable) return;
+
         transform.DOKill();
-        transform.DOScale(_originalScale, duration).SetEase(ease);
+        transform.DOScale(originalScale, duration).SetEase(ease);
     }
 }

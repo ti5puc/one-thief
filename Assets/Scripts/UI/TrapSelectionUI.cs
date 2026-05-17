@@ -7,6 +7,9 @@ public class TrapSelectionUI : MonoBehaviour
     [SerializeField] private TrapSelectionCardUI trapSelectionCardUIPrefab;
     [SerializeField] private Transform scrollViewParent;
 
+    [Space(5)]
+    [SerializeField] private TweenPopupUI tweenPopup;
+
     [Space(10)]
     [SerializeField] private RectTransform tooltipTransform;
     [SerializeField] private TMP_Text tooltipText;
@@ -44,7 +47,7 @@ public class TrapSelectionUI : MonoBehaviour
 
     public void Hide()
     {
-        gameObject.SetActive(false);
+        tweenPopup.Hide(() => { gameObject.SetActive(false); }, false);
     }
 
     private void UpdateTrapSelectionUI(bool isActive, List<PlaceableSettings> trapsSettings, int selectedTrapIndex)

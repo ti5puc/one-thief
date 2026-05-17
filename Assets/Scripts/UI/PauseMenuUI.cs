@@ -16,6 +16,9 @@ public class PauseMenuUI : MonoBehaviour
     [SerializeField] private Button menuButton;
     
     [Space(5)]
+    [SerializeField] private TweenPopupUI tweenPopup;
+    
+    [Space(5)]
     [SerializeField] private TMP_Text treasureHintText;
     [SerializeField] private TMP_Text exitPortalHintText;
     
@@ -38,7 +41,13 @@ public class PauseMenuUI : MonoBehaviour
         WinUI.OnShow += OnWinUIOpen;
         WinUI.OnHide += OnWinUIHide;
         
-        Hide();
+        gameObject.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        if (!isShowing)
+            gameObject.SetActive(false);
     }
 
     private void OnDestroy()
@@ -102,12 +111,15 @@ public class PauseMenuUI : MonoBehaviour
 
     private void Hide()
     {
-        gameObject.SetActive(false);
-        
-        GameManager.Resume();
-        GameManager.HideCursor();
-        
-        isShowing = false;
+        tweenPopup.Hide(() =>
+        {
+            gameObject.SetActive(false);
+                
+            GameManager.Resume();
+            GameManager.HideCursor();
+            
+            isShowing = false;
+        }, false);
     }
 
     private void Test()

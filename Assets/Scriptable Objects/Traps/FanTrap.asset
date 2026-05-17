@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trapName: Fan
   id: 9
-  icon: {fileID: -59342501, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
+  icon: {fileID: -670890332, guid: 5ef5885f5aa74b141aa73951dad3be71, type: 3}
   placementCost: 0
   trapPlacementLayer:
     serializedVersion: 2

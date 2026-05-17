@@ -331,8 +331,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Ouro recebido
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a71a6e3068aa3764b8f2be2ac1feb72f, type: 2}
+  m_sharedMaterial: {fileID: 5035542409059851985, guid: a71a6e3068aa3764b8f2be2ac1feb72f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -356,7 +356,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 49.8
+  m_fontSize: 33.15
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1682,8 +1682,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -2.852417, y: -244.26538}
-  m_SizeDelta: {x: -217.5979, y: 105.1969}
+  m_AnchoredPosition: {x: -2.852417, y: -240.54019}
+  m_SizeDelta: {x: -217.5979, y: 112.6473}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &440933187
 MonoBehaviour:
@@ -1707,8 +1707,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Voc\xEA ganhou $1200 de taxa de entrada das suas masmorras!"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a71a6e3068aa3764b8f2be2ac1feb72f, type: 2}
+  m_sharedMaterial: {fileID: 5035542409059851985, guid: a71a6e3068aa3764b8f2be2ac1feb72f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1732,7 +1732,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42
+  m_fontSize: 33.15
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2812,8 +2812,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -338, y: 41.2585}
-  m_SizeDelta: {x: 958.3427, y: 302.18}
+  m_AnchoredPosition: {x: -11, y: 41.2585}
+  m_SizeDelta: {x: 1195, y: 302.18}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &988946090
 CanvasRenderer:
@@ -3935,9 +3935,9 @@ RectTransform:
   - {fileID: 1707221033}
   m_Father: {fileID: 341410585}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 194, y: -74}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: -101}
   m_SizeDelta: {x: 342.2602, y: 85.3642}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1541160340
@@ -4071,8 +4071,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 337.85648, y: -37.78662}
-  m_SizeDelta: {x: 1004.6785, y: 822.4138}
+  m_AnchoredPosition: {x: -18.6009, y: -37.78662}
+  m_SizeDelta: {x: 959.2964, y: 822.4138}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1550218213
 MonoBehaviour:
@@ -4851,7 +4851,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -5.3864136, y: -158.9388}
+  m_AnchoredPosition: {x: -5.3864136, y: -125}
   m_SizeDelta: {x: -212.529, y: 81.397}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1951350360
@@ -4876,8 +4876,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: __________________________________
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a71a6e3068aa3764b8f2be2ac1feb72f, type: 2}
+  m_sharedMaterial: {fileID: 5035542409059851985, guid: a71a6e3068aa3764b8f2be2ac1feb72f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4901,7 +4901,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 39.3
+  m_fontSize: 44.25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

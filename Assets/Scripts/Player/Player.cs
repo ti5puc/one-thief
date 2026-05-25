@@ -144,6 +144,17 @@ public class Player : MonoBehaviour
         GameManager.HideCursor();
         
         capsule = GetComponent<CapsuleCollider>();
+
+        var playerPhysicMaterial = new PhysicsMaterial("PlayerNoFriction")
+        {
+            dynamicFriction = 0f,
+            staticFriction = 0f,
+            frictionCombine = PhysicsMaterialCombine.Minimum,
+            bounciness = 0f,
+            bounceCombine = PhysicsMaterialCombine.Minimum
+        };
+        capsule.sharedMaterial = playerPhysicMaterial;
+
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
         initialPosition = transform.position;
@@ -459,10 +470,7 @@ public class Player : MonoBehaviour
         //Movimentação durante o dash
         if (isDashing)
         {
-            Vector3 step = dashDirection * (dashSpeed * Time.fixedDeltaTime);
-            Vector3 target = rb.position + step;
-
-            rb.MovePosition(target);
+            rb.linearVelocity = dashDirection * dashSpeed;
 
             if (Time.time >= dashEndTime)
             {
@@ -488,13 +496,7 @@ public class Player : MonoBehaviour
             }
 
             Vector3 runDirection = currentWallRunRail.GetRunDirection();
-            Vector3 wallRunNewPosition = rb.position + runDirection * (wallRunSpeed * Time.fixedDeltaTime);
-
-            rb.MovePosition(wallRunNewPosition);
-
-            Vector3 v = rb.linearVelocity;
-            v.y = 0f;
-            rb.linearVelocity = v;
+            rb.linearVelocity = runDirection * wallRunSpeed;
 
             return;
         }
@@ -515,8 +517,8 @@ public class Player : MonoBehaviour
 
         Vector3 moveDirection = transform.TransformDirection(new Vector3(_moveDirection.x, 0f, _moveDirection.y));
         if (moveDirection.sqrMagnitude > 1f) moveDirection.Normalize();
-        Vector3 newPosition = rb.position + moveDirection * (speed * Time.fixedDeltaTime);
-        rb.MovePosition(newPosition);
+        float yVel = rb.linearVelocity.y;
+        rb.linearVelocity = moveDirection * speed + Vector3.up * yVel;
 
        
     }

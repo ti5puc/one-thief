@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 4883006774723330848}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 2.069, z: 0}
+  m_LocalPosition: {x: 0.321, y: 2.069, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -83,7 +83,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 2
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 2, y: 2}
   m_BounceIntensity: 1
@@ -294,6 +294,10 @@ PrefabInstance:
     - target: {fileID: 2689507500784469378, guid: 888f010fa431cec4baca0c159a39226d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7720773447234610078, guid: 888f010fa431cec4baca0c159a39226d, type: 3}
+      propertyPath: ColorModule.gradient.maxGradient.key1.a
+      value: 0.24313726
       objectReference: {fileID: 0}
     - target: {fileID: 8836780470055152885, guid: 888f010fa431cec4baca0c159a39226d, type: 3}
       propertyPath: m_Name

@@ -9,8 +9,10 @@ public class PauseMenuUI : MonoBehaviour
 {
     public static event Action<bool> OnPauseMenuToggled;
     public static event Action OnTest;
+    public static event Action OnToggleInstructions;
     
     [SerializeField] private Button testButton;
+    [SerializeField] private Button instructionsButton;
     [SerializeField] private TMP_Text testButtonText;
     [SerializeField] private Button resetButton;
     [SerializeField] private Button menuButton;
@@ -37,6 +39,7 @@ public class PauseMenuUI : MonoBehaviour
         testButton.onClick.AddListener(Test);
         resetButton.onClick.AddListener(ResetScene);
         menuButton.onClick.AddListener(ToMenu);
+        instructionsButton.onClick.AddListener(ToggleInstructions);
 
         WinUI.OnShow += OnWinUIOpen;
         WinUI.OnHide += OnWinUIHide;
@@ -58,6 +61,7 @@ public class PauseMenuUI : MonoBehaviour
         testButton.onClick.RemoveListener(Test);
         resetButton.onClick.RemoveListener(ResetScene);
         menuButton.onClick.RemoveListener(ToMenu);
+        instructionsButton.onClick.RemoveListener(ToggleInstructions);
         
         WinUI.OnShow -= OnWinUIOpen;
         WinUI.OnHide -= OnWinUIHide;
@@ -210,5 +214,10 @@ public class PauseMenuUI : MonoBehaviour
     private void OnWinUIHide()
     {
         isWinUIOpen = false;
+    }
+
+    private void ToggleInstructions()
+    {
+        OnToggleInstructions?.Invoke();
     }
 }

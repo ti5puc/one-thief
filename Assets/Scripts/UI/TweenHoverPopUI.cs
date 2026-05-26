@@ -11,6 +11,7 @@ public class TweenHoverPopUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     private Button button;
     private Vector3 originalScale;
+    private Tween hoverTween;
 
     void Awake()
     {
@@ -22,15 +23,15 @@ public class TweenHoverPopUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         if (button != null && !button.interactable) return;
 
-        transform.DOKill();
-        transform.DOScale(originalScale * hoverScale, duration).SetEase(ease);
+        hoverTween?.Kill();
+        hoverTween = transform.DOScale(originalScale * hoverScale, duration).SetEase(ease);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (button != null && !button.interactable) return;
 
-        transform.DOKill();
-        transform.DOScale(originalScale, duration).SetEase(ease);
+        hoverTween?.Kill();
+        hoverTween = transform.DOScale(originalScale, duration).SetEase(ease);
     }
 }

@@ -35055,6 +35055,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7621048489145163360, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7621048489145163360, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
+      propertyPath: m_Color.b
+      value: 0.12156863
+      objectReference: {fileID: 0}
+    - target: {fileID: 7621048489145163360, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
+      propertyPath: m_Color.g
+      value: 0.9843137
+      objectReference: {fileID: 0}
+    - target: {fileID: 7621048489145163360, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8043088371599049586, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
       propertyPath: m_Name
       value: Blood_PRF
@@ -62637,6 +62653,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1370620107159888876}
     m_Modifications:
+    - target: {fileID: 27085796749198732, guid: eb4ff52b7f851c841921226d1644fbcf, type: 3}
+      propertyPath: m_Type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 27085796749198732, guid: eb4ff52b7f851c841921226d1644fbcf, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 27085796749198732, guid: eb4ff52b7f851c841921226d1644fbcf, type: 3}
+      propertyPath: m_Shadows.m_Strength
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4758686176154640914, guid: eb4ff52b7f851c841921226d1644fbcf, type: 3}
+      propertyPath: m_RenderingLayers
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5020923488750754403, guid: eb4ff52b7f851c841921226d1644fbcf, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.605

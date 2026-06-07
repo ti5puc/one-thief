@@ -10,14 +10,6 @@ public class FakeFloorTrap_v2 : TrapBase
     [SerializeField] private int vibrationFrequency = 10;
     [SerializeField] private Vector3 vibrationRotation = new Vector3(5f, 5f, 5f);
 
-    [Header("Custom Death Cam")]
-    [SerializeField] private float customCameraDeathRotationX = 40f;
-    [SerializeField] private float customCameraDeathOffsetY = 3f;
-    [SerializeField] private float customCameraDeathOffsetZ = -2f;
-
-    [Space(10)]
-    [SerializeField] private float deathVfxOffset = -4f;
-
     [Space(10)]
     [SerializeField] private AudioSource trapAudioSource;
 
@@ -34,7 +26,6 @@ public class FakeFloorTrap_v2 : TrapBase
         
         PlayerSave.OnLevelLoaded += ResetNearestGround;
         
-        deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ, deathVfxOffset);
         TryFindNearestGround();
     }
     

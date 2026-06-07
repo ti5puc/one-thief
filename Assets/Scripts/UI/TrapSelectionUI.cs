@@ -15,7 +15,7 @@ public class TrapSelectionUI : MonoBehaviour
     [SerializeField] private TMP_Text tooltipText;
     [SerializeField] private Vector3 tooltipOffset;
 
-    private void Awake()
+    private void Start()
     {
         Hide();
 

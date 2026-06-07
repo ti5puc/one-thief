@@ -148,6 +148,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 611014f4b4328bd48b170e840e49186b, type: 2}
     - target: {fileID: 6915031111558707218, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915031111558707218, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 3.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915031111558707218, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
@@ -260,6 +268,7 @@ MonoBehaviour:
   - {fileID: 8845316544656246536}
   notAllowedPointer: {fileID: 4555056181914593598}
   groundPreviewObject: {fileID: 8275996398588303954}
+  wallCheckPoint: {fileID: 0}
 --- !u!4 &5547925076412219615 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4992938202895227646, guid: c3f687bd53200a04ca21e35df2c7baa1, type: 3}

@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.19999999, z: 3}
+  m_LocalScale: {x: 0.5, y: 0.19999999, z: 3.01}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7721099846751207437}
@@ -164,10 +164,12 @@ MonoBehaviour:
     renderers:
     - {fileID: 2670394885448963729}
     - {fileID: 4805816031474474878}
-  notAllowedPointer: {fileID: 1570587186466520016}
   colliders:
   - {fileID: 7122844094313425843}
   - {fileID: 6699561327110213617}
+  notAllowedPointer: {fileID: 1570587186466520016}
+  groundPreviewObject: {fileID: 0}
+  wallCheckPoint: {fileID: 0}
 --- !u!1 &3625893513199668382
 GameObject:
   m_ObjectHideFlags: 0
@@ -197,7 +199,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.19999999, z: 3}
+  m_LocalScale: {x: 0.5, y: 0.19999999, z: 3.01}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7721099846751207437}

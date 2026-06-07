@@ -16,6 +16,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1595418973743255431, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1595418973743255431, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 3.01
+      objectReference: {fileID: 0}
     - target: {fileID: 1704629174718313425, guid: 1ea0590529d8b4a4cb7aa36b1f6d47b8, type: 3}
       propertyPath: m_Name
       value: Fan Trap_Preview_PRF Variant

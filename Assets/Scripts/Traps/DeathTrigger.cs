@@ -1,14 +1,22 @@
+using NaughtyAttributes;
 using UnityEngine;
 
 public class DeathTrigger : MonoBehaviour
 {
     [SerializeField] private TriggerEventSender triggerEventSender;
+    [SerializeField] private bool resetsPlayerPosition = false;
+    
+    [Header("Custom Death Cam")]
+    [SerializeField] private bool hasCustomDeathCam = true;
+    
+    [Space(10)]
+    [SerializeField, ShowIf(nameof(hasCustomDeathCam))] private float customCameraDeathRotationX = 65f;
+    [SerializeField, ShowIf(nameof(hasCustomDeathCam))] private float customCameraDeathOffsetY = 4f;
+    [SerializeField, ShowIf(nameof(hasCustomDeathCam))] private float customCameraDeathOffsetZ = -4f;
 
-    private bool hasCustomDeathCam = false;
-    private float customDeathCameraRotationX = 20f;
-    private float customDeathCameraOffsetY = 0f;
-    private float customDeathCameraOffsetZ = 0f;
-    private float deathVfxOffset = 0f;
+    [Space(10)]
+    [SerializeField, ShowIf(nameof(hasCustomDeathCam))] private float deathVfxOffset = -4.2f;
+
 
     private void Awake()
     {
@@ -25,20 +33,17 @@ public class DeathTrigger : MonoBehaviour
         if (other.CompareTag("Player") == false) return;
 
         var controller = other.GetComponent<PlayerDeathIdentifier>();
-        controller.VfxOffset = deathVfxOffset;
         
+        if (resetsPlayerPosition && (GameManager.CurrentGameState != GameState.Exploring || controller.IsGodMode))
+        {
+            controller.ResetPlayerPosition();
+            return;
+        }
+        
+        controller.VfxOffset = deathVfxOffset;
         if (hasCustomDeathCam)
-            controller.Death(customDeathCameraRotationX, customDeathCameraOffsetY, customDeathCameraOffsetZ, false);
+            controller.Death(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ, false);
         else
             controller.Death();
-    }
-
-    public void SetCustomDeathCam(float rotationX, float offsetY, float offsetZ, float deathVfxOffset = 0f)
-    {
-        hasCustomDeathCam = true;
-        customDeathCameraRotationX = rotationX;
-        customDeathCameraOffsetY = offsetY;
-        customDeathCameraOffsetZ = offsetZ;
-        this.deathVfxOffset = deathVfxOffset;
     }
 }

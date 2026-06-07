@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Firebase.Firestore;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -761,7 +762,7 @@ public class SaveSystem : MonoBehaviour
             // Update Firebase with the new death count
             var updates = new Dictionary<string, object>
             {
-                { "TotalDeaths", levelData.TotalDeaths }
+                { "TotalDeaths", FieldValue.Increment(1L) }
             };
             
             bool success = await FirebaseManager.Instance.UpdateDocumentFields("levels", levelId, updates);
@@ -839,7 +840,7 @@ public class SaveSystem : MonoBehaviour
 
             var updates = new Dictionary<string, object>
             {
-                { "TotalWins", (object)levelData.TotalWins }
+                { "TotalWins", FieldValue.Increment((double)Mathf.Clamp01(winValue)) }
             };
 
             bool success = await FirebaseManager.Instance.UpdateDocumentFields("levels", levelId, updates);
@@ -1109,18 +1110,9 @@ public class SaveSystem : MonoBehaviour
 
         try
         {
-            string json = await FirebaseManager.Instance.LoadDocument("players", creatorPlayerId);
-            int currentTaxGold = 0;
-
-            if (!string.IsNullOrEmpty(json))
-            {
-                var data = JsonUtility.FromJson<InventoryData>(json);
-                if (data != null) currentTaxGold = data.TaxGoldToGain;
-            }
-
             var updates = new Dictionary<string, object>
             {
-                { "TaxGoldToGain", currentTaxGold + taxAmount }
+                { "TaxGoldToGain", FieldValue.Increment((long)taxAmount) }
             };
 
             bool success = await FirebaseManager.Instance.UpdateDocumentFields("players", creatorPlayerId, updates);

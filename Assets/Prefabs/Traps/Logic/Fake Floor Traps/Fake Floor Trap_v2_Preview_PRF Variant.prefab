@@ -164,6 +164,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7914336016193029578, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7914336016193029578, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 3.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7914336016193029578, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
@@ -286,6 +294,7 @@ MonoBehaviour:
   - {fileID: 444784210255842697}
   notAllowedPointer: {fileID: 1970068234138585014}
   groundPreviewObject: {fileID: 8435826527732664838}
+  wallCheckPoint: {fileID: 0}
 --- !u!23 &7725506313589898502 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 5874940449298333758, guid: 3f83b8f0d6e47a24ebf8df05c314c8c7, type: 3}

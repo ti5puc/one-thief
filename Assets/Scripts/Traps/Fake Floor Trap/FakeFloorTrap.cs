@@ -23,7 +23,7 @@ public class FakeFloorTrap : TrapBase
     protected override void Awake()
     {
         base.Awake();
-        deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ);
+        // deathTrigger.SetCustomDeathCam(customCameraDeathRotationX, customCameraDeathOffsetY, customCameraDeathOffsetZ);
     }
 
     protected override void OnAction(Collider player, float totalDuration) { }

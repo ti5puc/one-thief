@@ -464,8 +464,6 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
-        if (isTrapSelectionActive) return;
-        if (GameManager.IsGamePaused) return;
 
         //Movimentação durante o dash
         if (isDashing)
@@ -502,7 +500,7 @@ public class Player : MonoBehaviour
         }
 
 
-        float speed = moveSpeed;
+        float speed = GameManager.IsGamePaused || isTrapSelectionActive ? 0 : moveSpeed;
         OnMoveChanged?.Invoke(_moveDirection.sqrMagnitude > 0.0001f, isSprinting);
 
         if (isCrouching)
@@ -1345,6 +1343,8 @@ public class Player : MonoBehaviour
 
     public void RotateObject(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused)
+            return;
         if (!isTrapModeActive || ghostTrapObjects == null || ghostTrapObjects.Count == 0)
             return;
 

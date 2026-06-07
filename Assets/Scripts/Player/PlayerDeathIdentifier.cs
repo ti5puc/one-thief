@@ -7,12 +7,12 @@ using UnityEngine.SceneManagement;
 public class PlayerDeathIdentifier : MonoBehaviour
 {
     public static event Action<bool> OnGodModeChanged;
-    
+
     [Header("Death Camera Offset")]
     public float DeathCameraUpOffset = 2f;
     public float DeathCameraBackOffset = 4f;
     public float DeathRotateSpeed = 60f; // degrees per second
-    
+
     [Header("Camera Collision")]
     public LayerMask CameraCollisionLayers = -1;
     public float CameraCollisionOffset = 0.3f;
@@ -25,7 +25,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
     [Space(10)]
     public GameObject[] VisualsToHide;
-    
+
     [Header("Hacks")]
     public InputActionReference godModeHackAction;
 
@@ -42,6 +42,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
     private Transform preferredCameraPositionMarker;
     private float currentCameraDistance = 0f;
     private float preferredCameraDistance = 0f;
+    private Vector3 originalPlayerPosition;
 
     public bool IsDead
     {
@@ -53,14 +54,17 @@ public class PlayerDeathIdentifier : MonoBehaviour
         get => vfxOffset;
         set => vfxOffset = value;
     }
+    public bool IsGodMode => isGodMode;
 
     private void Awake()
     {
         cameraTransform = GetComponentInChildren<Camera>().transform;
         rigidBody = GetComponent<Rigidbody>();
-        
+
+        originalPlayerPosition = transform.position;
+
         GameManager.IsPlayerDead = false;
-        
+
         godModeHackAction.action.Enable();
         godModeHackAction.action.performed += ToggleGodMode;
     }
@@ -134,21 +138,22 @@ public class PlayerDeathIdentifier : MonoBehaviour
         isDeathCameraMoving = true;
         deathCameraAnimationTime = 0f;
         currentCameraDistance = 0f; // Start from player position
-        
+
         cameraTransform.localRotation = Quaternion.Euler(customCameraDeathRotationX, 0f, 0f);
 
         // Vfx spawn
-        var ghostPosition = new Vector3(transform.position.x, DeathGhostPrefab.transform.position.y + vfxOffset, transform.position.z);
+        var yVfxPos = transform.position.y < 0 ? transform.position.y : DeathVfxPrefab.transform.position.y;
+        var ghostPosition = new Vector3(transform.position.x, yVfxPos + vfxOffset, transform.position.z);
         deathGhost = Instantiate(DeathGhostPrefab, ghostPosition, DeathGhostPrefab.transform.rotation);
 
         if (spawnBloodVfx)
         {
-            var position = new Vector3(transform.position.x, DeathVfxPrefab.transform.position.y + vfxOffset, transform.position.z);
+            var position = new Vector3(transform.position.x, yVfxPos + vfxOffset, transform.position.z);
             Instantiate(DeathVfxPrefab, position, DeathVfxPrefab.transform.rotation);
         }
 
         VfxOffset = 0f;
-        
+
         bool isCreator = !string.IsNullOrEmpty(SaveSystem.NextLevelCreatorId) &&
                          FirebaseManager.Instance != null &&
                          FirebaseManager.Instance.UserId == SaveSystem.NextLevelCreatorId;
@@ -157,20 +162,31 @@ public class PlayerDeathIdentifier : MonoBehaviour
             SaveSystem.IncreasePlayerDeathsOnLevel();
     }
 
+    public void ResetPlayerPosition()
+    {
+        transform.position = originalPlayerPosition;
+        rigidBody.linearVelocity = Vector3.zero;
+
+        IsDead = false;
+
+        foreach (var visual in VisualsToHide)
+            visual.SetActive(true);
+    }
+
     // TODO: placeholder here, change to movement script
     public void Knockback(Vector3 direction, float force)
     {
         if (IsDead) return;
         rigidBody.AddForce(direction.normalized * force, ForceMode.Impulse);
     }
-    
+
     private void ToggleGodMode(InputAction.CallbackContext obj)
     {
         isGodMode = !isGodMode;
         OnGodModeChanged?.Invoke(isGodMode);
         Debug.Log($"God Mode: {isGodMode}");
     }
-    
+
     private float GetSafeCameraDistance()
     {
         if (preferredCameraPositionMarker == null)
@@ -178,15 +194,15 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
         Vector3 preferredWorldPosition = preferredCameraPositionMarker.position;
         Vector3 playerPosition = transform.position;
-        
+
         // Calculate direction FROM player TOWARD preferred camera position
         Vector3 directionToCamera = (preferredWorldPosition - playerPosition).normalized;
         float preferredDistance = Vector3.Distance(playerPosition, preferredWorldPosition);
-        
+
         // Raycast from player toward preferred camera position to detect walls
         RaycastHit hit;
         bool hitDetected = Physics.SphereCast(playerPosition, CameraRadius, directionToCamera, out hit, preferredDistance, CameraCollisionLayers);
-        
+
         if (DebugDrawCameraRay)
         {
             if (hitDetected)
@@ -194,7 +210,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
                 Vector3 hitPosition = playerPosition + directionToCamera * hit.distance;
                 Debug.DrawLine(playerPosition, hitPosition, Color.red, 0.02f);
                 Debug.DrawLine(hitPosition, preferredWorldPosition, Color.magenta, 0.02f);
-                
+
                 if (Time.frameCount % 30 == 0)
                 {
                     Debug.Log($"Wall detected! Hit: {hit.collider.name} at distance {hit.distance} from player. Max safe distance: {hit.distance - CameraCollisionOffset:F2}");
@@ -205,42 +221,42 @@ public class PlayerDeathIdentifier : MonoBehaviour
                 Debug.DrawLine(playerPosition, preferredWorldPosition, Color.green, 0.02f);
             }
         }
-        
+
         if (hitDetected)
         {
             float safeDistanceFromPlayer = hit.distance - CameraCollisionOffset;
             safeDistanceFromPlayer = Mathf.Max(safeDistanceFromPlayer, 0.5f); // Ensure minimum distance
-            
+
             return safeDistanceFromPlayer;
         }
-        
+
         return preferredCameraDistance;
     }
-    
+
     private void AdjustCameraPosition()
     {
         if (isDeathCameraMoving)
         {
             deathCameraAnimationTime += Time.deltaTime;
-            
+
             if (deathCameraAnimationTime >= DEATH_CAMERA_DURATION)
                 isDeathCameraMoving = false;
         }
-        
+
         // Calculate animation progress with easing (OutQuad)
         float t = Mathf.Clamp01(deathCameraAnimationTime / DEATH_CAMERA_DURATION);
         float easedT = 1f - (1f - t) * (1f - t); // OutQuad easing
-        
+
         // Get the safe distance (will be less than preferred if wall is detected)
         float targetSafeDistance = GetSafeCameraDistance();
-        
+
         float interpSpeed = (targetSafeDistance < currentCameraDistance) ? 15f : 5f;
         currentCameraDistance = Mathf.Lerp(currentCameraDistance, targetSafeDistance, Time.deltaTime * interpSpeed);
-        
-        float animatedDistance = isDeathCameraMoving 
+
+        float animatedDistance = isDeathCameraMoving
             ? Mathf.Lerp(0f, currentCameraDistance, easedT)
             : currentCameraDistance;
-        
+
         // Position camera at the animated distance in the direction of the target position
         Vector3 direction = targetDeathCameraPosition.normalized;
         Vector3 newCameraPosition = direction * animatedDistance;

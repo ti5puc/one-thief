@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 9202723860242890255}
   - component: {fileID: 7280726202036412890}
   - component: {fileID: 4716127474865005584}
+  - component: {fileID: 8094612865331243798}
   m_Layer: 0
   m_Name: GameManager_PRF
   m_TagString: Untagged
@@ -60,6 +61,9 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 4b1e794a8958e9b4582b4585580b14d6, type: 2}
   - {fileID: 2100000, guid: 3c3a1b47a99c56c4aab9c9c3c3f77f94, type: 2}
   - {fileID: 2100000, guid: 50219afd74097fc4da234cc7e4155a98, type: 2}
+  - {fileID: 2100000, guid: 5c4cf3318216f8748a53d512fa649e10, type: 2}
+  - {fileID: 2100000, guid: 817b84aaae16e544d91179752b4abf39, type: 2}
+  - {fileID: 2100000, guid: c8167189a45def842acc7423183377fb, type: 2}
   currentGameState: 0
   canEnterBuildMode: 0
   nextLayoutIndex: 0
@@ -68,6 +72,7 @@ MonoBehaviour:
   isPlayerDead: 0
   isInitialized: 0
   randomWaterChoice: 0
+  propsSpawner: {fileID: 0}
 --- !u!114 &6110033945106823461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,3 +257,82 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 8474a35247b376846be19bafbdd464e6, type: 3}
   - {fileID: 8300000, guid: 6dd3f7140a468174d983e5f0ae150e3e, type: 3}
   - {fileID: 8300000, guid: 356a7b1d7faf01e409ff333c21d2517a, type: 3}
+--- !u!114 &8094612865331243798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4112526501749098894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239e50d026430f1469fc822ab0f11b5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cellSize: 3
+  gridOffset: {x: 0, y: 0}
+  useRandomSeed: 1
+  seed: 0
+  floorProps:
+    enabled: 1
+    spawnChancePerPoint: 0.15
+    maxCount: 15
+    detectionLayer:
+      serializedVersion: 2
+      m_Bits: 64
+    raycastOriginHeight: 5
+    raycastDistance: 10
+    entries:
+    - prefab: {fileID: 1687854082911357488, guid: ac92ba3c7dfd4a9408017839edbfa5c9, type: 3}
+      weight: 0.2
+      positionOffset: {x: 0, y: 0.22, z: 0}
+      rotationOffset: {x: -90, y: 0, z: 0}
+    - prefab: {fileID: 6141697364993274830, guid: f165dd12c97ccf941bcbe380a5fb81ac, type: 3}
+      weight: 0.1
+      positionOffset: {x: 0, y: 0.22, z: 0}
+      rotationOffset: {x: -90, y: 0, z: 0}
+    - prefab: {fileID: 6203383873750334838, guid: 0d6a14902f139304cbd4cb0357729b96, type: 3}
+      weight: 0.05
+      positionOffset: {x: 0, y: 0, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+    - prefab: {fileID: 8043088371599049586, guid: 0110c5ff9bbe67f48bdfe5740f457a54, type: 3}
+      weight: 0.1
+      positionOffset: {x: 0, y: 0.05, z: 0}
+      rotationOffset: {x: 90, y: 20, z: 0}
+  floorWallProximity: 0.8
+  floorWallClearance: 0.4
+  floorWallProbeHeight: 0.5
+  ceilProps:
+    enabled: 0
+    spawnChancePerPoint: 0.25
+    maxCount: 30
+    detectionLayer:
+      serializedVersion: 2
+      m_Bits: 128
+    raycastOriginHeight: 5
+    raycastDistance: 10
+    entries: []
+  wallProps:
+    enabled: 1
+    spawnChancePerPoint: 0.25
+    maxCount: 12
+    detectionLayer:
+      serializedVersion: 2
+      m_Bits: 256
+    raycastOriginHeight: 5
+    raycastDistance: 10
+    entries:
+    - prefab: {fileID: 8976832497843984723, guid: eb4ff52b7f851c841921226d1644fbcf, type: 3}
+      weight: 0
+      positionOffset: {x: 0.4, y: 0, z: 0.4}
+      rotationOffset: {x: 0, y: -90, z: 0}
+  wallCheckDistance: 2
+  wallCheckHeightOffset: 1.5
+  wallNormalTolerance: 0.5
+  drawGizmos: 1
+  previewLayoutRoot: {fileID: 0}
+  drawValidCells: 1
+  drawFloorPoints: 1
+  drawCeilPoints: 1
+  drawWallProbes: 1
+  gizmoPointRadius: 0.12

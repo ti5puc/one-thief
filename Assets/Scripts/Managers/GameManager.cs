@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     [SerializeField, ReadOnly] private bool isPlayerDead;
     [SerializeField, ReadOnly] private bool isInitialized;
     [SerializeField, ReadOnly] private int randomWaterChoice;
+    [SerializeField, ReadOnly] private PropsSpawner propsSpawner;
 
     public static GameManager Instance { get; private set; }
     public static GameState CurrentGameState => Instance.currentGameState;
@@ -66,6 +67,7 @@ public class GameManager : MonoBehaviour
     public static bool IsInitialized => Instance.isInitialized;
     public static FirebaseManager FirebaseManager => Instance.firebaseManager;
     public static Material RandomWaterChoice => Instance.waterMaterials[Instance.randomWaterChoice];
+    public static PropsSpawner PropsSpawner => Instance.propsSpawner ??= Instance.GetComponent<PropsSpawner>();
 
     private void Awake()
     {
@@ -85,20 +87,6 @@ public class GameManager : MonoBehaviour
 
         isInitialized = true;
         OnInitialized?.Invoke();
-        
-        Initializer.OnLayoutSet += ChooseRandomWater;
-        PlayerSave.OnLevelLoaded += ChooseRandomWater;
-    }
-    
-    private void OnDestroy()
-    {
-        Initializer.OnLayoutSet -= ChooseRandomWater;
-        PlayerSave.OnLevelLoaded -= ChooseRandomWater;
-    }
-    
-    private void Start()
-    {
-        ChooseRandomWater();
     }
 
     private void OnApplicationQuit()

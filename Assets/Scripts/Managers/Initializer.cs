@@ -5,7 +5,7 @@ using UnityEngine;
 public class Initializer : MonoBehaviour
 {
     public static event Action OnLayoutSet;
-    
+
     [SerializeField] private GameObject playerOnScene;
 
     [Space(10)]
@@ -13,7 +13,7 @@ public class Initializer : MonoBehaviour
     [SerializeField] private GameObject[] layouts;
 
     private bool hasInitialized;
-    
+
     private void Awake()
     {
         PlayerSave.OnLevelLoaded += ActivateObjects;
@@ -39,24 +39,31 @@ public class Initializer : MonoBehaviour
 
         if (playerOnScene != null)
             gameObject.SetActive(true);
-        
+
         hasInitialized = true;
-        OnLayoutSet?.Invoke();
+        Debug.Log("[Initializer] Layout initialized.");
+
+        GameManager.ChooseRandomWater();
+        GameManager.PropsSpawner.Spawn(layoutOnScene.transform);
     }
 
     private void ActivateObjects()
     {
         if (hasInitialized == false)
             return;
-        
+
         foreach (Transform child in layoutOnScene.transform)
         {
             Debug.Log($"[Initializer] Ativando objeto filho: {child.gameObject.name}");
-            
+
             child.gameObject.SetActive(true);
-            
+
             if (child.TryGetComponent(out Ground ground))
                 ground.ResetTransform();
         }
+
+        GameManager.ChooseRandomWater();
+        GameManager.PropsSpawner.Spawn(layoutOnScene.transform);
+        OnLayoutSet?.Invoke();
     }
 }

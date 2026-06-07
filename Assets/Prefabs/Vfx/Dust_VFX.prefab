@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1015477647399719816}
   - component: {fileID: 4523213461867700219}
   - component: {fileID: 494236174571385390}
+  - component: {fileID: 7055924707630671711}
   m_Layer: 0
   m_Name: Dust_VFX
   m_TagString: Untagged
@@ -4833,3 +4834,26 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &7055924707630671711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7575794433467429653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a508d4ed71aca724695c58f4501775f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colors:
+  - {r: 0.98039216, g: 0.6431373, b: 0.5803922, a: 1}
+  - {r: 0.7041796, g: 0.9528302, b: 0.6966447, a: 1}
+  - {r: 0.4324048, g: 0.745283, b: 0.4550771, a: 1}
+  - {r: 0.75978947, g: 0.73260057, b: 0.9528302, a: 1}
+  - {r: 0.8867924, g: 0.5981666, b: 0.85044694, a: 1}
+  - {r: 0.5728907, g: 0.7683035, b: 0.7735849, a: 1}
+  - {r: 0.7830189, g: 0.5872642, b: 0.65251577, a: 1}
+  - {r: 0.8592482, g: 0.8867924, b: 0.74038804, a: 1}
+  - {r: 0.8207547, g: 0.74816436, b: 0.53039336, a: 1}
+  particleSystem: {fileID: 0}

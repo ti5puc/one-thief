@@ -4,6 +4,8 @@ using UnityEngine;
 [DefaultExecutionOrder(-999)]
 public class Initializer : MonoBehaviour
 {
+    public static event Action OnLayoutSet;
+    
     [SerializeField] private GameObject playerOnScene;
 
     [Space(10)]
@@ -39,6 +41,7 @@ public class Initializer : MonoBehaviour
             gameObject.SetActive(true);
         
         hasInitialized = true;
+        OnLayoutSet?.Invoke();
     }
 
     private void ActivateObjects()

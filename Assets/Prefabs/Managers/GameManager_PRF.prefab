@@ -56,6 +56,10 @@ MonoBehaviour:
   startOnBuildingForDebug: 0
   treasureChestReference: {fileID: 11400000, guid: 3ce63ce4d092b664c955bc7a5307f335, type: 2}
   firebaseManager: {fileID: 9202723860242890255}
+  waterMaterials:
+  - {fileID: 2100000, guid: 4b1e794a8958e9b4582b4585580b14d6, type: 2}
+  - {fileID: 2100000, guid: 3c3a1b47a99c56c4aab9c9c3c3f77f94, type: 2}
+  - {fileID: 2100000, guid: 50219afd74097fc4da234cc7e4155a98, type: 2}
   currentGameState: 0
   canEnterBuildMode: 0
   nextLayoutIndex: 0
@@ -63,6 +67,7 @@ MonoBehaviour:
   isTestingToSubmit: 0
   isPlayerDead: 0
   isInitialized: 0
+  randomWaterChoice: 0
 --- !u!114 &6110033945106823461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,6 +80,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9391f471b8864485b5490557bf23d136, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  easyRatioThreshold: 1
+  normalRatioThreshold: 2
+  hardRatioThreshold: 5
+  veryHardRatioThreshold: 9
+  veryEasyMultiplier: 1
+  easyMultiplier: 1.2
+  normalMultiplier: 1.5
+  hardMultiplier: 2
+  veryHardMultiplier: 2.5
+  taxRate: 0.11
+  minGoldForTax: 500
+  recurrence1Win: 1
+  recurrence2Wins: 1.5
+  recurrence3Wins: 2
+  recurrence4Wins: 3.5
+  recurrence5Wins: 5
+  recurrence6Wins: 8
+  recurrenceWindowHours: 24
   nextSaveToLoad: 
 --- !u!114 &9081538443426681278
 MonoBehaviour:

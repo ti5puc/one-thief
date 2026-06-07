@@ -14,7 +14,8 @@ public class GameManager : MonoBehaviour
 {
     public static event Action OnInitialized;
     public static event Action<GameState> OnGameStateChanged;
-    
+    public static event Action OnWaterChosen;
+
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private LayerMask groundLayerMask;
 
@@ -23,10 +24,13 @@ public class GameManager : MonoBehaviour
 
     [Space(10)]
     [SerializeField] private PlaceableSettings treasureChestReference;
-    
+
     [Space(10)]
     [SerializeField] private FirebaseManager firebaseManager;
-    
+
+    [Header("Water Choice")]
+    [SerializeField] private Material[] waterMaterials;
+
     [Header("Debug")]
     [SerializeField, ReadOnly] private GameState currentGameState;
     [SerializeField, ReadOnly] private bool canEnterBuildMode;
@@ -35,7 +39,8 @@ public class GameManager : MonoBehaviour
     [SerializeField, ReadOnly] private bool isTestingToSubmit;
     [SerializeField, ReadOnly] private bool isPlayerDead;
     [SerializeField, ReadOnly] private bool isInitialized;
-    
+    [SerializeField, ReadOnly] private int randomWaterChoice;
+
     public static GameManager Instance { get; private set; }
     public static GameState CurrentGameState => Instance.currentGameState;
     public static LayerMask GroundLayerMask => Instance.groundLayerMask;
@@ -60,6 +65,7 @@ public class GameManager : MonoBehaviour
     }
     public static bool IsInitialized => Instance.isInitialized;
     public static FirebaseManager FirebaseManager => Instance.firebaseManager;
+    public static Material RandomWaterChoice => Instance.waterMaterials[Instance.randomWaterChoice];
 
     private void Awake()
     {
@@ -76,9 +82,23 @@ public class GameManager : MonoBehaviour
             currentGameState = GameState.TestingBuild;
             canEnterBuildMode = true;
         }
-        
+
         isInitialized = true;
         OnInitialized?.Invoke();
+        
+        Initializer.OnLayoutSet += ChooseRandomWater;
+        PlayerSave.OnLevelLoaded += ChooseRandomWater;
+    }
+    
+    private void OnDestroy()
+    {
+        Initializer.OnLayoutSet -= ChooseRandomWater;
+        PlayerSave.OnLevelLoaded -= ChooseRandomWater;
+    }
+    
+    private void Start()
+    {
+        ChooseRandomWater();
     }
 
     private void OnApplicationQuit()
@@ -90,7 +110,7 @@ public class GameManager : MonoBehaviour
     {
         Instance.canEnterBuildMode = canEnter;
     }
-    
+
     public static void ChangeGameStateToExploring()
     {
         Instance.currentGameState = GameState.Exploring;
@@ -105,12 +125,12 @@ public class GameManager : MonoBehaviour
         Instance.currentGameState = GameState.Building;
         OnGameStateChanged?.Invoke(Instance.currentGameState);
     }
-    
+
     public static void ChangeGameStateToTestingBuild()
     {
         if (Instance.canEnterBuildMode == false)
             return;
-        
+
         Instance.currentGameState = GameState.TestingBuild;
         OnGameStateChanged?.Invoke(Instance.currentGameState);
     }
@@ -130,10 +150,17 @@ public class GameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
-    
+
     public static void HideCursor()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    [Button(enabledMode: EButtonEnableMode.Playmode)]
+    public static void ChooseRandomWater()
+    {
+        Instance.randomWaterChoice = UnityEngine.Random.Range(0, Instance.waterMaterials.Length);
+        OnWaterChosen?.Invoke();
     }
 }

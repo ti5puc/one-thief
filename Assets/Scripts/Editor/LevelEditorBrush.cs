@@ -10,6 +10,7 @@ public class LevelEditorBrush : GridBrushBase
     private const float GROUND_VERTICAL_OFFSET = -0.5f;
     private const float CEILING_VERTICAL_OFFSET = 6.5f;
     private const float WALL_DISTANCE_FROM_CELL_EDGE = 0.5f;
+    private const float BELOW_GROUND_WALL_HEIGHT_MULTIPLIER = -1f;
     private const float LOW_WALL_HEIGHT_MULTIPLIER = 1f;
     private const float HIGH_WALL_HEIGHT_MULTIPLIER = 3f;
     private const float POSITION_MATCH_TOLERANCE = 0.5f;
@@ -22,10 +23,13 @@ public class LevelEditorBrush : GridBrushBase
     private const int BOTTOM_WALL_INDEX = 2;
     private const int TOP_WALL_INDEX = 3;
 
-    public GameObject GroundPrefab;
-    public GameObject WallPrefab;
-    public GameObject CeilPrefab;
-    public bool DebugLogs = false;
+    public RoomBrushSettings Settings;
+
+    private GameObject GroundPrefab => Settings != null ? Settings.GroundPrefab : null;
+    private GameObject WallPrefab => Settings != null ? Settings.WallPrefab : null;
+    private GameObject CeilPrefab => Settings != null ? Settings.CeilPrefab : null;
+    private bool ExtraWallsDown => Settings != null && Settings.ExtraWallsDown;
+    private bool DebugLogs => Settings != null && Settings.DebugLogs;
 
     // Helper struct to encapsulate cell geometry calculations
     private struct CellGeometry
@@ -51,22 +55,15 @@ public class LevelEditorBrush : GridBrushBase
         if (!ValidatePaintRequirements(brushTarget))
             return;
 
-        // if the cell already has ground, skip painting
-        if (HasGroundAtCell(grid, brushTarget, cellPosition))
-        {
-            if (DebugLogs)
-                Debug.Log($"Paint skipped at {cellPosition}: cell already painted (ground exists)");
-
-            return;
-        }
-
         LevelEditorManager levelEditorManager = InitializeLevelEditorManager();
 
         CellGeometry cellGeometry = CalculateCellGeometry(grid, cellPosition);
 
         PlaceGroundIfNeeded(brushTarget, cellPosition, cellGeometry, levelEditorManager);
         ProcessWallsForCell(grid, brushTarget, cellPosition, cellGeometry, levelEditorManager);
-        PlaceCeiling(brushTarget, cellGeometry, levelEditorManager);
+        if (!ExtraWallsDown)
+            RemoveBelowGroundWallsForCell(brushTarget, cellGeometry, levelEditorManager);
+        PlaceCeilingIfNeeded(brushTarget, cellGeometry, levelEditorManager);
     }
 
     private bool ValidatePaintRequirements(GameObject brushTarget)
@@ -129,6 +126,8 @@ public class LevelEditorBrush : GridBrushBase
         {
             Vector3 wallPosition = cellGeometry.CellCenter + wallConfig.WallOffsets[wallDirectionIndex];
             wallPosition.y = wallHeight;
+            if (DoesWallExistAtPosition(wallPosition, levelEditorManager))
+                continue;
             GameObject wallObject = InstantiatePrefabIntoParent(brushTarget, WallPrefab, wallPosition, wallConfig.WallRotations[wallDirectionIndex]);
             RegisterPlacedObject(wallObject, levelEditorManager);
         }
@@ -156,9 +155,20 @@ public class LevelEditorBrush : GridBrushBase
         }
     }
 
-    private void PlaceCeiling(GameObject brushTarget, CellGeometry cellGeometry, LevelEditorManager levelEditorManager)
+    private void PlaceCeilingIfNeeded(GameObject brushTarget, CellGeometry cellGeometry, LevelEditorManager levelEditorManager)
     {
         Vector3 ceilingPosition = cellGeometry.CellCenter + new Vector3(0f, CEILING_VERTICAL_OFFSET, 0f);
+
+        if (levelEditorManager != null && levelEditorManager.PlacedObjects != null)
+        {
+            foreach (GameObject obj in levelEditorManager.PlacedObjects)
+            {
+                if (obj == null) continue;
+                if (obj.name.Contains("Ceil") && IsPositionMatch(obj.transform.position, ceilingPosition, POSITION_MATCH_TOLERANCE))
+                    return;
+            }
+        }
+
         GameObject ceiling = InstantiatePrefabIntoParent(brushTarget, CeilPrefab, ceilingPosition, Quaternion.identity);
         RegisterPlacedObject(ceiling, levelEditorManager);
     }
@@ -219,9 +229,12 @@ public class LevelEditorBrush : GridBrushBase
             new Vector3(0f, 0f, wallOffsetDistance)    // Top wall offset
         };
 
+        float belowGroundWallHeight = cellGeometry.CellCenter.y + cellGeometry.HalfCellWidth * BELOW_GROUND_WALL_HEIGHT_MULTIPLIER;
         float lowWallHeight = cellGeometry.CellCenter.y + cellGeometry.HalfCellWidth * LOW_WALL_HEIGHT_MULTIPLIER;
         float highWallHeight = cellGeometry.CellCenter.y + cellGeometry.HalfCellWidth * HIGH_WALL_HEIGHT_MULTIPLIER;
-        float[] wallHeights = { lowWallHeight, highWallHeight };
+        float[] wallHeights = ExtraWallsDown
+            ? new float[] { belowGroundWallHeight, lowWallHeight, highWallHeight }
+            : new float[] { lowWallHeight, highWallHeight };
 
         return new WallConfiguration
         {
@@ -379,6 +392,30 @@ public class LevelEditorBrush : GridBrushBase
                 if (DebugLogs)
                     Debug.Log($"Added wall at {wallPosition} on neighbor {neighborCellPosition} side");
             }
+        }
+    }
+
+    private void RemoveBelowGroundWallsForCell(GameObject brushTarget, CellGeometry cellGeometry, LevelEditorManager levelEditorManager)
+    {
+        if (levelEditorManager == null || levelEditorManager.PlacedObjects == null)
+            return;
+
+        float belowGroundHeight = cellGeometry.CellCenter.y + cellGeometry.HalfCellWidth * BELOW_GROUND_WALL_HEIGHT_MULTIPLIER;
+        float wallOffsetDistance = Mathf.Max(cellGeometry.HalfCellWidth, cellGeometry.HalfCellDepth) + WALL_DISTANCE_FROM_CELL_EDGE;
+
+        Vector3[] edgeOffsets = new Vector3[]
+        {
+            new Vector3(-wallOffsetDistance, 0f, 0f),
+            new Vector3(wallOffsetDistance, 0f, 0f),
+            new Vector3(0f, 0f, -wallOffsetDistance),
+            new Vector3(0f, 0f, wallOffsetDistance)
+        };
+
+        foreach (Vector3 offset in edgeOffsets)
+        {
+            Vector3 wallPosition = cellGeometry.CellCenter + offset;
+            wallPosition.y = belowGroundHeight;
+            RemoveWallAtPosition(brushTarget, wallPosition, DebugLogs, levelEditorManager);
         }
     }
 

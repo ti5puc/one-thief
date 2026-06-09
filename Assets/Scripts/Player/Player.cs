@@ -1362,6 +1362,8 @@ public class Player : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         if (deathIdentifier != null && deathIdentifier.IsDead) return;
+        if (GameManager.IsGamePaused) return;
+        
         _moveDirection = context.ReadValue<Vector2>();
     }
 

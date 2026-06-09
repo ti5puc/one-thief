@@ -42,18 +42,48 @@ public class InstructionsUI : MonoBehaviour
 
         GameManager.OnGameStateChanged += UpdateInstructions;
         PauseMenuUI.OnToggleInstructions += ToggleInstructions;
+        PlayerSave.OnLevelLoaded += CheckInstructionsVisibility;
 
         toggleInstructionsButton.onClick.AddListener(ToggleInstructions);
 
-        ToggleInstructions();
+        ApplyFirstTimeVisibility();
     }
 
     private void OnDestroy()
     {
         GameManager.OnGameStateChanged -= UpdateInstructions;
         PauseMenuUI.OnToggleInstructions -= ToggleInstructions;
+        PlayerSave.OnLevelLoaded -= CheckInstructionsVisibility;
 
         toggleInstructionsButton.onClick.RemoveListener(ToggleInstructions);
+    }
+
+    private void ApplyFirstTimeVisibility()
+    {
+        if (GameManager.ShowFirstTimeInstructionsOnThisSession)
+        {
+            GameManager.ShowFirstTimeInstructionsOnThisSession = false;
+            // already visible by default, nothing to do
+        }
+        else
+        {
+            HideImmediate();
+        }
+    }
+
+    private void CheckInstructionsVisibility()
+    {
+        if (!GameManager.ShowFirstTimeInstructionsOnThisSession)
+            HideImmediate();
+    }
+
+    private void HideImmediate()
+    {
+        isShowing = false;
+        toggleInstructionsButtonText.text = ">";
+        instructionsPanel.anchoredPosition = hiddenPosition;
+        instructionsPanel.gameObject.SetActive(false);
+        toggleButtonRect.anchoredPosition = buttonHiddenPosition;
     }
 
     private void UpdateInstructions(GameState gameState)

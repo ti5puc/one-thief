@@ -36,6 +36,7 @@ public class DeathTintEffect : MonoBehaviour
 
         PlayerDeathIdentifier.OnPlayerDied += Trigger;
         PlayerSave.OnLevelLoaded += ResetEffect;
+        GameManager.OnGameStateChanged += ResetEffect;
     }
 
     private void OnDestroy()
@@ -45,6 +46,9 @@ public class DeathTintEffect : MonoBehaviour
 
         PlayerDeathIdentifier.OnPlayerDied -= Trigger;
         PlayerSave.OnLevelLoaded -= ResetEffect;
+        GameManager.OnGameStateChanged -= ResetEffect;
+
+        ResetEffect();
     }
 
     private void Trigger()
@@ -55,6 +59,11 @@ public class DeathTintEffect : MonoBehaviour
             StopCoroutine(tintCoroutine);
 
         tintCoroutine = StartCoroutine(TintRoutine());
+    }
+
+    private void ResetEffect(GameState state)
+    {
+        ResetEffect();
     }
 
     private void ResetEffect()
@@ -70,7 +79,7 @@ public class DeathTintEffect : MonoBehaviour
         vignette.color.Override(originalColor);
         vignette.intensity.Override(originalIntensity);
     }
-    
+
     private IEnumerator TintRoutine()
     {
         vignette.color.Override(Color.red);

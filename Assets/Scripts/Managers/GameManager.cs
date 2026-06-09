@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
     [SerializeField, ReadOnly] private bool isInitialized;
     [SerializeField, ReadOnly] private int randomWaterChoice;
     [SerializeField, ReadOnly] private PropsSpawner propsSpawner;
+    [SerializeField, ReadOnly] private bool showFirstTimeInstructionsOnThisSession = true;
 
     public static GameManager Instance { get; private set; }
     public static GameState CurrentGameState => Instance.currentGameState;
@@ -67,6 +68,11 @@ public class GameManager : MonoBehaviour
     {
         get => Instance.isPlayerDead;
         set => Instance.isPlayerDead = value;
+    }
+    public static bool ShowFirstTimeInstructionsOnThisSession
+    {
+        get => Instance.showFirstTimeInstructionsOnThisSession;
+        set => Instance.showFirstTimeInstructionsOnThisSession = value;
     }
     public static bool IsInitialized => Instance.isInitialized;
     public static FirebaseManager FirebaseManager => Instance.firebaseManager;

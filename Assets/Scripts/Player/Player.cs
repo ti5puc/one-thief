@@ -619,6 +619,9 @@ public class Player : MonoBehaviour
         v.y = 0f;
         rb.linearVelocity = v;
         
+        if (deathIdentifier != null && deathIdentifier.IsDead) return;
+        if (GameManager.IsGamePaused) return;
+        
         if (enableDashVfx)
         {
             dashVfx.SetActive(true);

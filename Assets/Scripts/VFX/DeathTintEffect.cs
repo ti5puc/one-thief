@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -13,6 +14,7 @@ public class DeathTintEffect : MonoBehaviour
     [SerializeField] private float tintLingerIntensity = 0.15f;
 
     private Vignette vignette;
+    private Color originalColor;
     private float originalIntensity;
     private Coroutine tintCoroutine;
 
@@ -29,24 +31,46 @@ public class DeathTintEffect : MonoBehaviour
             return;
         }
 
+        originalColor = vignette.color.value;
         originalIntensity = vignette.intensity.value;
 
         PlayerDeathIdentifier.OnPlayerDied += Trigger;
+        PlayerSave.OnLevelLoaded += ResetEffect;
     }
 
     private void OnDestroy()
     {
-        if (tintCoroutine != null) StopCoroutine(tintCoroutine);
+        if (tintCoroutine != null)
+            StopCoroutine(tintCoroutine);
+
         PlayerDeathIdentifier.OnPlayerDied -= Trigger;
+        PlayerSave.OnLevelLoaded -= ResetEffect;
     }
 
     private void Trigger()
     {
-        if (vignette == null) return;
-        if (tintCoroutine != null) StopCoroutine(tintCoroutine);
+        if (vignette == null)
+            return;
+        if (tintCoroutine != null)
+            StopCoroutine(tintCoroutine);
+
         tintCoroutine = StartCoroutine(TintRoutine());
     }
 
+    private void ResetEffect()
+    {
+        if (vignette == null)
+            return;
+        if (tintCoroutine != null)
+        {
+            StopCoroutine(tintCoroutine);
+            tintCoroutine = null;
+        }
+
+        vignette.color.Override(originalColor);
+        vignette.intensity.Override(originalIntensity);
+    }
+    
     private IEnumerator TintRoutine()
     {
         vignette.color.Override(Color.red);

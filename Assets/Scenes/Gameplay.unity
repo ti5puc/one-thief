@@ -549,6 +549,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1898513710}
   - component: {fileID: 1898513709}
+  - component: {fileID: 1898513711}
   m_Layer: 0
   m_Name: Global Volume
   m_TagString: Untagged
@@ -588,6 +589,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1898513711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1898513708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 133c54a3312d6fe47bb7434d2c4c8e59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tintMaxIntensity: 0.7
+  tintFadeInDuration: 0.08
+  tintHoldDuration: 0.25
+  tintFadeOutDuration: 1.2
+  tintLingerIntensity: 0.5
 --- !u!1001 &2054002750
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1316,6 +1334,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4330845955239674990, guid: 27bae28494c87974786d222b89acac6a, type: 3}
+      propertyPath: postProcessVolume
+      value: 
+      objectReference: {fileID: 1898513709}
     - target: {fileID: 4688965579557551869, guid: 27bae28494c87974786d222b89acac6a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.5

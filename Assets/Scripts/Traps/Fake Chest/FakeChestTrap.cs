@@ -125,6 +125,7 @@ public class FakeChestTrap : TrapBase
         openSequence.AppendCallback(() =>
         {
             wallSpears.transform.DOMove(spearsTargetPos, spearsExtendDuration).SetEase(spearsExtendEase);
+            GameManager.ShakeMedium();
 
             hitTrigger.gameObject.SetActive(true);
 

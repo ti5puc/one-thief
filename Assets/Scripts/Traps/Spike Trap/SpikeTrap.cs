@@ -21,6 +21,7 @@ public class SpikeTrap : TrapBase
         foreach (var part in spikeTrapPart)
             part.Activate(totalDuration);
 
+        GameManager.ShakeMedium();
         Debug.Log("Player activated spike trap");
     }
 

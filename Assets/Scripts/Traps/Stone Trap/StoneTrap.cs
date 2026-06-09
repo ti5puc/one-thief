@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 public class StoneTrap : TrapBase
 {
     [Header("Stone Fall")]
+    [SerializeField] private float shakeHardDistanceThreshold = 5f;
+    [SerializeField] private float shakeMediumDistanceThreshold = 10f;
     [SerializeField] private float stoneFallFinalY = 0f;
     [SerializeField] private float stoneFallDuration = 0.5f;
     [SerializeField] private Ease stoneFallEase = Ease.InQuad;
@@ -37,7 +39,10 @@ public class StoneTrap : TrapBase
         if (interval > 0f)
             seq.AppendInterval(interval);
 
+        GameManager.ShakeLight();
+                
         seq.Append(stoneObject.transform.DOLocalMoveY(stoneFallFinalY, safeFallDuration).SetEase(stoneFallEase));
+        Vector3 playerPos = player.transform.position;
         seq.onComplete += () =>
         {
             if (useGravity)
@@ -50,6 +55,14 @@ public class StoneTrap : TrapBase
                 }
             }
             PlayImpactSound();
+
+            float dist = Vector3.Distance(stoneObject.transform.position, playerPos);
+            if (dist <= shakeHardDistanceThreshold)
+                GameManager.ShakeHard();
+            else if (dist <= shakeMediumDistanceThreshold)
+                GameManager.ShakeMedium();
+            else
+                GameManager.ShakeLight();
         };
 
         Debug.Log($"Player activated stone trap (fallDuration: {safeFallDuration}, interval: {interval})");

@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class PlayerDeathIdentifier : MonoBehaviour
 {
     public static event Action<bool> OnGodModeChanged;
+    public static event Action OnPlayerDied;
 
     [Header("Death Camera Offset")]
     public float DeathCameraUpOffset = 2f;
@@ -31,6 +32,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
 
     private Rigidbody rigidBody;
     private Transform cameraTransform;
+    private CameraWobble cameraWobble;
     private bool isDead = false;
     private float vfxOffset;
     private GameObject deathGhost;
@@ -59,6 +61,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
     private void Awake()
     {
         cameraTransform = GetComponentInChildren<Camera>().transform;
+        cameraWobble = cameraTransform.GetComponent<CameraWobble>();
         rigidBody = GetComponent<Rigidbody>();
 
         originalPlayerPosition = transform.position;
@@ -111,6 +114,9 @@ public class PlayerDeathIdentifier : MonoBehaviour
         if (isGodMode) return;
 
         IsDead = true;
+        if (cameraWobble != null) cameraWobble.enabled = false;
+        GameManager.ShakeLight();
+        OnPlayerDied?.Invoke();
         SoundManager.PlaySound(SoundType.DEATH);
 
         foreach (var visual in VisualsToHide)
@@ -168,6 +174,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
         rigidBody.linearVelocity = Vector3.zero;
 
         IsDead = false;
+        if (cameraWobble != null) cameraWobble.enabled = true;
 
         foreach (var visual in VisualsToHide)
             visual.SetActive(true);
@@ -178,6 +185,7 @@ public class PlayerDeathIdentifier : MonoBehaviour
     {
         if (IsDead) return;
         rigidBody.AddForce(direction.normalized * force, ForceMode.Impulse);
+        GameManager.ShakeHard();
     }
 
     private void ToggleGodMode(InputAction.CallbackContext obj)

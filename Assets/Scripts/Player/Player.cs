@@ -19,6 +19,7 @@ public class Player : MonoBehaviour
     public static event Action<PlaceableSettings> OnTrapPlaced;
     public static event Action<PlaceableSettings> OnTrapRemoved;
     public event Action<bool, bool> OnMoveChanged; // bool isMoving, bool isSprinting
+    public event Action<bool> OnJumped;            // bool isAirJump
 
     //---------------------------------- Inicio Movimentacao e Camera ----------------------------------
     [Header("Câmera")]
@@ -64,6 +65,10 @@ public class Player : MonoBehaviour
     public bool isSprinting = true; // Inverted: true by default (always sprinting)
     public bool canSprint;
     public float sprintMultiplier = 1.7f;
+    
+    [Space(10)]
+    [SerializeField] private bool enableSprintVfx = false;
+    [SerializeField] private GameObject sprintVfx;
 
     [Header("Dash")]
     public bool canDash = true;
@@ -77,6 +82,10 @@ public class Player : MonoBehaviour
     public float dashMaxSlopeAngle = 45f;     // (implementar) inclinação máxima que o dash sobe uma campa
     public float dashMaxStepHeight = 0.35f;   // (implementar) altura máxima de degrau que o dash sobe
     public float dashGroundTestUp = 1.2f;    // (implementar) teste para movimentação em rampa
+    
+    [Space(10)]
+    [SerializeField] private bool enableDashVfx = true;
+    [SerializeField] private GameObject dashVfx;
 
     [Header("Wall Run")]
     public bool isWallRunning;
@@ -140,7 +149,7 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         deathIdentifier = GetComponent<PlayerDeathIdentifier>();
         playerSave = GetComponent<PlayerSave>();
-            
+        
         GameManager.HideCursor();
         
         capsule = GetComponent<CapsuleCollider>();
@@ -154,6 +163,11 @@ public class Player : MonoBehaviour
             bounceCombine = PhysicsMaterialCombine.Minimum
         };
         capsule.sharedMaterial = playerPhysicMaterial;
+
+        if (!enableSprintVfx)
+            sprintVfx.SetActive(false);
+        if (!enableDashVfx)
+            dashVfx.SetActive(false);
 
         lastGroundedTime = -999f;
         airJumpsRemaining = 0;
@@ -350,7 +364,9 @@ public class Player : MonoBehaviour
         }
         newXRotation = Mathf.Clamp(newXRotation, -90f, 90f);
 
-        cameraTransform.localRotation = Quaternion.Euler(newXRotation, 0f, 0f);
+        // Preserva Z para que efeitos de câmera (ex: CameraWobble) não sejam sobrescritos
+        float currentZ = cameraTransform.localEulerAngles.z;
+        cameraTransform.localRotation = Quaternion.Euler(newXRotation, 0f, currentZ);
     }
 
     void Update()
@@ -518,7 +534,8 @@ public class Player : MonoBehaviour
         float yVel = rb.linearVelocity.y;
         rb.linearVelocity = moveDirection * speed + Vector3.up * yVel;
 
-       
+        if (enableSprintVfx)
+            sprintVfx.SetActive(isSprinting && _moveDirection.sqrMagnitude > 0.0001f && speed != 0 && (_moveDirection == Vector2.up || _moveDirection == -1 * Vector2.up));
     }
 
     void GroundCheck()
@@ -563,6 +580,7 @@ public class Player : MonoBehaviour
         }
 
         rb.AddForce(Vector3.up * force, ForceMode.VelocityChange);
+        OnJumped?.Invoke(isAirJump);
     }
     void OnJump(InputAction.CallbackContext ctx)
     {
@@ -600,6 +618,12 @@ public class Player : MonoBehaviour
         var v = rb.linearVelocity;
         v.y = 0f;
         rb.linearVelocity = v;
+        
+        if (enableDashVfx)
+        {
+            dashVfx.SetActive(true);
+            sprintVfx.SetActive(false);
+        }
     }
 
     public void EnterWallRun(WallRunRail rail)

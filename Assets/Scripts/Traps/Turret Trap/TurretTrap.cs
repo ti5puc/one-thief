@@ -23,6 +23,10 @@ public class TurretTrap : TrapBase
     [SerializeField] private Color shootingCrystalColor;
     [SerializeField] private float chargeUpDuration = 0.5f;
     [SerializeField] private float crystalTransitionDuration = 0.4f;
+    
+    [Space(10)]
+    [SerializeField] private float shakeHardDistanceThreshold = 3f;
+    [SerializeField] private float shakeMediumDistanceThreshold = 6f;
 
     private MaterialPropertyBlock crystalMPB;
     private static readonly int BaseColorID = Shader.PropertyToID("_BaseColor");
@@ -177,6 +181,14 @@ public class TurretTrap : TrapBase
         Vector3 velocity = directionToTarget.normalized * bulletSpeed;
         TurretBullet bullet = Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
         bullet.Setup(velocity, 0f);
+
+        float dist = Vector3.Distance(transform.position, targetPos);
+        if (dist <= shakeHardDistanceThreshold)
+            GameManager.ShakeHard();
+        else if (dist <= shakeMediumDistanceThreshold)
+            GameManager.ShakeMedium();
+        else
+            GameManager.ShakeLight();
     }
 
     protected override void OnHit(Collider player)

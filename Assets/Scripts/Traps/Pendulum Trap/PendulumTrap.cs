@@ -20,7 +20,13 @@ public class PendulumTrap : TrapBase
 
     [Space(10)]
     [SerializeField] private AudioSource trapAudioSource;
+
+    [Header("Proximity Shake")]
+    [SerializeField] private float shakeMediumDistance = 3f;
+    [SerializeField] private float shakeLightDistance = 6f;
+
     private bool localToggle = false;
+    private Transform _playerTransform;
 
     private bool hasStartedSwinging = false;
     private Sequence swingSequence;
@@ -118,12 +124,27 @@ public class PendulumTrap : TrapBase
         localToggle = !localToggle;
 
         trapAudioSource.pitch = UnityEngine.Random.Range(0.95f, 1.05f);
-
-        trapAudioSource.PlayOneShot(
-            SoundManager.GetClip(soundToPlay)
-        );
-
+        trapAudioSource.PlayOneShot(SoundManager.GetClip(soundToPlay));
         trapAudioSource.pitch = 1f;
+
+        TryProximityShake();
+    }
+
+    private void TryProximityShake()
+    {
+        if (_playerTransform == null)
+        {
+            var playerObj = GameObject.FindWithTag(GameManager.PlayerTag);
+            if (playerObj == null) return;
+            _playerTransform = playerObj.transform;
+        }
+
+        float dist = Vector3.Distance(transform.position, _playerTransform.position);
+
+        if (dist <= shakeMediumDistance)
+            GameManager.ShakeMedium();
+        else if (dist <= shakeLightDistance)
+            GameManager.ShakeLight();
     }
 
     private void ResetKnockback()

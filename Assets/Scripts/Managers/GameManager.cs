@@ -16,6 +16,10 @@ public class GameManager : MonoBehaviour
     public static event Action<GameState> OnGameStateChanged;
     public static event Action OnWaterChosen;
 
+    public static event Action OnCameraShakeLight;
+    public static event Action OnCameraShakeMedium;
+    public static event Action OnCameraShakeHard;
+
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private LayerMask groundLayerMask;
 
@@ -144,6 +148,10 @@ public class GameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
+
+    public static void ShakeLight() => OnCameraShakeLight?.Invoke();
+    public static void ShakeMedium() => OnCameraShakeMedium?.Invoke();
+    public static void ShakeHard() => OnCameraShakeHard?.Invoke();
 
     [Button(enabledMode: EButtonEnableMode.Playmode)]
     public static void ChooseRandomWater()

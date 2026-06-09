@@ -41,6 +41,8 @@ public class FakeFloorTrap_v2 : TrapBase
         float safeBreakDuration = Mathf.Min(vibrationDuration, totalDuration);
         float interval = Mathf.Max(totalDuration - safeBreakDuration, 0f);
 
+        GameManager.ShakeMedium();
+        
         Sequence seq = DOTween.Sequence();
         if (interval > 0f)
             seq.AppendInterval(interval);

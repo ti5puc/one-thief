@@ -11,8 +11,16 @@ public class WheelTrap : TrapBase
     [SerializeField] private float rollDistance = 5f;
     [SerializeField] private Ease rollEase = Ease.InOutSine;
 
+    [Header("Proximity Shake")]
+    [SerializeField] private float shakeMediumDistance = 3f;
+    [SerializeField] private float shakeLightDistance = 6f;
+    [SerializeField] private float shakeMediumCooldown = 0.8f;
+    [SerializeField] private float shakeLightCooldown = 1.2f;
+
     private bool rollingForward = true;
     private bool isRolling = false;
+    private Transform _playerTransform;
+    private float _shakeCooldownTimer;
 
     protected override void Awake()
     {
@@ -31,17 +39,44 @@ public class WheelTrap : TrapBase
         if (!isRolling)
             isRolling = true;
 
-        if (!isRolling) return;
         if (GameManager.CurrentGameState == GameState.Building) return;
         if (GameManager.IsGamePaused) return;
 
         Vector3 moveDir = rollingForward ? Vector3.left : Vector3.right;
-        wheelObject.transform.localPosition += moveDir * rollSpeed * Time.fixedDeltaTime;
-        wheelTriggerObject.transform.localPosition += moveDir * rollSpeed * Time.fixedDeltaTime;
+        wheelObject.transform.localPosition += moveDir * rollSpeed * Time.deltaTime;
+        wheelTriggerObject.transform.localPosition += moveDir * rollSpeed * Time.deltaTime;
 
-        float rotationAmount = (rollSpeed / 1f) * 360f * Time.fixedDeltaTime / (2f * Mathf.PI);
+        float rotationAmount = (rollSpeed / 1f) * 360f * Time.deltaTime / (2f * Mathf.PI);
         wheelObject.transform.Rotate(-Vector3.forward, rotationAmount * (rollingForward ? 1f : -1f), Space.Self);
         wheelTriggerObject.transform.Rotate(-Vector3.forward, rotationAmount * (rollingForward ? 1f : -1f), Space.Self);
+
+        TryProximityShake();
+    }
+
+    private void TryProximityShake()
+    {
+        _shakeCooldownTimer -= Time.deltaTime;
+        if (_shakeCooldownTimer > 0f) return;
+
+        if (_playerTransform == null)
+        {
+            var playerObj = GameObject.FindWithTag(GameManager.PlayerTag);
+            if (playerObj == null) return;
+            _playerTransform = playerObj.transform;
+        }
+
+        float dist = Vector3.Distance(wheelObject.transform.position, _playerTransform.position);
+
+        if (dist <= shakeMediumDistance)
+        {
+            GameManager.ShakeMedium();
+            _shakeCooldownTimer = shakeMediumCooldown;
+        }
+        else if (dist <= shakeLightDistance)
+        {
+            GameManager.ShakeLight();
+            _shakeCooldownTimer = shakeLightCooldown;
+        }
     }
 
     private void HandleReturnOnHit(Collider other)

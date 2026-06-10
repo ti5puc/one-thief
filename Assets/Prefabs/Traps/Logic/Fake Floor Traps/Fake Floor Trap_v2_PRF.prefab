@@ -713,6 +713,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   triggerEventSender: {fileID: 237154411931337837}
+  resetsPlayerPosition: 1
+  hasCustomDeathCam: 1
+  customCameraDeathRotationX: 65
+  customCameraDeathOffsetY: 4
+  customCameraDeathOffsetZ: -4
+  deathVfxOffset: -4.2
 --- !u!1 &7092393213152170959
 GameObject:
   m_ObjectHideFlags: 0
@@ -1051,9 +1057,5 @@ MonoBehaviour:
   vibrationStrength: 0.2
   vibrationFrequency: 30
   vibrationRotation: {x: 8, y: 8, z: 8}
-  customCameraDeathRotationX: 65
-  customCameraDeathOffsetY: 4
-  customCameraDeathOffsetZ: -4
-  deathVfxOffset: -4.2
   trapAudioSource: {fileID: 3088973354948333956}
   deathTrigger: {fileID: 7937924146467941504}

@@ -418,8 +418,6 @@ public class PropsSpawner : MonoBehaviour
 
     // ── Wall spawning ─────────────────────────────────────────────────────────
 
-    private static readonly Vector3[] CardinalDirs = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
-
     private void SpawnWalls(bool[,] floorCells)
     {
         int floorMask = ToLayerMask(floorProps.detectionLayer);
@@ -441,18 +439,29 @@ public class PropsSpawner : MonoBehaviour
 
                 Vector3 checkOrigin = new(center.x, floorHit.point.y + wallCheckHeightOffset, center.z);
 
-                foreach (var dir in CardinalDirs)
+                foreach (var (dir, dr, dc) in CardinalWithDelta)
                 {
+                    // Only probe toward non-floor neighbors — avoids hitting internal walls
+                    // shared between two floor cells or walls far across the room.
+                    if (CellHasFloor(floorCells, r + dr, c + dc)) continue;
+
                     if (!Physics.Raycast(checkOrigin, dir, out RaycastHit wallHit, wallCheckDistance, wallMask))
                         continue;
 
-                    // Reject angled / perpendicular hits (e.g. through a gap) — the wall
-                    // must actually face back along our probe. This keeps brick-mesh
-                    // normal noise from tilting the prop.
+                    // Wall must be within cellSize of the probe (cell center to wall boundary
+                    // is cellSize*0.5; this gives one extra cell of margin for thick walls).
+                    if (wallHit.distance > cellSize) continue;
+
+                    // Reject angled / perpendicular hits (e.g. through a gap).
                     if (Vector3.Dot(-wallHit.normal, dir) < wallNormalTolerance) continue;
 
-                    // Rotation snapped to the cardinal probe direction, never the noisy
-                    // mesh normal, so every prop on a wall faces identically outward.
+                    // Reject walls that have no floor below them (e.g. outer boundary walls
+                    // above lava or voids) — only keep walls that border walkable floor.
+                    Vector3 aboveHit = new(wallHit.point.x, checkOrigin.y + floorProps.raycastOriginHeight, wallHit.point.z);
+                    if (!Physics.Raycast(aboveHit, Vector3.down, floorProps.raycastDistance + floorProps.raycastOriginHeight, floorMask))
+                        continue;
+
+                    // Rotation snapped to the cardinal probe direction, never the noisy mesh normal.
                     var rot = Quaternion.LookRotation(-dir, Vector3.up);
                     candidates.Add((wallHit.point, rot));
                 }
@@ -514,9 +523,8 @@ public class PropsSpawner : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         if (!drawGizmos) return;
-        if (Application.isPlaying) return; // rely on actual spawned props for an accurate view
 
-        Transform root = previewLayoutRoot != null ? previewLayoutRoot : transform.parent;
+        Transform root = Application.isPlaying ? activeLayoutRoot : previewLayoutRoot != null ? previewLayoutRoot : transform.parent;
         activeLayoutRoot = root;
         if (!ResolveGrid(root)) return;
 
@@ -575,11 +583,16 @@ public class PropsSpawner : MonoBehaviour
                         continue;
 
                     Vector3 checkOrigin = new(center.x, floorHit.point.y + wallCheckHeightOffset, center.z);
-                    foreach (var dir in CardinalDirs)
+                    foreach (var (dir, dr, dc) in CardinalWithDelta)
                     {
+                        if (CellHasFloor(floorCells, r + dr, c + dc)) continue;
                         if (!Physics.Raycast(checkOrigin, dir, out RaycastHit wallHit, wallCheckDistance, wallMask))
                             continue;
+                        if (wallHit.distance > cellSize) continue;
                         if (Vector3.Dot(-wallHit.normal, dir) < wallNormalTolerance) continue;
+                        Vector3 aboveHit = new(wallHit.point.x, checkOrigin.y + floorProps.raycastOriginHeight, wallHit.point.z);
+                        if (!Physics.Raycast(aboveHit, Vector3.down, floorProps.raycastDistance + floorProps.raycastOriginHeight, floorMask))
+                            continue;
 
                         Gizmos.color = Color.yellow;
                         Gizmos.DrawLine(checkOrigin, wallHit.point);

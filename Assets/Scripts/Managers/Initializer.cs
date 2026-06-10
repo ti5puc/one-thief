@@ -31,7 +31,9 @@ public class Initializer : MonoBehaviour
 
         if (layoutOnScene != null && layouts.Length > 0)
         {
-            Destroy(layoutOnScene);
+            // DestroyImmediate removes colliders from the physics scene immediately,
+            // preventing the old layout from interfering with Spawn raycasts.
+            DestroyImmediate(layoutOnScene);
 
             int layoutIndex = GameManager.NextLayoutIndex;
             layoutOnScene = Instantiate(layouts[layoutIndex]);
@@ -44,6 +46,8 @@ public class Initializer : MonoBehaviour
         Debug.Log("[Initializer] Layout initialized.");
 
         GameManager.ChooseRandomWater();
+        // SyncTransforms ensures all new colliders are registered before raycasting.
+        Physics.SyncTransforms();
         GameManager.PropsSpawner.Spawn(layoutOnScene.transform);
     }
 
@@ -63,6 +67,7 @@ public class Initializer : MonoBehaviour
         }
 
         GameManager.ChooseRandomWater();
+        Physics.SyncTransforms();
         GameManager.PropsSpawner.Spawn(layoutOnScene.transform);
         OnLayoutSet?.Invoke();
     }

@@ -67,7 +67,7 @@ Material:
     - _ShoreDepth: 0
     - _ShoreFade: 0
     - _SurfaceFoamBlend: 1
-    - _WaterColorDepth: 0.6
+    - _WaterColorDepth: 1
     - _WaterColorHorizonDistance: 20
     m_Colors:
     - _IntersectionFoamColor: {r: 0.7264151, g: 0.39404595, b: 0.39740393, a: 1}

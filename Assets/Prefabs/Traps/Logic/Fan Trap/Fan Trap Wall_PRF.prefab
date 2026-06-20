@@ -433,7 +433,7 @@ MonoBehaviour:
   actionTrigger: {fileID: 93293147289522461}
   hitTrigger: {fileID: 3678927901216159617}
   isVerticalFan: 0
-  pushForce: 0.3
+  pushForce: 3
   pushVerticalForce: 0
   pushInterval: 0
   maxWindDistance: 15

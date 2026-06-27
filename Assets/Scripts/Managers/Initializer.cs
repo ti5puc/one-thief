@@ -45,7 +45,8 @@ public class Initializer : MonoBehaviour
         hasInitialized = true;
         Debug.Log("[Initializer] Layout initialized.");
 
-        GameManager.ChooseRandomWater();
+        if (!GameManager.IsResettingLevel)
+            GameManager.ChooseRandomWater();
         // SyncTransforms ensures all new colliders are registered before raycasting.
         Physics.SyncTransforms();
         GameManager.PropsSpawner.Spawn(layoutOnScene.transform);
@@ -66,9 +67,11 @@ public class Initializer : MonoBehaviour
                 ground.ResetTransform();
         }
 
-        GameManager.ChooseRandomWater();
+        if (!GameManager.IsResettingLevel)
+            GameManager.ChooseRandomWater();
         Physics.SyncTransforms();
         GameManager.PropsSpawner.Spawn(layoutOnScene.transform);
+        GameManager.IsResettingLevel = false;
         OnLayoutSet?.Invoke();
     }
 }

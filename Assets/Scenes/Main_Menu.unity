@@ -2857,8 +2857,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 823.37, y: -289.19}
-  m_SizeDelta: {x: 1646.74, y: 578.38}
+  m_AnchoredPosition: {x: 823.37, y: -268.49}
+  m_SizeDelta: {x: 1646.74, y: 536.98}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1010849107
 MonoBehaviour:
@@ -2891,7 +2891,7 @@ MonoBehaviour:
     para <b>publicar seu mapa</b>, voc\xEA precisar\xE1 depositar <color=#FFD700><b>ouro</b></color>
     nele colocando ba\xFAs e realizar um <b>teste de valida\xE7\xE3o</b> atrav\xE9s
     do menu de pausa (<b>ESC</b>). Durante o teste, <b>colete todos os ba\xFAs</b>
-    que voc\xEA posicionou. Ao coletar e interagir com o portal da <b>sa\xEDda</br>,
+    que voc\xEA posicionou. Ao coletar e interagir com o portal da <b>sa\xEDda</b>,
     uma janela aparecer\xE1 para voc\xEA <b>nomear e enviar</b> sua fase."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5021,7 +5021,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.000030517578}
-  m_SizeDelta: {x: 0, y: 578.38}
+  m_SizeDelta: {x: 0, y: 536.98}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2007153492
 MonoBehaviour:

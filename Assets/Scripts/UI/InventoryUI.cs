@@ -29,6 +29,8 @@ public class InventoryUI : MonoBehaviour
         PlayerInventory.OnGoldToGainChanged += OnGoldToGainChanged;
         PlayerInventory.OnGoldToRemoveChanged += OnGoldToRemoveChanged;
         PlayerInventory.OnGoldChanged += OnGoldChanged;
+        
+        PlayerDeathIdentifier.OnPlayerDied += HideInteractionHint;
 
         HideInteractionHint();
     }
@@ -50,6 +52,8 @@ public class InventoryUI : MonoBehaviour
         PlayerInventory.OnGoldToGainChanged -= OnGoldToGainChanged;
         PlayerInventory.OnGoldToRemoveChanged -= OnGoldToRemoveChanged;
         PlayerInventory.OnGoldChanged -= OnGoldChanged;
+        
+        PlayerDeathIdentifier.OnPlayerDied -= HideInteractionHint;
     }
 
     private void Start()
@@ -68,6 +72,7 @@ public class InventoryUI : MonoBehaviour
     private void ShowInteractionHint()
     {
         if (GameManager.CurrentGameState == GameState.Building) return;
+        if (GameManager.IsPlayerDead) return;
 
         bool isExploring = GameManager.CurrentGameState == GameState.Exploring;
         interactionHintText.text = isExploring ? "Aperte 'E' para interagir" : "(Desabilitado) Aperte 'E' para interagir";

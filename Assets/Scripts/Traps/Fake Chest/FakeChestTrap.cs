@@ -49,7 +49,8 @@ public class FakeChestTrap : TrapBase
         // Only Exit needs to be registered here; TrapBase.Awake already handles Enter/Stay via virtual dispatch
         actionTrigger.OnExit += OnActionTriggerExit;
 
-        fakeGoldAmount = UnityEngine.Random.Range(SaveSystem.NextLevelTotalGold / 4, SaveSystem.NextLevelTotalGold);
+        int totalGold = Mathf.Max(SaveSystem.NextLevelTotalGold, 130);
+        fakeGoldAmount = Mathf.Max(UnityEngine.Random.Range(totalGold / 4, totalGold), 130);
     }
 
     protected override void OnDestroy()

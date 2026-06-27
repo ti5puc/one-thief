@@ -92,7 +92,16 @@ public class PropsSpawner : MonoBehaviour
     {
         Clear();
 
-        if (useRandomSeed) seed = Random.Range(int.MinValue, int.MaxValue);
+        if (useRandomSeed)
+        {
+            if (GameManager.IsResettingLevel)
+                seed = GameManager.SavedPropsSeed;
+            else
+            {
+                seed = Random.Range(int.MinValue, int.MaxValue);
+                GameManager.SavedPropsSeed = seed;
+            }
+        }
         Random.InitState(seed);
 
         if (layoutRoot != null)

@@ -516,26 +516,28 @@ public class Player : MonoBehaviour
         }
 
 
-        float speed = GameManager.IsGamePaused || isTrapSelectionActive ? 0 : moveSpeed;
-        OnMoveChanged?.Invoke(_moveDirection.sqrMagnitude > 0.0001f, isSprinting);
+        bool isPausedOrInMenu = GameManager.IsGamePaused || isTrapSelectionActive;
+        float speed = isPausedOrInMenu ? 0 : moveSpeed;
+        Vector2 effectiveMoveDir = isPausedOrInMenu ? Vector2.zero : moveInput.action.ReadValue<Vector2>();
+        OnMoveChanged?.Invoke(effectiveMoveDir.sqrMagnitude > 0.0001f, isSprinting);
 
         if (isCrouching)
         {
             isSprinting = false;
             speed *= crouchSpeedMultiplier;
         }
-        else if (isSprinting && _moveDirection.sqrMagnitude > 0.0001f)
+        else if (isSprinting && effectiveMoveDir.sqrMagnitude > 0.0001f)
         {
             speed *= sprintMultiplier;
         }
 
-        Vector3 moveDirection = transform.TransformDirection(new Vector3(_moveDirection.x, 0f, _moveDirection.y));
+        Vector3 moveDirection = transform.TransformDirection(new Vector3(effectiveMoveDir.x, 0f, effectiveMoveDir.y));
         if (moveDirection.sqrMagnitude > 1f) moveDirection.Normalize();
         float yVel = rb.linearVelocity.y;
         rb.linearVelocity = moveDirection * speed + Vector3.up * yVel;
 
         if (enableSprintVfx)
-            sprintVfx.SetActive(isSprinting && _moveDirection.sqrMagnitude > 0.0001f && speed != 0 && (_moveDirection == Vector2.up || _moveDirection == -1 * Vector2.up));
+            sprintVfx.SetActive(isSprinting && effectiveMoveDir.sqrMagnitude > 0.0001f && speed != 0 && (effectiveMoveDir == Vector2.up || effectiveMoveDir == -1 * Vector2.up));
     }
 
     void GroundCheck()

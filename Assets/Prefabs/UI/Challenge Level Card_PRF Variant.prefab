@@ -142,7 +142,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1201343066352337032, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
       propertyPath: m_fontSize
-      value: 27
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 1698419114500843152, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
       propertyPath: m_AnchorMax.y
@@ -266,7 +266,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2435935527880217083, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
       propertyPath: m_fontSize
-      value: 22.8
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 2830948141598188366, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
       propertyPath: m_AnchorMax.y
@@ -366,11 +366,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4740114357079576809, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
       propertyPath: m_fontSize
-      value: 36
+      value: 26.8
       objectReference: {fileID: 0}
     - target: {fileID: 4841990393989306163, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
       propertyPath: m_fontSize
-      value: 27
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 6797368627028969259, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
       propertyPath: m_AnchorMax.y
@@ -474,7 +474,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8857080198414659818, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
       propertyPath: m_fontSize
-      value: 22.8
+      value: 18
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4191986169793216226, guid: e70b8750070a44546b78dc4be8e3fc4d, type: 3}
@@ -588,6 +588,13 @@ MonoBehaviour:
   layoutImage: {fileID: 7597456927914174194}
   layoutSprites:
   - {fileID: 383748200, guid: 68186aa35a4a29b4a8f4774885cb223b, type: 3}
-  - {fileID: -1084707418, guid: 163b7a5a2098f9946a85efd965f18b67, type: 3}
-  - {fileID: -1587856063, guid: f6a70a228c8b581429d3719b3e29db74, type: 3}
+  - {fileID: 21300000, guid: 163b7a5a2098f9946a85efd965f18b67, type: 3}
+  - {fileID: 21300000, guid: f6a70a228c8b581429d3719b3e29db74, type: 3}
+  - {fileID: 21300000, guid: d14e546a402ea864ea63b91814c519b4, type: 3}
+  - {fileID: 21300000, guid: 09501f699b35a0244ad4e3c653c2d66d, type: 3}
+  - {fileID: 21300000, guid: 5c63ceadd210118419e124d781817b6a, type: 3}
+  - {fileID: 21300000, guid: dcfdf574d2036b648bf82070f243edbc, type: 3}
+  - {fileID: 21300000, guid: a392effd961f75940be199c8524fb4d7, type: 3}
+  - {fileID: 21300000, guid: c7a23a72d4e6184478b113652ea93e78, type: 3}
+  - {fileID: 21300000, guid: 44687dcf0a587d14d8a10cbfef6847af, type: 3}
   playButton: {fileID: 9036825974857348309}

@@ -166,6 +166,7 @@ public class PauseMenuUI : MonoBehaviour
     private void ResetScene()
     {
         GameManager.Resume();
+        GameManager.IsResettingLevel = true;
 
         if (GameManager.IsTestingToSubmit)
         {

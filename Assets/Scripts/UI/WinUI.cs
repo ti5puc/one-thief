@@ -83,6 +83,9 @@ public class WinUI : MonoBehaviour
 
     private void TryShow()
     {
+        if (GameManager.IsPlayerDead)
+            return;
+        
         if (GameManager.CurrentGameState == GameState.Exploring && GameManager.IsTestingToSubmit == false)
             ShowCollectAll();
         else

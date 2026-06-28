@@ -199,7 +199,8 @@ public class PauseMenuUI : MonoBehaviour
         PlayerInventory.Instance.ClearGoldCache();
         GameManager.IsTestingToSubmit = false;
         GameManager.IsPlayerDead = false;
-        
+
+        SoundManager.CrossfadeToMenu();
         GameManager.Resume();
         SceneManager.LoadSceneAsync("Main_Menu");
     }

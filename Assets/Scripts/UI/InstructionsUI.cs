@@ -60,20 +60,13 @@ public class InstructionsUI : MonoBehaviour
 
     private void ApplyFirstTimeVisibility()
     {
-        if (GameManager.ShowFirstTimeInstructionsOnThisSession)
-        {
-            GameManager.ShowFirstTimeInstructionsOnThisSession = false;
-            // already visible by default, nothing to do
-        }
-        else
-        {
+        if (!GameManager.ShowFirstTimeInstructionsOnThisSession && !GameManager.InstructionsVisible)
             HideImmediate();
-        }
     }
 
     private void CheckInstructionsVisibility()
     {
-        if (!GameManager.ShowFirstTimeInstructionsOnThisSession)
+        if (!GameManager.ShowFirstTimeInstructionsOnThisSession && !GameManager.InstructionsVisible)
             HideImmediate();
     }
 
@@ -99,7 +92,9 @@ public class InstructionsUI : MonoBehaviour
 
     private void ToggleInstructions()
     {
+        GameManager.ShowFirstTimeInstructionsOnThisSession = false;
         isShowing = !isShowing;
+        GameManager.InstructionsVisible = isShowing;
         toggleInstructionsButtonText.text = isShowing ? "<" : ">";
 
         instructionsPanel.DOKill();

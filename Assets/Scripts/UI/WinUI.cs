@@ -259,11 +259,12 @@ public class WinUI : MonoBehaviour
         }
         
         Hide();
-        
+
         GameManager.Resume();
-        
+
         GameManager.ShowCursor();
-        
+
+        SoundManager.CrossfadeToMenu();
         SceneManager.LoadSceneAsync("Challenge_Menu");
     }
     

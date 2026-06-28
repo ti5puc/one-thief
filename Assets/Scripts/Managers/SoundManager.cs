@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public enum SoundType
 {
@@ -54,16 +56,24 @@ public class SoundManager : MonoBehaviour
         musicMaxVolume = musicSourceA.volume;
 
         PlayerSave.OnLevelLoaded += OnLevelLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDestroy()
     {
         PlayerSave.OnLevelLoaded -= OnLevelLoaded;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RegisterButtonSounds();
     }
 
     private void Start()
     {
         PlayMusic(MusicTrack.Menu);
+        RegisterButtonSounds();
     }
 
     private void OnLevelLoaded()
@@ -83,11 +93,19 @@ public class SoundManager : MonoBehaviour
         return Instance.soundList[(int)sound];
     }
 
-    private void Update()
+    public static void RegisterButtonSounds()
     {
-        if (Input.GetMouseButtonDown(0) && GameManager.CurrentGameState != GameState.Exploring)
-            PlaySound(SoundType.CLICK);
+        foreach (Button btn in FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            RegisterButton(btn);
     }
+
+    public static void RegisterButton(Button btn)
+    {
+        btn.onClick.RemoveListener(OnButtonClick);
+        btn.onClick.AddListener(OnButtonClick);
+    }
+
+    private static void OnButtonClick() => PlaySound(SoundType.CLICK);
 
     private void PlayMusic(MusicTrack track)
     {
